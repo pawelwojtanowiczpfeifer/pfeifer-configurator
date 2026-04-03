@@ -2,14 +2,16 @@ export type ButtonProps = {
   children: React.ReactNode;
   onClick?: () => void;
   variant?: "primary" | "secondary" | "outline";
+  size?: "small" | "medium";
 };
 
-export default function Button({
+export default function MyButton({
   children,
   onClick,
   variant = "primary",
+  size = "medium",
 }: ButtonProps) {
-  const base = "rounded-lg px-5 py-1 font-medium transition";
+  const base = "rounded-lg font-medium transition";
 
   const variants = {
     primary: "bg-blue-600 text-white hover:bg-blue-700",
@@ -17,8 +19,16 @@ export default function Button({
     outline: "border border-blue-600 text-blue-600 hover:bg-blue-50",
   };
 
+  const sizes = {
+    small: "text-sm px-5 py-1",
+    medium: "text-base px-5 py-1",
+  };
+
   return (
-    <button onClick={onClick} className={`${base} ${variants[variant]}`}>
+    <button
+      onClick={onClick}
+      className={`${base} ${variants[variant]} ${sizes[size]}`}
+    >
       {children}
     </button>
   );

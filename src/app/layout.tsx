@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "PFEIFER Configurator",
-  description: "Konfigurator i obliczenia konstrukcyjne dla produktow PFEIFER.",
+  description: "Configurator and structural calculations for PFEIFER products.",
   icons: {
     icon: "/icon.png",
     shortcut: "/icon.png",
@@ -35,3 +35,4 @@ export default function RootLayout({
     </html>
   );
 }
+

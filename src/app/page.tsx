@@ -1,30 +1,37 @@
 import Link from "next/link";
-import Button from "./components/ui/Button";
-import LanguageSwitcher from "./components/ui/LanguageSwitcher";
-import { getLocale, getMessages } from "@/messages";
+import MyButton from "./components/ui/MyButton";
+import Image from "next/image";
 
-type HomePageProps = {
-  searchParams: Promise<{ lang?: string | string[] }>;
-};
-
-export default async function Home({ searchParams }: HomePageProps) {
-  const { lang } = await searchParams;
-  const locale = getLocale(lang);
-  const messages = getMessages(locale);
-
+export default function Home() {
   return (
     <main className="space-y-6 p-10">
-      <div className="flex items-center justify-between gap-4">
-        <LanguageSwitcher currentLocale={locale} pathname="/" />
+      <div className="space-y-2 py-5">
+        <Image
+          src="/logo/logo-pfeifer-studio-large.svg"
+          alt="Logo"
+          width={240}
+          height={80}
+          className="object-contain"
+        />
+      </div>
+      <header className="space-y-2 py-5">
+        <h1 className="text-2xl font-bold">Home Page</h1>
+      </header>
+      <div>
+        <Link href="/ui">
+          <MyButton variant="primary" size="medium">
+            Go to UI Playground
+          </MyButton>
+        </Link>
       </div>
 
-      <Link href={{ pathname: "/ui", query: { lang: locale } }}>
-        <Button>{messages.home.goToUiPlayground}</Button>
-      </Link>
-
-      <header className="space-y-2 py-5">
-        <h1 className="text-2xl font-bold">{messages.home.title}</h1>
-      </header>
+      <div>
+        <Link href="/ui/login">
+          <MyButton variant="primary" size="medium">
+            Go to Login Page
+          </MyButton>
+        </Link>
+      </div>
     </main>
   );
 }

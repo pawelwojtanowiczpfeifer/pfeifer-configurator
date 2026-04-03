@@ -23,3 +23,35 @@ body {
   background: var(--background);
   color: var(--foreground);
 }
+
+.my-label {
+  display: block;
+  transition: color 150ms ease;
+}
+
+.my-label--default {
+  color: #18181b;
+}
+
+.my-label--muted {
+  color: #71717a;
+}
+
+.my-label--error {
+  color: #b91c1c;
+}
+
+.my-label--small {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.my-label--medium {
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.my-label--large {
+  font-size: 1.125rem;
+  font-weight: 700;
+}
