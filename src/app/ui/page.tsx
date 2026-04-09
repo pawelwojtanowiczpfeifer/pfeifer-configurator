@@ -15,7 +15,9 @@ import MySelect from "../components/ui/MySelect";
 import MySidebar from "../components/ui/MySidebar";
 import MySummaryRow from "../components/ui/MySummaryRow";
 import MyTextarea from "../components/ui/MyTextarea";
+import MyUserAvatar from "../components/ui/MyUserAvatar";
 import Image from "next/image";
+import { HEADER_COLORS } from "../components/ui/headerColors";
 
 export default function UIPage() {
   const selectOptions = [
@@ -26,10 +28,10 @@ export default function UIPage() {
   ];
 
   return (
-    <main className="space-y-6 p-10">
+    <main className="space-y-3 p-3">
       <div className="space-y-2 py-5">
         <Image
-          src="/logo/logo-pfeifer-studio-large.svg"
+          src="/logo/logo-pfeifer-studio-blue-large.svg"
           alt="Logo"
           width={240}
           height={80}
@@ -320,14 +322,45 @@ export default function UIPage() {
       <MyDivider />
 
       <MyLabel variant="default" size="large">
+        User Avatar
+      </MyLabel>
+
+      <div className="max-w-2xl">
+        <MyCard>
+          <MyRow gap="large" align="center" justify="start">
+            <MyUserAvatar name="Pawel" size="sm" backgroundColor="pfeifer" />
+            <MyUserAvatar name="Pawel" size="md" backgroundColor="natur" />
+            <MyUserAvatar name="Pawel" size="lg" backgroundColor="akzentblau" />
+            <MyUserAvatar name="" size="md" backgroundColor="black" />
+            <MyUserAvatar
+              name="Anna"
+              size="md"
+              backgroundColor="white"
+              className="border border-zinc-300"
+            />
+          </MyRow>
+        </MyCard>
+      </div>
+
+      <MyDivider />
+
+      <MyLabel variant="default" size="large">
         Header
       </MyLabel>
 
       <div className="max-w-3xl">
         <MyHeader
-          title="Configurator Header"
-          description="A light page header with supporting description and actions."
-          actions={
+          color="white"
+          backgroundColor="pfeifer"
+          leftContent={
+            <div className="space-y-1">
+              <h2 className="text-lg font-semibold">Configurator Header</h2>
+              <p className="text-sm">
+                A light page header with supporting description and actions.
+              </p>
+            </div>
+          }
+          rightContent={
             <MyRow gap="small">
               <MyButton variant="outline" size="small">
                 Back
@@ -364,9 +397,18 @@ export default function UIPage() {
         <MyPageLayout
           header={
             <MyHeader
-              title="Product Configurator"
-              description="Simple page layout with header, sidebar and main content."
-              actions={
+              backgroundColor="natur"
+              leftContent={
+                <div className="space-y-1">
+                  <h2 className="text-lg font-semibold">
+                    Product Configurator
+                  </h2>
+                  <p className="text-sm">
+                    Simple page layout with header, sidebar and main content.
+                  </p>
+                </div>
+              }
+              rightContent={
                 <MyButton variant="primary" size="small">
                   Save Configuration
                 </MyButton>
@@ -413,6 +455,32 @@ export default function UIPage() {
           </div>
         </MyPageLayout>
       </MyCard>
+
+      <MyDivider />
+
+      <MyLabel variant="default" size="large">
+        Header Colors
+      </MyLabel>
+
+      <div className="grid max-w-5xl gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {Object.entries(HEADER_COLORS).map(([key, color]) => (
+          <MyCard key={key} className="space-y-3">
+            <MyHeader
+              color={key as keyof typeof HEADER_COLORS}
+              backgroundColor={key as keyof typeof HEADER_COLORS}
+              leftContent={
+                <div className="space-y-1">
+                  <h2 className="text-lg font-semibold">{color.name}</h2>
+                  <p className="text-sm">
+                    {`Uzycie: color="${key}" | backgroundColor="${key}"`}
+                  </p>
+                </div>
+              }
+            />
+            <p className="text-sm text-zinc-600">{color.hex}</p>
+          </MyCard>
+        ))}
+      </div>
 
       <MyDivider />
     </main>

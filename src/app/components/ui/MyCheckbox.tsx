@@ -16,7 +16,7 @@ export default function MyCheckbox({
     <label className={`flex items-start gap-3 ${className}`}>
       <input
         type="checkbox"
-        className="mt-0.5 h-4 w-4 rounded border-zinc-300 text-blue-600 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:opacity-60"
+        className="mt-0.5 h-4 w-4 rounded-md border-zinc-300 text-blue-600 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:opacity-60"
         {...props}
       />
 

@@ -1,29 +1,49 @@
 import React from "react";
-import MyLabel from "./MyLabel";
 import MyRow from "./MyRow";
+import { HEADER_COLORS, type HeaderColorName } from "./headerColors";
 
 export type HeaderProps = {
-  title: string;
-  description?: string;
-  actions?: React.ReactNode;
+  leftContent?: React.ReactNode;
+  rightContent?: React.ReactNode;
   className?: string;
+  color?: HeaderColorName;
+  backgroundColor?: HeaderColorName;
+  align?: "start" | "center" | "end";
 };
 
 export default function MyHeader({
-  title,
-  description,
-  actions,
+  leftContent,
+  rightContent,
   className = "",
+  color,
+  backgroundColor,
+  align = "center",
 }: HeaderProps) {
-  return (
-    <div className={`space-y-3 ${className}`}>
-      <MyRow align="start" justify="between" className="gap-4">
-        <div className="space-y-1">
-          <MyLabel size="large">{title}</MyLabel>
-          {description && <p className="text-sm text-zinc-600">{description}</p>}
-        </div>
+  const selectedBackgroundColor = backgroundColor
+    ? HEADER_COLORS[backgroundColor].hex
+    : undefined;
+  const selectedTextColor = color
+    ? HEADER_COLORS[color].hex
+    : backgroundColor
+      ? HEADER_COLORS[backgroundColor].contrastTextHex
+      : undefined;
+  const justify = leftContent && rightContent ? "between" : "start";
 
-        {actions && <div className="shrink-0">{actions}</div>}
+  return (
+    <div
+      className={`space-y-3 ${backgroundColor ? "rounded-md px-5 py-4" : ""} ${className}`}
+      style={
+        selectedBackgroundColor || selectedTextColor
+          ? {
+              backgroundColor: selectedBackgroundColor,
+              color: selectedTextColor,
+            }
+          : undefined
+      }
+    >
+      <MyRow align={align} justify={justify} className="gap-4">
+        {leftContent && <div className="min-w-0">{leftContent}</div>}
+        {rightContent && <div className="shrink-0">{rightContent}</div>}
       </MyRow>
     </div>
   );

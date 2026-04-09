@@ -10,7 +10,7 @@ export default function MyCard({
   className = "",
   ...props
 }: CardProps) {
-  const base = "rounded-lg border border-zinc-300 bg-white p-4";
+  const base = "rounded-md border border-zinc-300 bg-white p-4";
 
   return (
     <div className={`${base} ${className}`} {...props}>

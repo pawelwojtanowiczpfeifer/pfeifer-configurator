@@ -11,7 +11,7 @@ export default function MyButton({
   variant = "primary",
   size = "medium",
 }: ButtonProps) {
-  const base = "rounded-lg font-medium transition";
+  const base = "rounded-md font-medium transition";
 
   const variants = {
     primary: "bg-blue-600 text-white hover:bg-blue-700",
