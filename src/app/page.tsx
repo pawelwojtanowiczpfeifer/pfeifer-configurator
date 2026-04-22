@@ -36,7 +36,7 @@ export default function Home() {
       <div>
         <Link href="/ui/user">
           <MyButton variant="primary" size="medium">
-            Go to User Page
+            Go to User Test Page
           </MyButton>
         </Link>
       </div>

@@ -17,7 +17,15 @@ import MySummaryRow from "../components/ui/MySummaryRow";
 import MyTextarea from "../components/ui/MyTextarea";
 import MyUserAvatar from "../components/ui/MyUserAvatar";
 import Image from "next/image";
-import { HEADER_COLORS } from "../components/ui/headerColors";
+import { UI_COLORS } from "../components/ui/colorPalette";
+import MyHStack from "../components/ui/MyHStack";
+import MyVStack from "../components/ui/MyVStack";
+import MyTopbar from "../components/ui/MyTopbar";
+import MyBottombar from "../components/ui/MyBottombar";
+import DrawingCanvas from "../components/drawings/DrawingCanvas";
+import DrawingDimensionLine from "../components/drawings/DrawingDimensionLine";
+import DrawingLine from "../components/drawings/DrawingLine";
+import DrawingPolygon from "../components/drawings/DrawingPolygon";
 
 export default function UIPage() {
   const selectOptions = [
@@ -25,6 +33,12 @@ export default function UIPage() {
     { label: "Standard", value: "standard" },
     { label: "Premium", value: "premium" },
     { label: "Custom", value: "custom" },
+  ];
+
+  const stackAvatars = [
+    { name: "Pawel", backgroundColor: "pfeifer" as const },
+    { name: "Anna", backgroundColor: "natur" as const },
+    { name: "Marta", backgroundColor: "akzentblau" as const },
   ];
 
   return (
@@ -48,6 +62,163 @@ export default function UIPage() {
       </header>
 
       <MyDivider />
+
+      <MyLabel variant="default" size="large">
+        Drawings
+      </MyLabel>
+
+      <div className="grid max-w-5xl gap-4 md:grid-cols-2">
+        <MyCard className="space-y-4">
+          <MyLabel size="medium">Solid line</MyLabel>
+          <div className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50 p-4">
+            <DrawingLine
+              start={{ x: 12, y: 12 }}
+              end={{ x: 320, y: 12 }}
+              lineWidth="thin"
+              lineStyle="solid"
+              lineColor="#001871"
+              className="h-8 w-full"
+            />
+          </div>
+        </MyCard>
+
+        <MyCard className="space-y-4">
+          <MyLabel size="medium">Dashed line</MyLabel>
+          <div className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50 p-4">
+            <DrawingLine
+              start={{ x: 12, y: 18 }}
+              end={{ x: 320, y: 18 }}
+              lineWidth="medium"
+              lineStyle="dashed"
+              lineColor="#b7352f"
+              className="h-10 w-full"
+            />
+          </div>
+        </MyCard>
+
+        <MyCard className="space-y-4 md:col-span-2">
+          <MyLabel size="medium">Dash-dot line</MyLabel>
+          <div className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50 p-4">
+            <DrawingLine
+              start={{ x: 12, y: 24 }}
+              end={{ x: 420, y: 24 }}
+              lineWidth="medium"
+              lineStyle="dashDot"
+              lineColor="#111827"
+              className="h-12 w-full"
+            />
+          </div>
+        </MyCard>
+
+        <MyCard className="space-y-4 md:col-span-2">
+          <MyLabel size="medium">Technical dimension line</MyLabel>
+          <div className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50 p-4">
+            <DrawingCanvas
+              fit="content"
+              width="full"
+              p="md"
+              align="center"
+              justify="center"
+              className="h-44"
+              ariaLabel="Dimension line examples"
+            >
+              <DrawingLine
+                start={{ x: 40, y: 44 }}
+                end={{ x: 140, y: 44 }}
+                lineWidth="thin"
+              />
+              <DrawingLine
+                start={{ x: 40, y: 120 }}
+                end={{ x: 540, y: 120 }}
+                lineWidth="thin"
+              />
+              <DrawingDimensionLine
+                start={{ x: 40, y: 44 }}
+                end={{ x: 140, y: 44 }}
+                value={100}
+                symbol="g1"
+                dimensionLinePosition="above"
+                textSize="sm"
+                arrowSize="sm"
+              />
+              <DrawingDimensionLine
+                start={{ x: 40, y: 120 }}
+                end={{ x: 540, y: 120 }}
+                value={500}
+                symbol="S2"
+                dimensionLinePosition="below"
+                textSize="xl"
+                arrowSize="xl"
+              />
+            </DrawingCanvas>
+          </div>
+        </MyCard>
+
+        <MyCard className="space-y-4 md:col-span-2">
+          <MyLabel size="medium">
+            Polygon with mixed outline and hatch fill
+          </MyLabel>
+          <div className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50 p-4">
+            <DrawingPolygon
+              points={[
+                { x: 24, y: 28 },
+                { x: 220, y: 24 },
+                { x: 320, y: 96 },
+                { x: 250, y: 190 },
+                { x: 84, y: 182 },
+              ]}
+              edges={[
+                {
+                  lineWidth: "thin",
+                  lineStyle: "solid",
+                  lineColor: "#001871",
+                },
+                {
+                  lineWidth: "thick",
+                  lineStyle: "dashed",
+                  lineColor: "#b7352f",
+                },
+                {
+                  lineWidth: "medium",
+                  lineStyle: "dashDot",
+                  lineColor: "#111827",
+                },
+                {
+                  lineWidth: "thick",
+                  lineStyle: "solid",
+                  lineColor: "#4f7c2f",
+                },
+                {
+                  lineWidth: "thin",
+                  lineStyle: "dashed",
+                  lineColor: "#6b7280",
+                },
+              ]}
+              hatch={{
+                spacing: 10,
+                variant: "cross",
+                color: "#9ca3af",
+                lineWidth: 1,
+                backgroundColor: "#fffdf5",
+              }}
+              className="h-56 w-full"
+            />
+          </div>
+        </MyCard>
+      </div>
+
+      <MyDivider />
+
+      <MyHStack gap="md" align="end">
+        {stackAvatars.map((avatar) => (
+          <MyUserAvatar
+            key={avatar.name}
+            name={avatar.name}
+            size="md"
+            backgroundColor={avatar.backgroundColor}
+          />
+        ))}
+      </MyHStack>
 
       <MyLabel variant="default" size="large">
         Labels
@@ -322,6 +493,214 @@ export default function UIPage() {
       <MyDivider />
 
       <MyLabel variant="default" size="large">
+        HStack / VStack
+      </MyLabel>
+
+      <div className="grid max-w-6xl gap-4 lg:grid-cols-2">
+        <MyCard className="space-y-4">
+          <MyLabel size="medium">HStack: default</MyLabel>
+          <MyHStack className="rounded-lg border border-dashed border-zinc-300 bg-zinc-50">
+            {stackAvatars.map((avatar) => (
+              <MyUserAvatar
+                key={`h-default-${avatar.name}`}
+                name={avatar.name}
+                size="lg"
+                backgroundColor={avatar.backgroundColor}
+              />
+            ))}
+          </MyHStack>
+        </MyCard>
+
+        <MyCard className="space-y-4">
+          <MyLabel size="medium">HStack: larger gap</MyLabel>
+          <MyHStack
+            gap="xl"
+            p="md"
+            className="rounded-lg border border-dashed border-zinc-300 bg-zinc-50"
+          >
+            {stackAvatars.map((avatar) => (
+              <MyUserAvatar
+                key={`h-gap-${avatar.name}`}
+                name={avatar.name}
+                size="lg"
+                backgroundColor={avatar.backgroundColor}
+              />
+            ))}
+          </MyHStack>
+        </MyCard>
+
+        <MyCard className="space-y-4">
+          <MyLabel size="medium">HStack: justify between</MyLabel>
+          <MyHStack
+            justify="between"
+            align="center"
+            width="full"
+            p="md"
+            className="rounded-lg border border-dashed border-zinc-300 bg-zinc-50"
+          >
+            {stackAvatars.map((avatar) => (
+              <MyUserAvatar
+                key={`h-between-${avatar.name}`}
+                name={avatar.name}
+                size="lg"
+                backgroundColor={avatar.backgroundColor}
+              />
+            ))}
+          </MyHStack>
+        </MyCard>
+
+        <MyCard className="space-y-4">
+          <MyLabel size="medium">HStack: align end</MyLabel>
+          <MyHStack
+            align="end"
+            gap="md"
+            p="md"
+            className="min-h-28 rounded-lg border border-dashed border-zinc-300 bg-zinc-50"
+          >
+            <MyUserAvatar name="Pawel" size="sm" backgroundColor="pfeifer" />
+            <MyUserAvatar name="Anna" size="md" backgroundColor="natur" />
+            <MyUserAvatar name="Marta" size="lg" backgroundColor="akzentblau" />
+          </MyHStack>
+        </MyCard>
+
+        <MyCard className="space-y-4">
+          <MyLabel size="medium">HStack: flex 1 / 2</MyLabel>
+          <MyHStack
+            width="full"
+            gap="md"
+            className="rounded-lg border border-dashed border-zinc-300 bg-zinc-50"
+          >
+            <MyHStack
+              flex={1}
+              justify="center"
+              p="md"
+              className="rounded-md bg-zinc-100"
+            >
+              <MyUserAvatar name="Pawel" size="lg" backgroundColor="pfeifer" />
+            </MyHStack>
+            <MyHStack
+              flex={2}
+              justify="center"
+              gap="md"
+              p="md"
+              className="rounded-md bg-zinc-100"
+            >
+              <MyUserAvatar name="Anna" size="lg" backgroundColor="natur" />
+              <MyUserAvatar
+                name="Marta"
+                size="lg"
+                backgroundColor="akzentblau"
+              />
+            </MyHStack>
+          </MyHStack>
+        </MyCard>
+
+        <MyCard className="space-y-4">
+          <MyLabel size="medium">VStack: default</MyLabel>
+          <MyVStack className="rounded-lg border border-dashed border-zinc-300 bg-zinc-50">
+            {stackAvatars.map((avatar) => (
+              <MyUserAvatar
+                key={`v-default-${avatar.name}`}
+                name={avatar.name}
+                size="lg"
+                backgroundColor={avatar.backgroundColor}
+              />
+            ))}
+          </MyVStack>
+        </MyCard>
+
+        <MyCard className="space-y-4">
+          <MyLabel size="medium">VStack: centered</MyLabel>
+          <MyVStack
+            align="center"
+            gap="lg"
+            p="md"
+            className="rounded-lg border border-dashed border-zinc-300 bg-zinc-50"
+          >
+            {stackAvatars.map((avatar) => (
+              <MyUserAvatar
+                key={`v-center-${avatar.name}`}
+                name={avatar.name}
+                size="lg"
+                backgroundColor={avatar.backgroundColor}
+              />
+            ))}
+          </MyVStack>
+        </MyCard>
+
+        <MyCard className="space-y-4">
+          <MyLabel size="medium">VStack: flex 1 / 2</MyLabel>
+          <MyVStack
+            height="full"
+            gap="md"
+            className="h-80 rounded-lg border border-dashed border-zinc-300 bg-zinc-50"
+          >
+            <MyVStack
+              flex={1}
+              align="center"
+              justify="center"
+              p="md"
+              className="rounded-md bg-zinc-100"
+            >
+              <MyUserAvatar name="Pawel" size="lg" backgroundColor="pfeifer" />
+            </MyVStack>
+            <MyVStack
+              flex={2}
+              align="center"
+              justify="center"
+              gap="md"
+              p="md"
+              className="rounded-md bg-zinc-100"
+            >
+              <MyUserAvatar name="Anna" size="lg" backgroundColor="natur" />
+              <MyUserAvatar
+                name="Marta"
+                size="lg"
+                backgroundColor="akzentblau"
+              />
+            </MyVStack>
+          </MyVStack>
+        </MyCard>
+
+        <MyCard className="space-y-4">
+          <MyLabel size="medium">VStack: justify between</MyLabel>
+          <MyVStack
+            justify="between"
+            align="center"
+            height="full"
+            p="md"
+            className="h-72 rounded-lg border border-dashed border-zinc-300 bg-zinc-50"
+          >
+            {stackAvatars.map((avatar) => (
+              <MyUserAvatar
+                key={`v-between-${avatar.name}`}
+                name={avatar.name}
+                size="lg"
+                backgroundColor={avatar.backgroundColor}
+              />
+            ))}
+          </MyVStack>
+        </MyCard>
+
+        <MyCard className="space-y-4">
+          <MyLabel size="medium">VStack: align end</MyLabel>
+          <MyVStack
+            align="end"
+            gap="md"
+            px="lg"
+            py="md"
+            className="rounded-lg border border-dashed border-zinc-300 bg-zinc-50"
+          >
+            <MyUserAvatar name="Pawel" size="sm" backgroundColor="pfeifer" />
+            <MyUserAvatar name="Anna" size="md" backgroundColor="natur" />
+            <MyUserAvatar name="Marta" size="lg" backgroundColor="akzentblau" />
+          </MyVStack>
+        </MyCard>
+      </div>
+
+      <MyDivider />
+
+      <MyLabel variant="default" size="large">
         User Avatar
       </MyLabel>
 
@@ -385,6 +764,59 @@ export default function UIPage() {
           <MySummaryRow label="Width" value="1200 mm" />
           <MySummaryRow label="Color" value="Black" className="border-b-0" />
         </MySidebar>
+      </div>
+
+      <MyDivider />
+
+      <MyLabel variant="default" size="large">
+        Topbar / Bottombar
+      </MyLabel>
+
+      <div className="max-w-4xl space-y-4">
+        <MyTopbar>
+          <MyHStack width="full" justify="between" align="center" gap="md">
+            <div className="space-y-1">
+              <h2 className="text-lg font-semibold">Project Topbar</h2>
+              <p className="text-sm text-zinc-600">
+                Header area for title, filters or actions.
+              </p>
+            </div>
+            <MyHStack gap="sm">
+              <MyButton variant="outline" size="small">
+                Back
+              </MyButton>
+              <MyButton variant="primary" size="small">
+                Save
+              </MyButton>
+            </MyHStack>
+          </MyHStack>
+        </MyTopbar>
+
+        <MyTopbar backgroundColor="pfeifer" color="white">
+          <MyHStack width="full" justify="between" align="center" gap="md">
+            <div className="space-y-1">
+              <h2 className="text-lg font-semibold">Colored Topbar</h2>
+              <p className="text-sm">Useful for stronger page framing.</p>
+            </div>
+            <MyUserAvatar name="Pawel" size="md" backgroundColor="white" />
+          </MyHStack>
+        </MyTopbar>
+
+        <MyBottombar>
+          <MyHStack width="full" justify="between" align="center" gap="md">
+            <p className="text-sm text-zinc-600">
+              Unsaved changes will be kept locally.
+            </p>
+            <MyHStack gap="sm">
+              <MyButton variant="outline" size="small">
+                Cancel
+              </MyButton>
+              <MyButton variant="primary" size="small">
+                Continue
+              </MyButton>
+            </MyHStack>
+          </MyHStack>
+        </MyBottombar>
       </div>
 
       <MyDivider />
@@ -463,11 +895,11 @@ export default function UIPage() {
       </MyLabel>
 
       <div className="grid max-w-5xl gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {Object.entries(HEADER_COLORS).map(([key, color]) => (
+        {Object.entries(UI_COLORS).map(([key, color]) => (
           <MyCard key={key} className="space-y-3">
             <MyHeader
-              color={key as keyof typeof HEADER_COLORS}
-              backgroundColor={key as keyof typeof HEADER_COLORS}
+              color={key as keyof typeof UI_COLORS}
+              backgroundColor={key as keyof typeof UI_COLORS}
               leftContent={
                 <div className="space-y-1">
                   <h2 className="text-lg font-semibold">{color.name}</h2>

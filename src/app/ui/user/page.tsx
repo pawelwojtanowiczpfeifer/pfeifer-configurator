@@ -1,49 +1,71 @@
-import Image from "next/image";
+import MySidebar from "@/app/components/ui/MySidebar";
+import MyHStack from "@/app/components/ui/MyHStack";
+import MyVStack from "@/app/components/ui/MyVStack";
+import MyTopbar from "@/app/components/ui/MyTopbar";
+import MyBottombar from "@/app/components/ui/MyBottombar";
 import Link from "next/link";
-import MyButton from "@/app/components/ui/MyButton";
-import MyHeader from "@/app/components/ui/MyHeader";
+import Image from "next/image";
 import MyUserAvatar from "@/app/components/ui/MyUserAvatar";
-import MySelect from "@/app/components/ui/MySelect";
-import MyRow from "@/app/components/ui/MyRow";
 
 export default function LoginPage() {
-  const selectLanguageOptions = [
-    { label: "EN", value: "en" },
-    { label: "PL", value: "pl" },
-    { label: "DE", value: "de" },
-  ];
-
   return (
-    <main className="space-y-3 p-3">
-      <MyHeader
-        backgroundColor="pfeifer"
-        leftContent={
-          <Image
-            src="/logo/logo-pfeifer-studio-white-large.svg"
-            alt="Logo"
-            width={240}
-            height={80}
-            className="object-contain"
-          />
-        }
-        rightContent={
-          <MyRow gap="medium" align="center">
-            <MySelect
-              options={selectLanguageOptions}
-              defaultValue="en"
-              fullWidth={false}
-              widthPreset="sm"
-            ></MySelect>
-            <MyUserAvatar name="Pawel" size="lg" backgroundColor="akzentblau" />
-          </MyRow>
-        }
-      />
+    <MyHStack width="full" maxWidth="app" centered>
+      <MyVStack as="main" height="screen-dynamic" width="full" p="sm" gap="sm">
+        <MyTopbar p="md">
+          <MyHStack gap="md" align="center" justify="between">
+            <Link href="/">
+              <Image
+                src="/logo/logo-pfeifer-studio-blue-large.svg"
+                alt="Logo"
+                width={240}
+                height={80}
+                className="object-contain"
+              />
+            </Link>
 
-      <Link href="/">
-        <MyButton variant="outline" size="medium">
-          Go back to homepage
-        </MyButton>
-      </Link>
-    </main>
+            <MyHStack gap="md" align="center">
+              <MyUserAvatar
+                name="Pawel"
+                size="md"
+                backgroundColor="partnerschaft"
+              />
+            </MyHStack>
+          </MyHStack>
+        </MyTopbar>
+        <MyHStack
+          gap="sm"
+          align="start"
+          justify="start"
+          flex={1}
+          minHeight="0"
+          width="full"
+          p="none"
+        >
+          <MySidebar
+            title="Hi Pawel, here is your content"
+            size="lg"
+            height="full"
+          />
+          <MySidebar title="Add new project" size="full" height="full">
+            <Link href="/ui/calc">
+              <Image
+                src="/icon/plus-icon-100-100.svg"
+                alt="Add"
+                width={40}
+                height={40}
+                className="object-contain"
+              />
+            </Link>
+          </MySidebar>
+          <MySidebar
+            title="Hi Pawel, here is your content"
+            size="lg"
+            height="full"
+          />
+        </MyHStack>
+
+        <MyBottombar children={undefined}></MyBottombar>
+      </MyVStack>
+    </MyHStack>
   );
 }

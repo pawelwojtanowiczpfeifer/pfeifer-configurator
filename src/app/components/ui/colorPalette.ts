@@ -1,4 +1,4 @@
-export const HEADER_COLORS = {
+export const UI_COLORS = {
   pfeifer: {
     name: "PFEIFER",
     hex: "#001871",
@@ -61,4 +61,4 @@ export const HEADER_COLORS = {
   },
 } as const;
 
-export type HeaderColorName = keyof typeof HEADER_COLORS;
+export type UIColorName = keyof typeof UI_COLORS;

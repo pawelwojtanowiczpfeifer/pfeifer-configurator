@@ -14,7 +14,7 @@ export default function MyAlert({
   className = "",
   ...props
 }: AlertProps) {
-  const base = "rounded-md border px-4 py-3";
+  const base = "rounded-lg border px-4 py-3";
 
   const variants = {
     info: "border-blue-200 bg-blue-50 text-blue-900",

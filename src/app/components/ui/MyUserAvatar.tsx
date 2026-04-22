@@ -1,10 +1,10 @@
-import { HEADER_COLORS, type HeaderColorName } from "./headerColors";
+import { UI_COLORS, type UIColorName } from "./colorPalette";
 
 export type UserAvatarProps = {
   name: string;
   size?: "sm" | "md" | "lg";
   className?: string;
-  backgroundColor?: HeaderColorName;
+  backgroundColor?: UIColorName;
 };
 
 export default function MyUserAvatar({
@@ -23,7 +23,7 @@ export default function MyUserAvatar({
   };
 
   const initial = name.trim().charAt(0).toUpperCase() || "?";
-  const selectedColor = HEADER_COLORS[backgroundColor];
+  const selectedColor = UI_COLORS[backgroundColor];
 
   return (
     <div

@@ -1,16 +1,20 @@
 import React from "react";
+import { UI_COLORS, type UIColorName } from "./colorPalette";
 
 export type LabelProps = React.LabelHTMLAttributes<HTMLLabelElement> & {
   children: React.ReactNode;
   variant?: "default" | "muted" | "error";
   size?: "small" | "medium" | "large";
+  color?: UIColorName;
 };
 
 export default function MyLabel({
   children,
   variant = "default",
   size = "medium",
+  color,
   className = "",
+  style,
   ...props
 }: LabelProps) {
   const base = "my-label";
@@ -30,6 +34,10 @@ export default function MyLabel({
   return (
     <label
       className={`${base} ${variants[variant]} ${sizes[size]} ${className}`}
+      style={{
+        ...(color ? { color: UI_COLORS[color].hex } : {}),
+        ...style,
+      }}
       {...props}
     >
       {children}

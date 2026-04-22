@@ -1,13 +1,13 @@
 import React from "react";
 import MyRow from "./MyRow";
-import { HEADER_COLORS, type HeaderColorName } from "./headerColors";
+import { UI_COLORS, type UIColorName } from "./colorPalette";
 
 export type HeaderProps = {
   leftContent?: React.ReactNode;
   rightContent?: React.ReactNode;
   className?: string;
-  color?: HeaderColorName;
-  backgroundColor?: HeaderColorName;
+  color?: UIColorName;
+  backgroundColor?: UIColorName;
   align?: "start" | "center" | "end";
 };
 
@@ -20,18 +20,18 @@ export default function MyHeader({
   align = "center",
 }: HeaderProps) {
   const selectedBackgroundColor = backgroundColor
-    ? HEADER_COLORS[backgroundColor].hex
+    ? UI_COLORS[backgroundColor].hex
     : undefined;
   const selectedTextColor = color
-    ? HEADER_COLORS[color].hex
+    ? UI_COLORS[color].hex
     : backgroundColor
-      ? HEADER_COLORS[backgroundColor].contrastTextHex
+      ? UI_COLORS[backgroundColor].contrastTextHex
       : undefined;
   const justify = leftContent && rightContent ? "between" : "start";
 
   return (
     <div
-      className={`space-y-3 ${backgroundColor ? "rounded-md px-5 py-4" : ""} ${className}`}
+      className={`space-y-3 ${backgroundColor ? "rounded-lg px-5 py-4" : ""} ${className}`}
       style={
         selectedBackgroundColor || selectedTextColor
           ? {
