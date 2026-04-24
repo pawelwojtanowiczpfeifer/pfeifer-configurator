@@ -22,10 +22,10 @@ import MyHStack from "../components/ui/MyHStack";
 import MyVStack from "../components/ui/MyVStack";
 import MyTopbar from "../components/ui/MyTopbar";
 import MyBottombar from "../components/ui/MyBottombar";
-import DrawingCanvas from "../components/drawings/DrawingCanvas";
-import DrawingDimensionLine from "../components/drawings/DrawingDimensionLine";
-import DrawingLine from "../components/drawings/DrawingLine";
-import DrawingPolygon from "../components/drawings/DrawingPolygon";
+import MyDrawingCanvas from "../components/drawings/primitives/MyDrawingCanvas";
+import MyDrawingDimensionLine from "../components/drawings/primitives/MyDrawingDimensionLine";
+import MyDrawingLine from "../components/drawings/primitives/MyDrawingLine";
+import MyDrawingPolygon from "../components/drawings/primitives/MyDrawingPolygon";
 
 export default function UIPage() {
   const selectOptions = [
@@ -71,7 +71,7 @@ export default function UIPage() {
         <MyCard className="space-y-4">
           <MyLabel size="medium">Solid line</MyLabel>
           <div className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50 p-4">
-            <DrawingLine
+            <MyDrawingLine
               start={{ x: 12, y: 12 }}
               end={{ x: 320, y: 12 }}
               lineWidth="thin"
@@ -85,7 +85,7 @@ export default function UIPage() {
         <MyCard className="space-y-4">
           <MyLabel size="medium">Dashed line</MyLabel>
           <div className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50 p-4">
-            <DrawingLine
+            <MyDrawingLine
               start={{ x: 12, y: 18 }}
               end={{ x: 320, y: 18 }}
               lineWidth="medium"
@@ -99,7 +99,7 @@ export default function UIPage() {
         <MyCard className="space-y-4 md:col-span-2">
           <MyLabel size="medium">Dash-dot line</MyLabel>
           <div className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50 p-4">
-            <DrawingLine
+            <MyDrawingLine
               start={{ x: 12, y: 24 }}
               end={{ x: 420, y: 24 }}
               lineWidth="medium"
@@ -113,7 +113,7 @@ export default function UIPage() {
         <MyCard className="space-y-4 md:col-span-2">
           <MyLabel size="medium">Technical dimension line</MyLabel>
           <div className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50 p-4">
-            <DrawingCanvas
+            <MyDrawingCanvas
               fit="content"
               width="full"
               p="md"
@@ -122,17 +122,17 @@ export default function UIPage() {
               className="h-44"
               ariaLabel="Dimension line examples"
             >
-              <DrawingLine
+              <MyDrawingLine
                 start={{ x: 40, y: 44 }}
                 end={{ x: 140, y: 44 }}
                 lineWidth="thin"
               />
-              <DrawingLine
+              <MyDrawingLine
                 start={{ x: 40, y: 120 }}
                 end={{ x: 540, y: 120 }}
                 lineWidth="thin"
               />
-              <DrawingDimensionLine
+              <MyDrawingDimensionLine
                 start={{ x: 40, y: 44 }}
                 end={{ x: 140, y: 44 }}
                 value={100}
@@ -141,7 +141,7 @@ export default function UIPage() {
                 textSize="sm"
                 arrowSize="sm"
               />
-              <DrawingDimensionLine
+              <MyDrawingDimensionLine
                 start={{ x: 40, y: 120 }}
                 end={{ x: 540, y: 120 }}
                 value={500}
@@ -150,7 +150,7 @@ export default function UIPage() {
                 textSize="xl"
                 arrowSize="xl"
               />
-            </DrawingCanvas>
+            </MyDrawingCanvas>
           </div>
         </MyCard>
 
@@ -159,7 +159,7 @@ export default function UIPage() {
             Polygon with mixed outline and hatch fill
           </MyLabel>
           <div className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50 p-4">
-            <DrawingPolygon
+            <MyDrawingPolygon
               points={[
                 { x: 24, y: 28 },
                 { x: 220, y: 24 },

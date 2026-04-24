@@ -5,7 +5,7 @@ import {
   type ReactElement,
   type ReactNode,
 } from "react";
-import type { SpacingSize } from "../ui/spacingTokens";
+import type { SpacingSize } from "../../ui/spacingTokens";
 type Point2D = {
   x: number;
   y: number;
@@ -63,7 +63,7 @@ const heights = {
   "72": "h-72",
 };
 
-type DrawingCanvasProps = {
+type MyDrawingCanvasProps = {
   viewBoxWidth?: number;
   viewBoxHeight?: number;
   fit?: CanvasFit;
@@ -175,7 +175,7 @@ export function getDrawingBoundsFromChildren(children: ReactNode): DrawingBounds
   return mergeBounds(bounds);
 }
 
-export default function DrawingCanvas({
+export default function MyDrawingCanvas({
   viewBoxWidth,
   viewBoxHeight,
   fit = "frame",
@@ -190,7 +190,7 @@ export default function DrawingCanvas({
   className = "",
   ariaLabel = "Drawing canvas",
   children,
-}: DrawingCanvasProps) {
+}: MyDrawingCanvasProps) {
   const contentBounds = getDrawingBoundsFromChildren(children);
   const boundsForFit = fitBounds ?? contentBounds;
   const paddingX = px === "none" ? SPACING_VALUES[p] : SPACING_VALUES[px];

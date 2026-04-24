@@ -6,7 +6,7 @@ import {
   getLineParameters,
 } from "./drawingParameters";
 
-export type DrawingLineProps = {
+export type MyDrawingLineProps = {
   start: Point2D;
   end: Point2D;
   lineWidth?: LineWidth;
@@ -15,14 +15,14 @@ export type DrawingLineProps = {
   className?: string;
 };
 
-export default function DrawingLine({
+export default function MyDrawingLine({
   start,
   end,
   lineWidth = "medium",
   lineStyle = "solid",
   lineColor = "#111827",
   className = "",
-}: DrawingLineProps) {
+}: MyDrawingLineProps) {
   const { strokeWidth, strokeDasharray, stroke } = getLineParameters({
     lineWidth,
     lineStyle,

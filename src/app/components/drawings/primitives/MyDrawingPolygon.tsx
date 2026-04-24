@@ -7,13 +7,13 @@ import {
   getLineParameters,
 } from "./drawingParameters";
 
-export type DrawingPolygonEdgeStyle = {
+export type MyDrawingPolygonEdgeStyle = {
   lineWidth?: LineWidth;
   lineStyle?: LineStyle;
   lineColor?: string;
 };
 
-export type DrawingPolygonHatch = {
+export type MyDrawingPolygonHatch = {
   spacing?: number;
   variant?: "none" | "primary" | "secondary" | "cross";
   color?: string;
@@ -21,27 +21,27 @@ export type DrawingPolygonHatch = {
   backgroundColor?: string;
 };
 
-export type DrawingPolygonProps = {
+export type MyDrawingPolygonProps = {
   points: Point2D[];
-  edges?: DrawingPolygonEdgeStyle[];
-  hatch?: DrawingPolygonHatch | false;
+  edges?: MyDrawingPolygonEdgeStyle[];
+  hatch?: MyDrawingPolygonHatch | false;
   className?: string;
   ariaLabel?: string;
 };
 
-export type DrawingPolygonShapeProps = {
+export type MyDrawingPolygonShapeProps = {
   points: Point2D[];
-  edges?: DrawingPolygonEdgeStyle[];
-  hatch?: DrawingPolygonHatch | false;
+  edges?: MyDrawingPolygonEdgeStyle[];
+  hatch?: MyDrawingPolygonHatch | false;
 };
 
-const DEFAULT_EDGE_STYLE: Required<DrawingPolygonEdgeStyle> = {
+const DEFAULT_EDGE_STYLE: Required<MyDrawingPolygonEdgeStyle> = {
   lineWidth: "medium",
   lineStyle: "solid",
   lineColor: "#111827",
 };
 
-const DEFAULT_HATCH: Required<DrawingPolygonHatch> = {
+const DEFAULT_HATCH: Required<MyDrawingPolygonHatch> = {
   spacing: 12,
   variant: "primary",
   color: "#9ca3af",
@@ -57,7 +57,7 @@ const HATCH_ANGLES = {
 
 export function getPolygonBounds(
   points: Point2D[],
-  edges: DrawingPolygonEdgeStyle[] = [],
+  edges: MyDrawingPolygonEdgeStyle[] = [],
 ) {
   const maxStrokeWidth = Math.max(
     ...edges.map((edge) => LINE_WIDTHS[edge.lineWidth ?? DEFAULT_EDGE_STYLE.lineWidth]),
@@ -82,11 +82,11 @@ export function getPolygonBounds(
   };
 }
 
-export function DrawingPolygonShape({
+export function MyDrawingPolygonShape({
   points,
   edges = [],
   hatch = DEFAULT_HATCH,
-}: DrawingPolygonShapeProps) {
+}: MyDrawingPolygonShapeProps) {
   const patternId = useId().replace(/:/g, "");
   const pointsAttribute = points.map((point) => `${point.x},${point.y}`).join(" ");
   const hatchSettings = hatch ? { ...DEFAULT_HATCH, ...hatch } : null;
@@ -171,13 +171,13 @@ export function DrawingPolygonShape({
   );
 }
 
-export default function DrawingPolygon({
+export default function MyDrawingPolygon({
   points,
   edges = [],
   hatch = DEFAULT_HATCH,
   className = "",
   ariaLabel = "Drawing polygon",
-}: DrawingPolygonProps) {
+}: MyDrawingPolygonProps) {
   if (points.length < 3) {
     return null;
   }
@@ -195,7 +195,11 @@ export default function DrawingPolygon({
       aria-label={ariaLabel}
       role="img"
     >
-      <DrawingPolygonShape points={translatedPoints} edges={edges} hatch={hatch} />
+      <MyDrawingPolygonShape
+        points={translatedPoints}
+        edges={edges}
+        hatch={hatch}
+      />
     </svg>
   );
 }

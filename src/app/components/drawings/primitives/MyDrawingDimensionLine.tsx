@@ -1,4 +1,4 @@
-import type { DrawingBounds } from "./DrawingCanvas";
+import type { DrawingBounds } from "./MyDrawingCanvas";
 import {
   LINE_WIDTHS,
   type LineStyle,
@@ -7,7 +7,7 @@ import {
   getLineParameters,
 } from "./drawingParameters";
 
-export type DrawingDimensionLineProps = {
+export type MyDrawingDimensionLineProps = {
   start: Point2D;
   end: Point2D;
   value: number | string;
@@ -66,11 +66,11 @@ function estimateTextWidth(text: string, textSize: number) {
   return Math.max(text.length * textSize * 0.62, textSize * 3.2);
 }
 
-function resolveTextSize(textSize: DrawingDimensionLineProps["textSize"]) {
+function resolveTextSize(textSize: MyDrawingDimensionLineProps["textSize"]) {
   return TEXT_SIZES[textSize ?? "md"];
 }
 
-function resolveArrowSize(arrowSize: DrawingDimensionLineProps["arrowSize"]) {
+function resolveArrowSize(arrowSize: MyDrawingDimensionLineProps["arrowSize"]) {
   if (typeof arrowSize === "number") {
     return arrowSize;
   }
@@ -147,7 +147,7 @@ function getDimensionLabel({
   value,
   unit,
   symbol,
-}: Pick<DrawingDimensionLineProps, "value" | "unit" | "symbol">) {
+}: Pick<MyDrawingDimensionLineProps, "value" | "unit" | "symbol">) {
   const dimensionText = `${formatDimensionValue(value)}${unit ?? "mm"}`;
   const label = symbol ? `${symbol} = ${dimensionText}` : `= ${dimensionText}`;
 
@@ -163,7 +163,7 @@ function getDimensionGeometry({
   value,
   unit = "mm",
   symbol,
-  offset = 28,
+  offset = 36,
   dimensionLinePosition = "above",
   extensionOvershoot = 8,
   extensionGap = 4,
@@ -173,7 +173,7 @@ function getDimensionGeometry({
   textOrientation = "horizontal",
   textSize = "md",
 }: Pick<
-  DrawingDimensionLineProps,
+  MyDrawingDimensionLineProps,
   | "start"
   | "end"
   | "value"
@@ -218,7 +218,6 @@ function getDimensionGeometry({
   };
   const { dimensionText, label } = getDimensionLabel({ value, unit, symbol });
   const estimatedLabelWidth = estimateTextWidth(label, resolvedTextSize);
-  const estimatedVerticalTextWidth = resolvedTextSize * 0.9;
   const isVerticalDimension = Math.abs(direction.y) > Math.abs(direction.x);
   const minimumInternalLength = estimatedLabelWidth + resolvedArrowSize * 3;
   const useExternalArrows = length < minimumInternalLength;
@@ -310,7 +309,7 @@ export function getDrawingDimensionLineBounds({
   value,
   unit = "mm",
   symbol,
-  offset = 28,
+  offset = 36,
   dimensionLinePosition = "above",
   extensionOvershoot = 8,
   extensionGap = 4,
@@ -321,7 +320,7 @@ export function getDrawingDimensionLineBounds({
   textOrientation = "horizontal",
   textSize = "md",
 }: Pick<
-  DrawingDimensionLineProps,
+  MyDrawingDimensionLineProps,
   | "start"
   | "end"
   | "value"
@@ -396,13 +395,13 @@ export function getDrawingDimensionLineBounds({
   );
 }
 
-function DrawingDimensionLine({
+function MyDrawingDimensionLine({
   start,
   end,
   value,
   unit = "mm",
   symbol,
-  offset = 28,
+  offset = 36,
   dimensionLinePosition = "above",
   extensionOvershoot = 8,
   extensionGap = 4,
@@ -417,7 +416,7 @@ function DrawingDimensionLine({
   lineColor = DEFAULT_LINE_COLOR,
   className = "",
   ariaLabel = "Drawing dimension line",
-}: DrawingDimensionLineProps) {
+}: MyDrawingDimensionLineProps) {
   const { strokeWidth, strokeDasharray, stroke } = getLineParameters({
     lineWidth,
     lineStyle,
@@ -466,7 +465,9 @@ function DrawingDimensionLine({
     return null;
   }
 
-  const { base: symbolBase, subscript: symbolSubscript } = splitSymbol(symbol ?? "");
+  const { base: symbolBase, subscript: symbolSubscript } = splitSymbol(
+    symbol ?? "",
+  );
 
   return (
     <g className={className} aria-label={ariaLabel} role="img">
@@ -604,7 +605,7 @@ function DrawingDimensionLine({
         fontFamily="Arial, Helvetica, sans-serif"
         textAnchor="middle"
         dominantBaseline={
-          geometry.textOrientation === "vertical" ? "middle" : "baseline"
+          geometry.textOrientation === "vertical" ? "middle" : "alphabetic"
         }
         lengthAdjust="spacingAndGlyphs"
       >
@@ -629,6 +630,6 @@ function DrawingDimensionLine({
   );
 }
 
-DrawingDimensionLine.getBounds = getDrawingDimensionLineBounds;
+MyDrawingDimensionLine.getBounds = getDrawingDimensionLineBounds;
 
-export default DrawingDimensionLine;
+export default MyDrawingDimensionLine;

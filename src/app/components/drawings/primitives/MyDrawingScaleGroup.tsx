@@ -9,9 +9,9 @@ import {
   getDrawingBoundsFromChildren,
   mergeDrawingBounds,
   type DrawingBounds,
-} from "./DrawingCanvas";
+} from "./MyDrawingCanvas";
 
-type DrawingScaleGroupProps = {
+type MyDrawingScaleGroupProps = {
   children: ReactNode;
 };
 
@@ -20,14 +20,26 @@ type ScaleGroupChildProps = {
   fitBounds?: DrawingBounds;
 };
 
-export default function DrawingScaleGroup({
+type ScaleGroupChildType = {
+  getBounds?: (props: ScaleGroupChildProps) => DrawingBounds | null;
+};
+
+export default function MyDrawingScaleGroup({
   children,
-}: DrawingScaleGroupProps) {
+}: MyDrawingScaleGroupProps) {
   const sharedBounds =
     mergeDrawingBounds(
       Children.toArray(children).flatMap((child) => {
         if (!isValidElement<ScaleGroupChildProps>(child)) {
           return [];
+        }
+
+        const element = child as ReactElement<ScaleGroupChildProps>;
+        const elementType = element.type as ScaleGroupChildType;
+
+        if (elementType.getBounds) {
+          const bounds = elementType.getBounds(element.props);
+          return bounds ? [bounds] : [];
         }
 
         const bounds = getDrawingBoundsFromChildren(child.props.children);

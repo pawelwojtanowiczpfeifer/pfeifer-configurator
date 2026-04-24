@@ -1,15 +1,17 @@
-import MySidebar from "@/app/components/ui/MySidebar";
-import MyHStack from "@/app/components/ui/MyHStack";
-import MyVStack from "@/app/components/ui/MyVStack";
-import MyTopbar from "@/app/components/ui/MyTopbar";
-import MyBottombar from "@/app/components/ui/MyBottombar";
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
+import MyBearingsModuleConfigurator from "@/app/components/bearings-module/MyBearingsModuleConfigurator";
+import MyBearingsModuleDrawingContent from "@/app/components/bearings-module/MyBearingsModuleDrawingContent";
+import MyUserInputGeometricData from "@/app/components/user-input-data/bearings-module/MyUserInputGeometricData";
+import MyBottombar from "@/app/components/ui/MyBottombar";
+import MyHStack from "@/app/components/ui/MyHStack";
+import MyDivider from "@/app/components/ui/MyDivider";
+import MyInput from "@/app/components/ui/MyInput";
+import MyLabel from "@/app/components/ui/MyLabel";
+import MySidebar from "@/app/components/ui/MySidebar";
+import MyTopbar from "@/app/components/ui/MyTopbar";
 import MyUserAvatar from "@/app/components/ui/MyUserAvatar";
-import DrawingCanvas from "@/app/components/drawings/DrawingCanvas";
-import DrawingScaleGroup from "@/app/components/drawings/DrawingScaleGroup";
-import { DrawingPolygonShape } from "@/app/components/drawings/DrawingPolygon";
-import DrawingDimensionLine from "@/app/components/drawings/DrawingDimensionLine";
+import MyVStack from "@/app/components/ui/MyVStack";
 
 export default function LoginPage() {
   return (
@@ -45,331 +47,22 @@ export default function LoginPage() {
           width="full"
           p="none"
         >
-          <MySidebar
-            title="Fill in - forms, project name etc."
-            size="lg"
-            height="full"
-          />
-          <MySidebar title="Drawing" size="full" height="full">
-            <MyHStack
-              gap="sm"
-              align="center"
-              justify="start"
-              flex={1}
-              minHeight="0"
-              width="full"
-              p="none"
+          <MyBearingsModuleConfigurator>
+            <MySidebar
+              title="Fill in - forms, project name etc."
+              size="lg"
+              height="full"
             >
-              <DrawingScaleGroup>
-                <DrawingCanvas
-                  fit="content"
-                  width="full"
-                  height="full"
-                  px="3xl"
-                  py="sm"
-                  align="center"
-                  justify="center"
-                  ariaLabel="Technical drawing preview"
-                >
-                  <DrawingPolygonShape
-                    points={[
-                      { x: 0, y: 0 },
-                      { x: 200, y: 0 },
-                      { x: 200, y: 200 },
-                      { x: 350, y: 200 },
-                      { x: 350, y: 350 },
-                      { x: 200, y: 350 },
-                      { x: 200, y: 450 },
-                      { x: 0, y: 450 },
-                    ]}
-                    edges={[
-                      {
-                        lineWidth: "thin",
-                        lineStyle: "dashDot",
-                        lineColor: "gray",
-                      },
-                      {
-                        lineWidth: "thin",
-                        lineStyle: "solid",
-                        lineColor: "black",
-                      },
-                      {
-                        lineWidth: "thin",
-                        lineStyle: "solid",
-                        lineColor: "black",
-                      },
-                      {
-                        lineWidth: "thin",
-                        lineStyle: "solid",
-                        lineColor: "black",
-                      },
-                      {
-                        lineWidth: "thin",
-                        lineStyle: "solid",
-                        lineColor: "black",
-                      },
-                      {
-                        lineWidth: "thin",
-                        lineStyle: "solid",
-                        lineColor: "black",
-                      },
-                      {
-                        lineWidth: "thin",
-                        lineStyle: "dashDot",
-                        lineColor: "gray",
-                      },
-                      {
-                        lineWidth: "thin",
-                        lineStyle: "dashDot",
-                        lineColor: "gray",
-                      },
-                    ]}
-                    hatch={{
-                      spacing: 30,
-                      variant: "none",
-                      color: "#9ca3af",
-                      lineWidth: 1,
-                      backgroundColor: "lightgray",
-                    }}
-                  />
-                  <DrawingPolygonShape
-                    points={[
-                      { x: 220, y: 0 },
-                      { x: 520, y: 0 },
-                      { x: 520, y: 185 },
-                      { x: 220, y: 185 },
-                    ]}
-                    edges={[
-                      {
-                        lineWidth: "thin",
-                        lineStyle: "dashDot",
-                        lineColor: "gray",
-                      },
-                      {
-                        lineWidth: "thin",
-                        lineStyle: "dashDot",
-                        lineColor: "gray",
-                      },
-                      {
-                        lineWidth: "thin",
-                        lineStyle: "solid",
-                        lineColor: "black",
-                      },
-                      {
-                        lineWidth: "thin",
-                        lineStyle: "solid",
-                        lineColor: "black",
-                      },
-                    ]}
-                    hatch={{
-                      spacing: 20,
-                      variant: "cross",
-                      color: "gray",
-                      lineWidth: 1,
-                      backgroundColor: "gainsboro",
-                    }}
-                  />
-                  <DrawingDimensionLine
-                    start={{ x: 200, y: 0 }}
-                    end={{ x: 220, y: 0 }}
-                    value={20}
-                    symbol="g1"
-                    textSize="lg"
-                    textGap={20}
-                    dimensionLinePosition="above"
-                    arrowSize="xl"
-                    arrowStyle="filled"
-                  />
-                  <DrawingDimensionLine
-                    start={{ x: 350, y: 185 }}
-                    end={{ x: 350, y: 200 }}
-                    value={10}
-                    symbol="g2"
-                    textSize="lg"
-                    textGap={0}
-                    textOffsetY={10}
-                    dimensionLinePosition="above"
-                    arrowSize="xl"
-                    arrowStyle="filled"
-                    lineColor="black"
-                  />
-                  <DrawingDimensionLine
-                    start={{ x: 200, y: 350 }}
-                    end={{ x: 350, y: 350 }}
-                    value={15}
-                    symbol="S2"
-                    textSize="lg"
-                    textGap={10}
-                    dimensionLinePosition="below"
-                    arrowSize="xl"
-                    arrowStyle="filled"
-                    lineColor="black"
-                  />
-                </DrawingCanvas>
-                <DrawingCanvas
-                  fit="content"
-                  width="full"
-                  height="full"
-                  px="3xl"
-                  py="sm"
-                  align="center"
-                  justify="center"
-                  ariaLabel="Technical drawing preview"
-                >
-                  <DrawingPolygonShape
-                    points={[
-                      { x: 0, y: 0 },
-                      { x: 200, y: 0 },
-                      { x: 200, y: 300 },
-                      { x: 0, y: 300 },
-                    ]}
-                    edges={[
-                      {
-                        lineWidth: "thin",
-                        lineStyle: "solid",
-                        lineColor: "black",
-                      },
-                      {
-                        lineWidth: "thin",
-                        lineStyle: "solid",
-                        lineColor: "black",
-                      },
-                      {
-                        lineWidth: "thin",
-                        lineStyle: "solid",
-                        lineColor: "black",
-                      },
-                      {
-                        lineWidth: "thin",
-                        lineStyle: "dashDot",
-                        lineColor: "gray",
-                      },
-                    ]}
-                    hatch={{
-                      spacing: 30,
-                      variant: "none",
-                      color: "#9ca3af",
-                      lineWidth: 1,
-                      backgroundColor: "lightgray",
-                    }}
-                  />
-                  <DrawingPolygonShape
-                    points={[
-                      { x: 200, y: 0 },
-                      { x: 350, y: 0 },
-                      { x: 350, y: 300 },
-                      { x: 200, y: 300 },
-                    ]}
-                    edges={[
-                      {
-                        lineWidth: "thin",
-                        lineStyle: "solid",
-                        lineColor: "black",
-                      },
-                      {
-                        lineWidth: "thin",
-                        lineStyle: "solid",
-                        lineColor: "black",
-                      },
-                      {
-                        lineWidth: "thin",
-                        lineStyle: "solid",
-                        lineColor: "black",
-                      },
-                      {
-                        lineWidth: "thin",
-                        lineStyle: "solid",
-                        lineColor: "black",
-                      },
-                    ]}
-                    hatch={{
-                      spacing: 30,
-                      variant: "none",
-                      color: "#9ca3af",
-                      lineWidth: 1,
-                      backgroundColor: "lightgray",
-                    }}
-                  />
-                  <DrawingPolygonShape
-                    points={[
-                      { x: 220, y: 25 },
-                      { x: 520, y: 25 },
-                      { x: 520, y: 275 },
-                      { x: 220, y: 275 },
-                    ]}
-                    edges={[
-                      {
-                        lineWidth: "thin",
-                        lineStyle: "solid",
-                        lineColor: "black",
-                      },
-                      {
-                        lineWidth: "thin",
-                        lineStyle: "dashDot",
-                        lineColor: "gray",
-                      },
-                      {
-                        lineWidth: "thin",
-                        lineStyle: "solid",
-                        lineColor: "black",
-                      },
-                      {
-                        lineWidth: "thin",
-                        lineStyle: "solid",
-                        lineColor: "black",
-                      },
-                    ]}
-                    hatch={{
-                      spacing: 20,
-                      variant: "cross",
-                      color: "gray",
-                      lineWidth: 1,
-                      backgroundColor: "gainsboro",
-                    }}
-                  />
-                  <DrawingDimensionLine
-                    start={{ x: 200, y: 0 }}
-                    end={{ x: 220, y: 0 }}
-                    value={20}
-                    symbol="g1"
-                    textSize="lg"
-                    textGap={20}
-                    dimensionLinePosition="above"
-                    arrowSize="xl"
-                    arrowStyle="filled"
-                    lineColor="black"
-                  />
-                  <DrawingDimensionLine
-                    start={{ x: 400, y: 25 }}
-                    end={{ x: 400, y: 275 }}
-                    value={250}
-                    symbol="B"
-                    textSize="lg"
-                    textOrientation="vertical"
-                    textGap={-10}
-                    dimensionLinePosition="above"
-                    arrowSize="xl"
-                    arrowStyle="filled"
-                    lineColor="black"
-                  />
-                  <DrawingDimensionLine
-                    start={{ x: 350, y: 0 }}
-                    end={{ x: 350, y: 300 }}
-                    value={300}
-                    symbol="S1"
-                    textSize="lg"
-                    textOrientation="vertical"
-                    textGap={-15}
-                    dimensionLinePosition="above"
-                    arrowSize="xl"
-                    arrowStyle="filled"
-                    lineColor="black"
-                  />
-                </DrawingCanvas>
-              </DrawingScaleGroup>
-            </MyHStack>
-          </MySidebar>
-          <MySidebar title="Results" size="lg" height="full" />
+              <MyLabel size="small">Project name</MyLabel>
+              <MyInput placeholder="Enter project name" />
+              <MyDivider />
+              <MyUserInputGeometricData />
+            </MySidebar>
+            <MySidebar title="Drawing" size="full" height="full">
+              <MyBearingsModuleDrawingContent />
+            </MySidebar>
+            <MySidebar title="Results" size="lg" height="full" />
+          </MyBearingsModuleConfigurator>
         </MyHStack>
 
         <MyBottombar>Created by: iPW</MyBottombar>
