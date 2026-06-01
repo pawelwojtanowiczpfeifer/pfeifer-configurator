@@ -7,10 +7,16 @@ import Link from "next/link";
 import Image from "next/image";
 import MyUserAvatar from "@/app/components/ui/MyUserAvatar";
 
-export default function LoginPage() {
+export default function UserPage() {
   return (
     <MyHStack width="full" maxWidth="app" centered>
-      <MyVStack as="main" height="screen-dynamic" width="full" p="sm" gap="sm">
+      <MyVStack
+        as="main"
+        width="full"
+        p="sm"
+        gap="sm"
+        className="min-h-dvh"
+      >
         <MyTopbar p="md">
           <MyHStack gap="md" align="center" justify="between">
             <Link href="/">
@@ -34,7 +40,7 @@ export default function LoginPage() {
         </MyTopbar>
         <MyHStack
           gap="sm"
-          align="start"
+          align="stretch"
           justify="start"
           flex={1}
           minHeight="0"
@@ -64,7 +70,7 @@ export default function LoginPage() {
           />
         </MyHStack>
 
-        <MyBottombar children={undefined}></MyBottombar>
+        <MyBottombar />
       </MyVStack>
     </MyHStack>
   );

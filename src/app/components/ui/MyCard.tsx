@@ -13,7 +13,7 @@ export default function MyCard({
   className = "",
   ...props
 }: CardProps) {
-  const base = `rounded-lg border border-zinc-300 bg-white ${PADDING_CLASSES[p]}`;
+  const base = `flex flex-col rounded-lg border border-zinc-300 bg-white ${PADDING_CLASSES[p]}`;
 
   return (
     <div className={`${base} ${className}`} {...props}>

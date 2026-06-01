@@ -3,7 +3,7 @@ import { UI_COLORS, type UIColorName } from "./colorPalette";
 import { BAR_PADDING_CLASSES, type BarSpacingSize } from "./spacingTokens";
 
 export type BottombarProps = React.HTMLAttributes<HTMLElement> & {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   p?: BarSpacingSize;
   border?: boolean;
   color?: UIColorName;

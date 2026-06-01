@@ -1,8 +1,8 @@
 import MyDrawingCanvas, {
   getDrawingBoundsFromChildren,
-} from "../primitives/MyDrawingCanvas";
-import MyDrawingDimensionLine from "../primitives/MyDrawingDimensionLine";
-import { MyDrawingPolygonShape } from "../primitives/MyDrawingPolygon";
+} from "@/app/components/drawings/primitives/MyDrawingCanvas";
+import MyDrawingDimensionLine from "@/app/components/drawings/primitives/MyDrawingDimensionLine";
+import { MyDrawingPolygonShape } from "@/app/components/drawings/primitives/MyDrawingPolygon";
 import type { MyBearingsSideViewProps } from "./types";
 
 function renderMyBearingsSideViewContent({
@@ -11,9 +11,11 @@ function renderMyBearingsSideViewContent({
   s1,
   s2,
   b,
+  c,
 }: MyBearingsSideViewProps) {
   void s1;
   void b;
+  void c;
 
   return (
     <>
@@ -28,6 +30,7 @@ function renderMyBearingsSideViewContent({
           { x: 1.2 * s2, y: 1.2 * s2 + g2 + s2 + 0.5 * s2 },
           { x: 0, y: 1.2 * s2 + g2 + s2 + 0.5 * s2 },
         ]}
+        label="Support"
         edges={[
           {
             lineWidth: "thin",
@@ -85,6 +88,7 @@ function renderMyBearingsSideViewContent({
           { x: 1.2 * s2 + s2 + 0.75 * s2, y: 1.2 * s2 },
           { x: 1.2 * s2 + g1, y: 1.2 * s2 },
         ]}
+        label="Beam"
         edges={[
           {
             lineWidth: "thin",
@@ -112,7 +116,7 @@ function renderMyBearingsSideViewContent({
           variant: "cross",
           color: "gray",
           lineWidth: 1,
-          backgroundColor: "gainsboro",
+          backgroundColor: "rgba(220, 220, 220, 0.8)",
         }}
       />
       <MyDrawingDimensionLine
@@ -161,9 +165,10 @@ export function getMyBearingsSideViewBounds({
   s1,
   s2,
   b,
+  c,
 }: MyBearingsSideViewProps) {
   return getDrawingBoundsFromChildren(
-    renderMyBearingsSideViewContent({ g1, g2, s1, s2, b }),
+    renderMyBearingsSideViewContent({ g1, g2, s1, s2, b, c }),
   );
 }
 
@@ -173,6 +178,7 @@ export default function MyBearingsSideView({
   s1,
   s2,
   b,
+  c,
   className,
   ariaLabel = "Bearings side view",
   fitBounds,
@@ -190,7 +196,7 @@ export default function MyBearingsSideView({
       className={className}
       ariaLabel={ariaLabel}
     >
-      {renderMyBearingsSideViewContent({ g1, g2, s1, s2, b })}
+      {renderMyBearingsSideViewContent({ g1, g2, s1, s2, b, c })}
     </MyDrawingCanvas>
   );
 }

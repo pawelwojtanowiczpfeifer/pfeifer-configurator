@@ -1,8 +1,8 @@
 import MyDrawingCanvas, {
   getDrawingBoundsFromChildren,
-} from "../primitives/MyDrawingCanvas";
-import MyDrawingDimensionLine from "../primitives/MyDrawingDimensionLine";
-import { MyDrawingPolygonShape } from "../primitives/MyDrawingPolygon";
+} from "@/app/components/drawings/primitives/MyDrawingCanvas";
+import MyDrawingDimensionLine from "@/app/components/drawings/primitives/MyDrawingDimensionLine";
+import { MyDrawingPolygonShape } from "@/app/components/drawings/primitives/MyDrawingPolygon";
 import type { MyBearingsTopViewProps } from "./types";
 
 function renderMyBearingsTopViewContent({
@@ -11,19 +11,39 @@ function renderMyBearingsTopViewContent({
   s1,
   s2,
   b,
+  c,
 }: MyBearingsTopViewProps) {
   void g2;
-  void s2;
+
+  const supportStartX = 1.2 * s2;
+  const supportEndX = supportStartX + s2;
+  const beamStartX = supportStartX + g1;
+  const beamEndX = supportStartX + s2 + 0.75 * s2;
+  const beamStartY = (s1 - b) / 2;
+  const beamEndY = beamStartY + b;
+
+  const contactStartX = Math.max(supportStartX, beamStartX);
+  const contactEndX = Math.min(supportEndX, beamEndX);
+  const contactStartY = Math.max(0, beamStartY);
+  const contactEndY = Math.min(s1, beamEndY);
+
+  const effectiveStartX = contactStartX + c;
+  const effectiveEndX = contactEndX - c;
+  const effectiveStartY = contactStartY + c;
+  const effectiveEndY = contactEndY - c;
+  const shouldRenderEffectiveArea =
+    effectiveStartX < effectiveEndX && effectiveStartY < effectiveEndY;
 
   return (
     <>
       <MyDrawingPolygonShape
         points={[
           { x: 0, y: 0 },
-          { x: 1.2 * s2, y: 0 },
-          { x: 1.2 * s2, y: s1 },
+          { x: supportStartX, y: 0 },
+          { x: supportStartX, y: s1 },
           { x: 0, y: s1 },
         ]}
+        label="Left support section"
         edges={[
           {
             lineWidth: "thin",
@@ -56,11 +76,12 @@ function renderMyBearingsTopViewContent({
       />
       <MyDrawingPolygonShape
         points={[
-          { x: 1.2 * s2, y: 0 },
-          { x: 1.2 * s2 + s2, y: 0 },
-          { x: 1.2 * s2 + s2, y: s1 },
-          { x: 1.2 * s2, y: s1 },
+          { x: supportStartX, y: 0 },
+          { x: supportEndX, y: 0 },
+          { x: supportEndX, y: s1 },
+          { x: supportStartX, y: s1 },
         ]}
+        label="Support zone"
         edges={[
           {
             lineWidth: "thin",
@@ -93,11 +114,12 @@ function renderMyBearingsTopViewContent({
       />
       <MyDrawingPolygonShape
         points={[
-          { x: 1.2 * s2 + g1, y: (s1 - b) / 2 },
-          { x: 1.2 * s2 + s2 + 0.75 * s2, y: (s1 - b) / 2 },
-          { x: 1.2 * s2 + s2 + 0.75 * s2, y: (s1 - b) / 2 + b },
-          { x: 1.2 * s2 + g1, y: (s1 - b) / 2 + b },
+          { x: beamStartX, y: beamStartY },
+          { x: beamEndX, y: beamStartY },
+          { x: beamEndX, y: beamEndY },
+          { x: beamStartX, y: beamEndY },
         ]}
+        label="Beam"
         edges={[
           {
             lineWidth: "thin",
@@ -125,12 +147,46 @@ function renderMyBearingsTopViewContent({
           variant: "cross",
           color: "gray",
           lineWidth: 1,
-          backgroundColor: "gainsboro",
+          backgroundColor: "rgba(220, 220, 220, 0.8)",
         }}
       />
+      {shouldRenderEffectiveArea ? (
+        <MyDrawingPolygonShape
+          points={[
+            { x: effectiveStartX, y: effectiveStartY },
+            { x: effectiveEndX, y: effectiveStartY },
+            { x: effectiveEndX, y: effectiveEndY },
+            { x: effectiveStartX, y: effectiveEndY },
+          ]}
+          label="Effective contact area"
+          edges={[
+            {
+              lineWidth: "thin",
+              lineStyle: "dashed",
+              lineColor: "#2563eb",
+            },
+            {
+              lineWidth: "thin",
+              lineStyle: "dashed",
+              lineColor: "#2563eb",
+            },
+            {
+              lineWidth: "thin",
+              lineStyle: "dashed",
+              lineColor: "#2563eb",
+            },
+            {
+              lineWidth: "thin",
+              lineStyle: "dashed",
+              lineColor: "#2563eb",
+            },
+          ]}
+          hatch={false}
+        />
+      ) : null}
       <MyDrawingDimensionLine
-        start={{ x: 1.2 * s2, y: 0 }}
-        end={{ x: 1.2 * s2 + g1, y: 0 }}
+        start={{ x: supportStartX, y: 0 }}
+        end={{ x: beamStartX, y: 0 }}
         value={g1}
         symbol="g1"
         textSize="lg"
@@ -141,8 +197,8 @@ function renderMyBearingsTopViewContent({
         lineColor="black"
       />
       <MyDrawingDimensionLine
-        start={{ x: 1.2 * s2 + s2, y: 0 }}
-        end={{ x: 1.2 * s2 + s2, y: s1 }}
+        start={{ x: supportEndX, y: 0 }}
+        end={{ x: supportEndX, y: s1 }}
         value={s1}
         symbol="S1"
         textSize="lg"
@@ -154,8 +210,8 @@ function renderMyBearingsTopViewContent({
         lineColor="black"
       />
       <MyDrawingDimensionLine
-        start={{ x: 1.2 * s2 + s2 + 0.3 * s2, y: (s1 - b) / 2 }}
-        end={{ x: 1.2 * s2 + s2 + 0.3 * s2, y: (s1 - b) / 2 + b }}
+        start={{ x: supportEndX + 0.3 * s2, y: beamStartY }}
+        end={{ x: supportEndX + 0.3 * s2, y: beamEndY }}
         value={b}
         symbol="B"
         textSize="lg"
@@ -176,9 +232,10 @@ export function getMyBearingsTopViewBounds({
   s1,
   s2,
   b,
+  c,
 }: MyBearingsTopViewProps) {
   return getDrawingBoundsFromChildren(
-    renderMyBearingsTopViewContent({ g1, g2, s1, s2, b }),
+    renderMyBearingsTopViewContent({ g1, g2, s1, s2, b, c }),
   );
 }
 
@@ -188,6 +245,7 @@ export default function MyBearingsTopView({
   s1,
   s2,
   b,
+  c,
   className,
   ariaLabel = "Bearings top view",
   fitBounds,
@@ -205,7 +263,7 @@ export default function MyBearingsTopView({
       className={className}
       ariaLabel={ariaLabel}
     >
-      {renderMyBearingsTopViewContent({ g1, g2, s1, s2, b })}
+      {renderMyBearingsTopViewContent({ g1, g2, s1, s2, b, c })}
     </MyDrawingCanvas>
   );
 }

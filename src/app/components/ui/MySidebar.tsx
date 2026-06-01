@@ -1,6 +1,7 @@
 import React from "react";
 import MyCard from "./MyCard";
 import MyLabel from "./MyLabel";
+import { UI_COLORS, type UIColorName } from "./colorPalette";
 import type { SpacingSize } from "./spacingTokens";
 
 type SidebarSize = "sm" | "md" | "lg" | "full";
@@ -13,6 +14,8 @@ export type SidebarProps = React.HTMLAttributes<HTMLDivElement> & {
   height?: SidebarHeight;
   flex?: number;
   p?: SpacingSize;
+  color?: UIColorName;
+  backgroundColor?: UIColorName;
 };
 
 export default function MySidebar({
@@ -22,6 +25,8 @@ export default function MySidebar({
   height = "auto",
   flex,
   p = "md",
+  color,
+  backgroundColor,
   className = "",
   style,
   ...props
@@ -35,19 +40,41 @@ export default function MySidebar({
 
   const heights = {
     auto: "",
-    full: "h-full",
+    full: "self-stretch",
     "screen-dynamic": "h-dvh",
   };
+
+  const selectedBackgroundColor = backgroundColor
+    ? UI_COLORS[backgroundColor].hex
+    : undefined;
+  const selectedTextColor = color
+    ? UI_COLORS[color].hex
+    : backgroundColor
+      ? UI_COLORS[backgroundColor].contrastTextHex
+      : undefined;
 
   return (
     <MyCard
       p={p}
-      className={`${sizes[size]} ${heights[height]} ${className}`}
-      style={flex !== undefined ? { flex, ...style } : style}
+      className={`${sizes[size]} ${heights[height]} ${!backgroundColor ? "bg-white" : ""} ${className}`}
+      style={{
+        ...(selectedBackgroundColor || selectedTextColor
+          ? {
+              backgroundColor: selectedBackgroundColor,
+              color: selectedTextColor,
+            }
+          : {}),
+        ...(flex !== undefined ? { flex } : {}),
+        ...style,
+      }}
       {...props}
     >
-      <div className="space-y-4">
-        {title && <MyLabel size="medium">{title}</MyLabel>}
+      <div className="flex h-full flex-col gap-4">
+        {title && (
+          <MyLabel size="medium" color={color ?? backgroundColor}>
+            {title}
+          </MyLabel>
+        )}
         <div className="space-y-3">{children}</div>
       </div>
     </MyCard>

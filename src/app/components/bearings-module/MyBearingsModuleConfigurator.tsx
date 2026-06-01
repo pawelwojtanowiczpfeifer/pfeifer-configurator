@@ -6,7 +6,7 @@ import {
   useState,
   type PropsWithChildren,
 } from "react";
-import type { MyBearingsModuleParameters } from "@/app/components/drawings/bearings-module/types";
+import type { MyBearingsModuleParameters } from "./model/types";
 
 const INITIAL_GEOMETRY: MyBearingsModuleParameters = {
   g1: 20,
@@ -14,6 +14,7 @@ const INITIAL_GEOMETRY: MyBearingsModuleParameters = {
   s1: 300,
   s2: 200,
   b: 250,
+  c: 30,
 };
 
 type MyBearingsModuleConfiguratorContextValue = {

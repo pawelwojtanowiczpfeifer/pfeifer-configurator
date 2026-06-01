@@ -27,12 +27,14 @@ export type MyDrawingPolygonProps = {
   hatch?: MyDrawingPolygonHatch | false;
   className?: string;
   ariaLabel?: string;
+  label?: string;
 };
 
 export type MyDrawingPolygonShapeProps = {
   points: Point2D[];
   edges?: MyDrawingPolygonEdgeStyle[];
   hatch?: MyDrawingPolygonHatch | false;
+  label?: string;
 };
 
 const DEFAULT_EDGE_STYLE: Required<MyDrawingPolygonEdgeStyle> = {
@@ -86,6 +88,7 @@ export function MyDrawingPolygonShape({
   points,
   edges = [],
   hatch = DEFAULT_HATCH,
+  label,
 }: MyDrawingPolygonShapeProps) {
   const patternId = useId().replace(/:/g, "");
   const pointsAttribute = points.map((point) => `${point.x},${point.y}`).join(" ");
@@ -99,7 +102,8 @@ export function MyDrawingPolygonShape({
     : [];
 
   return (
-    <>
+    <g data-label={label}>
+      {label ? <title>{label}</title> : null}
       {hatchSettings ? (
         <defs>
           {hatchAngles.map((angle, index) => (
@@ -167,7 +171,7 @@ export function MyDrawingPolygonShape({
           />
         );
       })}
-    </>
+    </g>
   );
 }
 
@@ -177,6 +181,7 @@ export default function MyDrawingPolygon({
   hatch = DEFAULT_HATCH,
   className = "",
   ariaLabel = "Drawing polygon",
+  label,
 }: MyDrawingPolygonProps) {
   if (points.length < 3) {
     return null;
@@ -199,6 +204,7 @@ export default function MyDrawingPolygon({
         points={translatedPoints}
         edges={edges}
         hatch={hatch}
+        label={label}
       />
     </svg>
   );

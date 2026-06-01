@@ -1,12 +1,5 @@
-import type { DrawingBounds } from "../primitives/MyDrawingCanvas";
-
-export type MyBearingsModuleParameters = {
-  g1: number;
-  g2: number;
-  s1: number;
-  s2: number;
-  b: number;
-};
+import type { DrawingBounds } from "@/app/components/drawings/primitives/MyDrawingCanvas";
+import type { MyBearingsModuleParameters } from "@/app/components/bearings-module/model/types";
 
 export type MyBearingsModuleDrawingProps = MyBearingsModuleParameters & {
   className?: string;

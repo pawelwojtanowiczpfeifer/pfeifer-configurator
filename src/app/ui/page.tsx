@@ -764,6 +764,15 @@ export default function UIPage() {
           <MySummaryRow label="Width" value="1200 mm" />
           <MySummaryRow label="Color" value="Black" className="border-b-0" />
         </MySidebar>
+
+        <div className="mt-4">
+          <MySidebar title="Colored Sidebar" backgroundColor="pfeifer">
+            <p className="text-sm">
+              Sidebar now supports the same `backgroundColor` and `color` props
+              as the top and bottom bars.
+            </p>
+          </MySidebar>
+        </div>
       </div>
 
       <MyDivider />
