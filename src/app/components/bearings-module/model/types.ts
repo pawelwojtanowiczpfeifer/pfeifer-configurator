@@ -5,6 +5,11 @@ export type MyBearingsModuleParameters = {
   s2: number;
   b: number;
   c: number;
+  n: number;
+  ds: number;
+  e1: number;
+  e2: number;
+  e3: number;
 };
 
 export type MyBearingsContactArea = {

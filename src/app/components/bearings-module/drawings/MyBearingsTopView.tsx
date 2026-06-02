@@ -4,6 +4,7 @@ import MyDrawingCanvas, {
 import MyDrawingDimensionLine from "@/app/components/drawings/primitives/MyDrawingDimensionLine";
 import { MyDrawingPolygonShape } from "@/app/components/drawings/primitives/MyDrawingPolygon";
 import type { MyBearingsTopViewProps } from "./types";
+import { MyDrawingCircle } from "../../drawings";
 
 function renderMyBearingsTopViewContent({
   g1,
@@ -12,8 +13,16 @@ function renderMyBearingsTopViewContent({
   s2,
   b,
   c,
+  n,
+  ds,
+  e1,
+  e2,
+  e3,
+  hasStuds = false,
+  ...geometry
 }: MyBearingsTopViewProps) {
   void g2;
+  void geometry;
 
   const supportStartX = 1.2 * s2;
   const supportEndX = supportStartX + s2;
@@ -43,7 +52,7 @@ function renderMyBearingsTopViewContent({
           { x: supportStartX, y: s1 },
           { x: 0, y: s1 },
         ]}
-        label="Left support section"
+        label="Support"
         edges={[
           {
             lineWidth: "thin",
@@ -71,9 +80,10 @@ function renderMyBearingsTopViewContent({
           variant: "none",
           color: "#9ca3af",
           lineWidth: 1,
-          backgroundColor: "lightgray",
+          backgroundColor: "rgba(160, 160, 160, 0.6)",
         }}
       />
+
       <MyDrawingPolygonShape
         points={[
           { x: supportStartX, y: 0 },
@@ -81,7 +91,7 @@ function renderMyBearingsTopViewContent({
           { x: supportEndX, y: s1 },
           { x: supportStartX, y: s1 },
         ]}
-        label="Support zone"
+        label="Support"
         edges={[
           {
             lineWidth: "thin",
@@ -109,9 +119,10 @@ function renderMyBearingsTopViewContent({
           variant: "none",
           color: "#9ca3af",
           lineWidth: 1,
-          backgroundColor: "lightgray",
+          backgroundColor: "rgba(160, 160, 160, 0.6)",
         }}
       />
+
       <MyDrawingPolygonShape
         points={[
           { x: beamStartX, y: beamStartY },
@@ -184,6 +195,46 @@ function renderMyBearingsTopViewContent({
           hatch={false}
         />
       ) : null}
+      {hasStuds ? (
+        <MyDrawingCircle
+          center={{ x: 1.2 * s2 + s2 - e1, y: e2 }}
+          diameter={ds}
+          lineWidth="thin"
+          lineStyle="solid"
+          lineColor="black"
+          fillColor="gray"
+        />
+      ) : null}
+      {hasStuds ? (
+        <MyDrawingCircle
+          center={{ x: 1.2 * s2 + s2 - e1, y: e2 }}
+          diameter={ds + 0.5 * ds}
+          lineWidth="thin"
+          lineStyle="solid"
+          lineColor="black"
+          fillColor="none"
+        />
+      ) : null}
+      {hasStuds && n === 2 ? (
+        <MyDrawingCircle
+          center={{ x: 1.2 * s2 + s2 - e1, y: e2 + e3 }}
+          diameter={ds}
+          lineWidth="thin"
+          lineStyle="solid"
+          lineColor="black"
+          fillColor="gray"
+        />
+      ) : null}
+      {hasStuds && n === 2 ? (
+        <MyDrawingCircle
+          center={{ x: 1.2 * s2 + s2 - e1, y: e2 + e3 }}
+          diameter={ds + 0.5 * ds}
+          lineWidth="thin"
+          lineStyle="solid"
+          lineColor="black"
+          fillColor="none"
+        />
+      ) : null}
       <MyDrawingDimensionLine
         start={{ x: supportStartX, y: 0 }}
         end={{ x: beamStartX, y: 0 }}
@@ -197,8 +248,8 @@ function renderMyBearingsTopViewContent({
         lineColor="black"
       />
       <MyDrawingDimensionLine
-        start={{ x: supportEndX, y: 0 }}
-        end={{ x: supportEndX, y: s1 }}
+        start={{ x: supportEndX + (hasStuds ? 0.2 * s2 : 0), y: 0 }}
+        end={{ x: supportEndX + (hasStuds ? 0.2 * s2 : 0), y: s1 }}
         value={s1}
         symbol="S1"
         textSize="lg"
@@ -210,8 +261,14 @@ function renderMyBearingsTopViewContent({
         lineColor="black"
       />
       <MyDrawingDimensionLine
-        start={{ x: supportEndX + 0.3 * s2, y: beamStartY }}
-        end={{ x: supportEndX + 0.3 * s2, y: beamEndY }}
+        start={{
+          x: supportEndX + (hasStuds ? 0.4 * s2 : 0.2 * s2),
+          y: beamStartY,
+        }}
+        end={{
+          x: supportEndX + (hasStuds ? 0.4 * s2 : 0.2 * s2),
+          y: beamEndY,
+        }}
         value={b}
         symbol="B"
         textSize="lg"
@@ -222,6 +279,54 @@ function renderMyBearingsTopViewContent({
         arrowStyle="filled"
         lineColor="black"
       />
+      {hasStuds ? (
+        <MyDrawingDimensionLine
+          start={{ x: supportEndX - e1, y: s1 }}
+          end={{ x: supportEndX, y: s1 }}
+          value={e1}
+          symbol="e1"
+          textSize="lg"
+          textGap={10}
+          textOffsetY={e1 <= 100 ? -5 : 0}
+          textOffsetX={e1 < 90 ? e1 * 0.5 + 52 : 0}
+          dimensionLinePosition="below"
+          arrowSize="xl"
+          arrowStyle="filled"
+          lineColor="black"
+        />
+      ) : null}
+      {hasStuds ? (
+        <MyDrawingDimensionLine
+          start={{ x: supportEndX, y: 0 }}
+          end={{ x: supportEndX, y: e2 }}
+          value={e2}
+          symbol="e2"
+          textSize="lg"
+          textOrientation="vertical"
+          textGap={-15}
+          textOffsetY={e2 < 90 ? e2 * -0.5 - 55 : 0}
+          dimensionLinePosition="above"
+          arrowSize="xl"
+          arrowStyle="filled"
+          lineColor="black"
+        />
+      ) : null}
+      {hasStuds && n === 2 ? (
+        <MyDrawingDimensionLine
+          start={{ x: supportEndX, y: e2 }}
+          end={{ x: supportEndX, y: e2 + e3 }}
+          value={e3}
+          symbol="e3"
+          textSize="lg"
+          textOrientation="vertical"
+          textGap={-15}
+          textOffsetY={e3 < 90 ? e3 * 0.5 + 55 : 0}
+          dimensionLinePosition="above"
+          arrowSize="xl"
+          arrowStyle="filled"
+          lineColor="black"
+        />
+      ) : null}
     </>
   );
 }
@@ -233,9 +338,10 @@ export function getMyBearingsTopViewBounds({
   s2,
   b,
   c,
+  ...geometry
 }: MyBearingsTopViewProps) {
   return getDrawingBoundsFromChildren(
-    renderMyBearingsTopViewContent({ g1, g2, s1, s2, b, c }),
+    renderMyBearingsTopViewContent({ g1, g2, s1, s2, b, c, ...geometry }),
   );
 }
 
@@ -249,6 +355,7 @@ export default function MyBearingsTopView({
   className,
   ariaLabel = "Bearings top view",
   fitBounds,
+  ...geometry
 }: MyBearingsTopViewProps) {
   return (
     <MyDrawingCanvas
@@ -263,7 +370,7 @@ export default function MyBearingsTopView({
       className={className}
       ariaLabel={ariaLabel}
     >
-      {renderMyBearingsTopViewContent({ g1, g2, s1, s2, b, c })}
+      {renderMyBearingsTopViewContent({ g1, g2, s1, s2, b, c, ...geometry })}
     </MyDrawingCanvas>
   );
 }

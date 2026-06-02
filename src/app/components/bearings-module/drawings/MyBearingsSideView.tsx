@@ -4,6 +4,7 @@ import MyDrawingCanvas, {
 import MyDrawingDimensionLine from "@/app/components/drawings/primitives/MyDrawingDimensionLine";
 import { MyDrawingPolygonShape } from "@/app/components/drawings/primitives/MyDrawingPolygon";
 import type { MyBearingsSideViewProps } from "./types";
+import { MyDrawingLine } from "../../drawings";
 
 function renderMyBearingsSideViewContent({
   g1,
@@ -12,13 +13,94 @@ function renderMyBearingsSideViewContent({
   s2,
   b,
   c,
+  e1,
+  ds,
+  hasStuds = false,
+  ...geometry
 }: MyBearingsSideViewProps) {
   void s1;
   void b;
   void c;
+  void geometry;
 
   return (
     <>
+      {hasStuds ? (
+        <MyDrawingPolygonShape
+          points={[
+            { x: 1.2 * s2 + s2 - e1 - 0.5 * ds, y: 0 },
+            { x: 1.2 * s2 + s2 - e1 - 0.5 * ds + ds, y: 0 },
+            {
+              x: 1.2 * s2 + s2 - e1 - 0.5 * ds + ds,
+              y: 1.2 * s2 + g2 + s2 - 35,
+            },
+            {
+              x: 1.2 * s2 + s2 - e1 - 0.5 * ds,
+              y: 1.2 * s2 + g2 + s2 - 35,
+            },
+          ]}
+          label="Stud"
+          edges={[
+            {
+              lineWidth: "thin",
+              lineStyle: "dashed",
+              lineColor: "gray",
+            },
+            {
+              lineWidth: "thin",
+              lineStyle: "dashed",
+              lineColor: "gray",
+            },
+            {
+              lineWidth: "thin",
+              lineStyle: "dashed",
+              lineColor: "gray",
+            },
+            {
+              lineWidth: "thin",
+              lineStyle: "dashed",
+              lineColor: "gray",
+            },
+          ]}
+          hatch={{
+            spacing: 10,
+            variant: "secondary",
+            color: "gray",
+            lineWidth: 1,
+            backgroundColor: "rgba(220, 220, 220, 0.8)",
+          }}
+        />
+      ) : null}
+      {hasStuds ? (
+        <MyDrawingLine
+          start={{
+            x: 1.2 * s2 + s2 - e1 - 0.5 * ds - (1.5 * ds - ds) / 2,
+            y: 0,
+          }}
+          end={{
+            x: 1.2 * s2 + s2 - e1 - 0.5 * ds - (1.5 * ds - ds) / 2,
+            y: 1.2 * s2,
+          }}
+          lineWidth="thin"
+          lineStyle="dashed"
+          lineColor="gray"
+        />
+      ) : null}
+      {hasStuds ? (
+        <MyDrawingLine
+          start={{
+            x: 1.2 * s2 + s2 - e1 + 0.5 * ds + (1.5 * ds - ds) / 2,
+            y: 0,
+          }}
+          end={{
+            x: 1.2 * s2 + s2 - e1 + 0.5 * ds + (1.5 * ds - ds) / 2,
+            y: 1.2 * s2,
+          }}
+          lineWidth="thin"
+          lineStyle="dashed"
+          lineColor="gray"
+        />
+      ) : null}
       <MyDrawingPolygonShape
         points={[
           { x: 0, y: 0 },
@@ -78,7 +160,7 @@ function renderMyBearingsSideViewContent({
           variant: "none",
           color: "#9ca3af",
           lineWidth: 1,
-          backgroundColor: "lightgray",
+          backgroundColor: "rgba(160, 160, 160, 0.6)",
         }}
       />
       <MyDrawingPolygonShape
@@ -116,9 +198,10 @@ function renderMyBearingsSideViewContent({
           variant: "cross",
           color: "gray",
           lineWidth: 1,
-          backgroundColor: "rgba(220, 220, 220, 0.8)",
+          backgroundColor: "rgba(220, 220, 220, 0.6)",
         }}
       />
+
       <MyDrawingDimensionLine
         start={{ x: 1.2 * s2, y: 0 }}
         end={{ x: 1.2 * s2 + g1, y: 0 }}
@@ -144,8 +227,11 @@ function renderMyBearingsSideViewContent({
         lineColor="black"
       />
       <MyDrawingDimensionLine
-        start={{ x: 1.2 * s2, y: 1.2 * s2 + g2 + s2 }}
-        end={{ x: 1.2 * s2 + s2, y: 1.2 * s2 + g2 + s2 }}
+        start={{ x: 1.2 * s2, y: 1.2 * s2 + g2 + s2 + (hasStuds ? 45 : 0) }}
+        end={{
+          x: 1.2 * s2 + s2,
+          y: 1.2 * s2 + g2 + s2 + (hasStuds ? 45 : 0),
+        }}
         value={s2}
         symbol="S2"
         textSize="lg"
@@ -155,6 +241,25 @@ function renderMyBearingsSideViewContent({
         arrowStyle="filled"
         lineColor="black"
       />
+      {hasStuds ? (
+        <MyDrawingDimensionLine
+          start={{
+            x: 1.2 * s2 + s2 - e1,
+            y: 1.2 * s2 + g2 + s2,
+          }}
+          end={{ x: 1.2 * s2 + s2, y: 1.2 * s2 + g2 + s2 }}
+          value={e1}
+          symbol="e1"
+          textSize="lg"
+          textGap={10}
+          textOffsetY={e1 <= 100 ? -5 : 0}
+          textOffsetX={e1 < 90 ? e1 * 0.5 + 52 : 0}
+          dimensionLinePosition="below"
+          arrowSize="xl"
+          arrowStyle="filled"
+          lineColor="black"
+        />
+      ) : null}
     </>
   );
 }
@@ -166,9 +271,10 @@ export function getMyBearingsSideViewBounds({
   s2,
   b,
   c,
+  ...geometry
 }: MyBearingsSideViewProps) {
   return getDrawingBoundsFromChildren(
-    renderMyBearingsSideViewContent({ g1, g2, s1, s2, b, c }),
+    renderMyBearingsSideViewContent({ g1, g2, s1, s2, b, c, ...geometry }),
   );
 }
 
@@ -182,6 +288,7 @@ export default function MyBearingsSideView({
   className,
   ariaLabel = "Bearings side view",
   fitBounds,
+  ...geometry
 }: MyBearingsSideViewProps) {
   return (
     <MyDrawingCanvas
@@ -196,7 +303,7 @@ export default function MyBearingsSideView({
       className={className}
       ariaLabel={ariaLabel}
     >
-      {renderMyBearingsSideViewContent({ g1, g2, s1, s2, b, c })}
+      {renderMyBearingsSideViewContent({ g1, g2, s1, s2, b, c, ...geometry })}
     </MyDrawingCanvas>
   );
 }

@@ -20,6 +20,7 @@ export type MyDrawingDimensionLineProps = {
   arrowStyle?: "open" | "filled" | "slash";
   arrowSize?: "sm" | "md" | "lg" | "xl" | number;
   textGap?: number;
+  textOffsetX?: number;
   textOffsetY?: number;
   textOrientation?: "horizontal" | "vertical";
   textSize?: "sm" | "md" | "lg" | "xl";
@@ -149,7 +150,7 @@ function getDimensionLabel({
   symbol,
 }: Pick<MyDrawingDimensionLineProps, "value" | "unit" | "symbol">) {
   const dimensionText = `${formatDimensionValue(value)}${unit ?? "mm"}`;
-  const label = symbol ? `${symbol} = ${dimensionText}` : `= ${dimensionText}`;
+  const label = symbol ? `${symbol}=${dimensionText}` : `=${dimensionText}`;
 
   return {
     dimensionText,
@@ -169,6 +170,7 @@ function getDimensionGeometry({
   extensionGap = 4,
   arrowSize = "md",
   textGap = 14,
+  textOffsetX = 0,
   textOffsetY = 0,
   textOrientation = "horizontal",
   textSize = "md",
@@ -185,6 +187,7 @@ function getDimensionGeometry({
   | "extensionGap"
   | "arrowSize"
   | "textGap"
+  | "textOffsetX"
   | "textOffsetY"
   | "textOrientation"
   | "textSize"
@@ -230,17 +233,18 @@ function getDimensionGeometry({
   const textPosition = isVerticalDimension
     ? textOrientation === "vertical"
       ? {
-          x: textAnchorPoint.x + normal.x * textGap,
+          x: textAnchorPoint.x + normal.x * textGap + textOffsetX,
           y: textAnchorPoint.y + textOffsetY,
         }
       : {
           x:
             textAnchorPoint.x +
-            normal.x * (resolvedArrowSize + textGap + estimatedLabelWidth / 2),
+            normal.x * (resolvedArrowSize + textGap + estimatedLabelWidth / 2) +
+            textOffsetX,
           y: textAnchorPoint.y + resolvedTextSize * 0.35 + textOffsetY,
         }
     : {
-        x: textAnchorPoint.x,
+        x: textAnchorPoint.x + textOffsetX,
         y: textAnchorPoint.y - textGap + textOffsetY,
       };
   const lineStart = useExternalArrows
@@ -316,6 +320,7 @@ export function getDrawingDimensionLineBounds({
   arrowStyle = "open",
   arrowSize = "md",
   textGap = 14,
+  textOffsetX = 0,
   textOffsetY = 0,
   textOrientation = "horizontal",
   textSize = "md",
@@ -333,6 +338,7 @@ export function getDrawingDimensionLineBounds({
   | "arrowStyle"
   | "arrowSize"
   | "textGap"
+  | "textOffsetX"
   | "textOffsetY"
   | "textOrientation"
   | "textSize"
@@ -349,6 +355,7 @@ export function getDrawingDimensionLineBounds({
     extensionGap,
     arrowSize,
     textGap,
+    textOffsetX,
     textOffsetY,
     textOrientation,
     textSize,
@@ -408,6 +415,7 @@ function MyDrawingDimensionLine({
   arrowStyle = "open",
   arrowSize = "md",
   textGap = 14,
+  textOffsetX = 0,
   textOffsetY = 0,
   textOrientation = "horizontal",
   textSize = "md",
@@ -435,6 +443,7 @@ function MyDrawingDimensionLine({
     arrowStyle,
     arrowSize,
     textGap,
+    textOffsetX,
     textOffsetY,
     textOrientation,
     textSize,
@@ -456,6 +465,7 @@ function MyDrawingDimensionLine({
     extensionGap,
     arrowSize,
     textGap,
+    textOffsetX,
     textOffsetY,
     textOrientation,
     textSize,
@@ -620,10 +630,10 @@ function MyDrawingDimensionLine({
                 {symbolSubscript}
               </tspan>
             ) : null}
-            <tspan>{` = ${geometry.dimensionText}`}</tspan>
+            <tspan>{`=${geometry.dimensionText}`}</tspan>
           </>
         ) : (
-          `= ${geometry.dimensionText}`
+          `=${geometry.dimensionText}`
         )}
       </text>
     </g>

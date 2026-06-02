@@ -1,3 +1,4 @@
+import type { DrawingBounds } from "./MyDrawingCanvas";
 import {
   LINE_WIDTHS,
   type LineStyle,
@@ -15,6 +16,21 @@ export type MyDrawingLineProps = {
   className?: string;
 };
 
+export function getDrawingLineBounds({
+  start,
+  end,
+  lineWidth = "medium",
+}: Pick<MyDrawingLineProps, "start" | "end" | "lineWidth">): DrawingBounds {
+  const strokePadding = LINE_WIDTHS[lineWidth] / 2;
+
+  return {
+    minX: Math.min(start.x, end.x) - strokePadding,
+    minY: Math.min(start.y, end.y) - strokePadding,
+    maxX: Math.max(start.x, end.x) + strokePadding,
+    maxY: Math.max(start.y, end.y) + strokePadding,
+  };
+}
+
 export default function MyDrawingLine({
   start,
   end,
@@ -29,41 +45,22 @@ export default function MyDrawingLine({
     lineColor,
   });
 
-  const minX = Math.min(start.x, end.x);
-  const minY = Math.min(start.y, end.y);
-  const maxX = Math.max(start.x, end.x);
-  const maxY = Math.max(start.y, end.y);
-  const padding = LINE_WIDTHS.thick * 2;
-
-  const width = Math.max(maxX - minX + padding * 2, strokeWidth + padding * 2);
-  const height = Math.max(
-    maxY - minY + padding * 2,
-    strokeWidth + padding * 2,
-  );
-
-  const x1 = start.x - minX + padding;
-  const y1 = start.y - minY + padding;
-  const x2 = end.x - minX + padding;
-  const y2 = end.y - minY + padding;
-
   return (
-    <svg
-      viewBox={`0 0 ${width} ${height}`}
+    <line
+      x1={start.x}
+      y1={start.y}
+      x2={end.x}
+      y2={end.y}
+      stroke={stroke}
+      strokeWidth={strokeWidth}
+      strokeDasharray={strokeDasharray}
+      strokeLinecap="square"
+      vectorEffect="non-scaling-stroke"
       className={className}
       aria-label="Drawing line"
       role="img"
-    >
-      <line
-        x1={x1}
-        y1={y1}
-        x2={x2}
-        y2={y2}
-        stroke={stroke}
-        strokeWidth={strokeWidth}
-        strokeDasharray={strokeDasharray}
-        strokeLinecap="square"
-        vectorEffect="non-scaling-stroke"
-      />
-    </svg>
+    />
   );
 }
+
+MyDrawingLine.getBounds = getDrawingLineBounds;

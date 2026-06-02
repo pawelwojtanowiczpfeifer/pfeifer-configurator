@@ -5,6 +5,11 @@ export {
   type DrawingBounds,
 } from "./MyDrawingCanvas";
 export {
+  default as MyDrawingCircle,
+  getDrawingCircleBounds,
+  type MyDrawingCircleProps,
+} from "./MyDrawingCircle";
+export {
   default as MyDrawingDimensionLine,
   getDrawingDimensionLineBounds,
   type MyDrawingDimensionLineProps,

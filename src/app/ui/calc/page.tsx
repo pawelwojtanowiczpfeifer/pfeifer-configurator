@@ -49,7 +49,11 @@ export default function CalcPage() {
             width="full"
             p="none"
           >
-            <MySidebar title="Fill in" size="lg" height="full">
+            <MySidebar
+              title="Fill in the geometric data"
+              size="lg"
+              height="full"
+            >
               {/* <MyLabel size="small">Project name</MyLabel>
               <MyInput placeholder="Enter project name" />
               <MyDivider /> */}

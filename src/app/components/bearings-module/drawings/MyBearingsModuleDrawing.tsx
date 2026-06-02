@@ -13,6 +13,7 @@ export default function MyBearingsModuleDrawing({
   c,
   className,
   ariaLabel = "Bearings module drawing",
+  ...geometry
 }: MyBearingsModuleDrawingProps) {
   return (
     <MyHStack
@@ -26,6 +27,7 @@ export default function MyBearingsModuleDrawing({
     >
       <MyDrawingScaleGroup>
         <MyBearingsSideView
+          {...geometry}
           g1={g1}
           g2={g2}
           s1={s1}
@@ -35,6 +37,7 @@ export default function MyBearingsModuleDrawing({
           ariaLabel={`${ariaLabel} side view`}
         />
         <MyBearingsTopView
+          {...geometry}
           g1={g1}
           g2={g2}
           s1={s1}
