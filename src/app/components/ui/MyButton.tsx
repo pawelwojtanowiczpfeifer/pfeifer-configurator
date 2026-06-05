@@ -1,17 +1,19 @@
-export type ButtonProps = {
+export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   children: React.ReactNode;
-  onClick?: () => void;
   variant?: "primary" | "secondary" | "outline";
   size?: "small" | "medium";
 };
 
 export default function MyButton({
   children,
-  onClick,
   variant = "primary",
   size = "medium",
+  type = "button",
+  className = "",
+  ...props
 }: ButtonProps) {
-  const base = "rounded-lg font-medium transition";
+  const base =
+    "relative inline-flex items-center justify-center rounded-lg font-medium transition touch-manipulation cursor-pointer disabled:cursor-not-allowed disabled:opacity-60";
 
   const variants = {
     primary: "bg-blue-600 text-white hover:bg-blue-700",
@@ -26,8 +28,9 @@ export default function MyButton({
 
   return (
     <button
-      onClick={onClick}
-      className={`${base} ${variants[variant]} ${sizes[size]}`}
+      type={type}
+      className={`${base} ${variants[variant]} ${sizes[size]} ${className}`}
+      {...props}
     >
       {children}
     </button>

@@ -5,11 +5,17 @@ export type MyBearingsModuleParameters = {
   s2: number;
   b: number;
   c: number;
-  n: number;
+  n: 1 | 2;
   ds: number;
   e1: number;
   e2: number;
   e3: number;
+};
+
+export type MyBearingsModuleForceAndDeformation = {
+  designVerticalForce: number;
+  bearingRotation: number;
+  horizontalDeformation: number;
 };
 
 export type MyBearingsContactArea = {

@@ -6,7 +6,10 @@ import {
   useState,
   type PropsWithChildren,
 } from "react";
-import type { MyBearingsModuleParameters } from "./model/types";
+import type {
+  MyBearingsModuleForceAndDeformation,
+  MyBearingsModuleParameters,
+} from "./model/types";
 
 const INITIAL_S2 = 200;
 
@@ -24,9 +27,19 @@ const INITIAL_GEOMETRY: MyBearingsModuleParameters = {
   e3: 0,
 };
 
+const INITIAL_FORCE_AND_DEFORMATION: MyBearingsModuleForceAndDeformation = {
+  designVerticalForce: 500,
+  bearingRotation: 10,
+  horizontalDeformation: 3,
+};
+
 type MyBearingsModuleConfiguratorContextValue = {
   geometry: MyBearingsModuleParameters;
   setGeometry: React.Dispatch<React.SetStateAction<MyBearingsModuleParameters>>;
+  forceAndDeformation: MyBearingsModuleForceAndDeformation;
+  setForceAndDeformation: React.Dispatch<
+    React.SetStateAction<MyBearingsModuleForceAndDeformation>
+  >;
   hasStuds: boolean;
   setHasStuds: React.Dispatch<React.SetStateAction<boolean>>;
 };
@@ -51,11 +64,22 @@ export default function MyBearingsModuleConfigurator({
 }: PropsWithChildren) {
   const [geometry, setGeometry] =
     useState<MyBearingsModuleParameters>(INITIAL_GEOMETRY);
+  const [forceAndDeformation, setForceAndDeformation] =
+    useState<MyBearingsModuleForceAndDeformation>(
+      INITIAL_FORCE_AND_DEFORMATION,
+    );
   const [hasStuds, setHasStuds] = useState(false);
 
   return (
     <MyBearingsModuleConfiguratorContext.Provider
-      value={{ geometry, setGeometry, hasStuds, setHasStuds }}
+      value={{
+        geometry,
+        setGeometry,
+        forceAndDeformation,
+        setForceAndDeformation,
+        hasStuds,
+        setHasStuds,
+      }}
     >
       {children}
     </MyBearingsModuleConfiguratorContext.Provider>

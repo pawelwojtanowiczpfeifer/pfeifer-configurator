@@ -6,8 +6,7 @@ import MyLabel from "@/app/components/ui/MyLabel";
 import MyVStack from "@/app/components/ui/MyVStack";
 import { useMyBearingsModuleConfigurator } from "@/app/components/bearings-module/MyBearingsModuleConfigurator";
 import MyCheckbox from "../../ui/MyCheckbox";
-import MySelect from "../../ui/MySelect";
-import MyDivider from "../../ui/MyDivider";
+import MySelect, { type SelectOption } from "../../ui/MySelect";
 
 function getStudDefaults(n: 1 | 2, s1: number) {
   if (n === 2) {
@@ -24,7 +23,7 @@ function getStudDefaults(n: 1 | 2, s1: number) {
 }
 
 export default function MyBearingsModuleGeometricDataForm() {
-  const studsNumber = [
+  const studsNumber: SelectOption<1 | 2>[] = [
     { label: "1", value: 1 },
     { label: "2", value: 2 },
   ];
@@ -78,8 +77,7 @@ export default function MyBearingsModuleGeometricDataForm() {
   };
 
   const updateStudCount = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const nextStudCount = Number(event.target.value) as
-      | (typeof studsNumber)[number]["value"];
+    const nextStudCount: 1 | 2 = event.target.value === "2" ? 2 : 1;
     const studDefaults = getStudDefaults(nextStudCount, geometry.s1);
 
     setGeometry((current) => ({
@@ -98,10 +96,6 @@ export default function MyBearingsModuleGeometricDataForm() {
     const nextHasStuds = event.target.checked;
 
     setHasStuds(nextHasStuds);
-    setGeometry((current) => ({
-      ...current,
-      n: nextHasStuds ? (current.n === 0 ? 1 : current.n) : 0,
-    }));
   };
 
   return (

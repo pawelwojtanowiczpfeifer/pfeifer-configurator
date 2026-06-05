@@ -5,6 +5,7 @@ import {
   MyBearingsEffectiveSurfaceAreaResult,
   MyBearingsModuleConfigurator,
   MyBearingsModuleDrawingContent,
+  MyBearingsModuleForceAndDeformationForm,
   MyBearingsModuleGeometricDataForm,
 } from "@/app/components/bearings-module";
 import MyBottombar from "@/app/components/ui/MyBottombar";
@@ -54,14 +55,16 @@ export default function CalcPage() {
               size="lg"
               height="full"
             >
-              {/* <MyLabel size="small">Project name</MyLabel>
-              <MyInput placeholder="Enter project name" />
-              <MyDivider /> */}
               <MyBearingsModuleGeometricDataForm />
             </MySidebar>
-            <MySidebar title="Drawing" size="full" height="full">
-              <MyBearingsModuleDrawingContent />
-            </MySidebar>
+            <MyVStack flex={1} minHeight="0" gap="sm">
+              <MySidebar title="Force and Deformation" size="full">
+                <MyBearingsModuleForceAndDeformationForm />
+              </MySidebar>
+              <MySidebar title="Drawing" size="full" height="full" flex={1}>
+                <MyBearingsModuleDrawingContent />
+              </MySidebar>
+            </MyVStack>
             <MySidebar title="Results" size="lg" height="full">
               <MyBearingsContactAreaResult />
               <MyBearingsEffectiveSurfaceAreaResult />
