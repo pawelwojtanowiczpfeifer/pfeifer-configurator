@@ -6,7 +6,7 @@ import { MyDrawingPolygonShape } from "@/app/components/drawings/primitives/MyDr
 import type { MyBearingsTopViewProps } from "./types";
 import { MyDrawingCircle } from "../../drawings";
 
-function renderMyBearingsTopViewContent({
+function renderMyBearingsTopViewGeometry({
   g1,
   g2,
   s1,
@@ -19,10 +19,13 @@ function renderMyBearingsTopViewContent({
   e2,
   e3,
   hasStuds = false,
+  dimensionScale = 1,
+  hatchScale = 1,
   ...geometry
 }: MyBearingsTopViewProps) {
   void g2;
   void geometry;
+  void dimensionScale;
 
   const supportStartX = 1.2 * s2;
   const supportEndX = supportStartX + s2;
@@ -81,6 +84,7 @@ function renderMyBearingsTopViewContent({
           color: "#9ca3af",
           lineWidth: 1,
           backgroundColor: "rgba(160, 160, 160, 0.6)",
+          scale: hatchScale,
         }}
       />
 
@@ -120,6 +124,7 @@ function renderMyBearingsTopViewContent({
           color: "#9ca3af",
           lineWidth: 1,
           backgroundColor: "rgba(160, 160, 160, 0.6)",
+          scale: hatchScale,
         }}
       />
 
@@ -159,6 +164,7 @@ function renderMyBearingsTopViewContent({
           color: "gray",
           lineWidth: 1,
           backgroundColor: "rgba(220, 220, 220, 0.8)",
+          scale: hatchScale,
         }}
       />
       {shouldRenderEffectiveArea ? (
@@ -235,11 +241,43 @@ function renderMyBearingsTopViewContent({
           fillColor="none"
         />
       ) : null}
+    </>
+  );
+}
+
+function renderMyBearingsTopViewDimensions({
+  g1,
+  g2,
+  s1,
+  s2,
+  b,
+  c,
+  n,
+  ds,
+  e1,
+  e2,
+  e3,
+  hasStuds = false,
+  dimensionScale = 1,
+}: MyBearingsTopViewProps) {
+  void g2;
+  void n;
+  void ds;
+  void c;
+  const supportStartX = 1.2 * s2;
+  const supportEndX = supportStartX + s2;
+  const beamStartX = supportStartX + g1;
+  const beamStartY = (s1 - b) / 2;
+  const beamEndY = beamStartY + b;
+
+  return (
+    <>
       <MyDrawingDimensionLine
         start={{ x: supportStartX, y: 0 }}
         end={{ x: beamStartX, y: 0 }}
         value={g1}
         symbol="g1"
+        sizeScale={dimensionScale}
         textSize="lg"
         textGap={20}
         dimensionLinePosition="above"
@@ -252,6 +290,7 @@ function renderMyBearingsTopViewContent({
         end={{ x: supportEndX + (hasStuds ? 0.2 * s2 : 0), y: s1 }}
         value={s1}
         symbol="S1"
+        sizeScale={dimensionScale}
         textSize="lg"
         textOrientation="vertical"
         textGap={-10}
@@ -271,6 +310,7 @@ function renderMyBearingsTopViewContent({
         }}
         value={b}
         symbol="B"
+        sizeScale={dimensionScale}
         textSize="lg"
         textOrientation="vertical"
         textGap={-15}
@@ -285,6 +325,7 @@ function renderMyBearingsTopViewContent({
           end={{ x: supportEndX, y: s1 }}
           value={e1}
           symbol="e1"
+          sizeScale={dimensionScale}
           textSize="lg"
           textGap={10}
           textOffsetY={e1 <= 100 ? -5 : 0}
@@ -301,6 +342,7 @@ function renderMyBearingsTopViewContent({
           end={{ x: supportEndX, y: e2 }}
           value={e2}
           symbol="e2"
+          sizeScale={dimensionScale}
           textSize="lg"
           textOrientation="vertical"
           textGap={-15}
@@ -317,6 +359,7 @@ function renderMyBearingsTopViewContent({
           end={{ x: supportEndX, y: e2 + e3 }}
           value={e3}
           symbol="e3"
+          sizeScale={dimensionScale}
           textSize="lg"
           textOrientation="vertical"
           textGap={-15}
@@ -331,7 +374,7 @@ function renderMyBearingsTopViewContent({
   );
 }
 
-export function getMyBearingsTopViewBounds({
+export function getMyBearingsTopViewGeometryBounds({
   g1,
   g2,
   s1,
@@ -341,7 +384,34 @@ export function getMyBearingsTopViewBounds({
   ...geometry
 }: MyBearingsTopViewProps) {
   return getDrawingBoundsFromChildren(
-    renderMyBearingsTopViewContent({ g1, g2, s1, s2, b, c, ...geometry }),
+    renderMyBearingsTopViewGeometry({ g1, g2, s1, s2, b, c, ...geometry }),
+  );
+}
+
+export function getMyBearingsTopViewBounds({
+  g1,
+  g2,
+  s1,
+  s2,
+  b,
+  c,
+  dimensionScale = 1,
+  ...geometry
+}: MyBearingsTopViewProps) {
+  return getDrawingBoundsFromChildren(
+    <>
+      {renderMyBearingsTopViewGeometry({ g1, g2, s1, s2, b, c, ...geometry })}
+      {renderMyBearingsTopViewDimensions({
+        g1,
+        g2,
+        s1,
+        s2,
+        b,
+        c,
+        dimensionScale,
+        ...geometry,
+      })}
+    </>,
   );
 }
 
@@ -355,6 +425,7 @@ export default function MyBearingsTopView({
   className,
   ariaLabel = "Bearings top view",
   fitBounds,
+  dimensionScale = 1,
   ...geometry
 }: MyBearingsTopViewProps) {
   return (
@@ -370,7 +441,17 @@ export default function MyBearingsTopView({
       className={className}
       ariaLabel={ariaLabel}
     >
-      {renderMyBearingsTopViewContent({ g1, g2, s1, s2, b, c, ...geometry })}
+      {renderMyBearingsTopViewGeometry({ g1, g2, s1, s2, b, c, ...geometry })}
+      {renderMyBearingsTopViewDimensions({
+        g1,
+        g2,
+        s1,
+        s2,
+        b,
+        c,
+        dimensionScale,
+        ...geometry,
+      })}
     </MyDrawingCanvas>
   );
 }

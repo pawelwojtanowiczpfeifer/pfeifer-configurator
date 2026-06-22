@@ -19,6 +19,7 @@ export type MyDrawingPolygonHatch = {
   color?: string;
   lineWidth?: number;
   backgroundColor?: string;
+  scale?: number;
 };
 
 export type MyDrawingPolygonProps = {
@@ -49,6 +50,7 @@ const DEFAULT_HATCH: Required<MyDrawingPolygonHatch> = {
   color: "#9ca3af",
   lineWidth: 1,
   backgroundColor: "#ffffff",
+  scale: 1,
 };
 
 const HATCH_ANGLES = {
@@ -56,6 +58,14 @@ const HATCH_ANGLES = {
   secondary: 135,
   cross: [45, 135],
 } as const;
+
+function resolveHatchScale(scale: number) {
+  if (!Number.isFinite(scale) || scale <= 0) {
+    return 1;
+  }
+
+  return scale;
+}
 
 export function getPolygonBounds(
   points: Point2D[],
@@ -93,6 +103,9 @@ export function MyDrawingPolygonShape({
   const patternId = useId().replace(/:/g, "");
   const pointsAttribute = points.map((point) => `${point.x},${point.y}`).join(" ");
   const hatchSettings = hatch ? { ...DEFAULT_HATCH, ...hatch } : null;
+  const hatchSpacing = hatchSettings
+    ? hatchSettings.spacing * resolveHatchScale(hatchSettings.scale)
+    : 0;
   const hatchAngles = hatchSettings
     ? hatchSettings.variant === "none"
       ? []
@@ -110,15 +123,15 @@ export function MyDrawingPolygonShape({
             <pattern
               key={`${patternId}-${angle}-${index}`}
               id={`${patternId}-${index}`}
-              width={hatchSettings.spacing}
-              height={hatchSettings.spacing}
+              width={hatchSpacing}
+              height={hatchSpacing}
               patternUnits="userSpaceOnUse"
               patternTransform={`rotate(${angle})`}
             >
               <line
                 x1="0"
                 y1="0"
-                x2={hatchSettings.spacing}
+                x2={hatchSpacing}
                 y2="0"
                 stroke={hatchSettings.color}
                 strokeWidth={hatchSettings.lineWidth}

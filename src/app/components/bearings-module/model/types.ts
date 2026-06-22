@@ -1,4 +1,5 @@
 export type MyBearingsModuleParameters = {
+  isEndNotchedBeam: boolean;
   g1: number;
   g2: number;
   s1: number;
@@ -17,6 +18,12 @@ export type MyBearingsModuleForceAndDeformation = {
   bearingRotation: number;
   horizontalDeformation: number;
 };
+
+export type MyBearingsModuleFireResistance =
+  | "not-specified"
+  | "R30"
+  | "R60"
+  | "R120";
 
 export type MyBearingsContactArea = {
   contactLength: number;

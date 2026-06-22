@@ -13,6 +13,7 @@ export type MyDrawingDimensionLineProps = {
   value: number | string;
   unit?: string;
   symbol?: string;
+  sizeScale?: number;
   offset?: number;
   dimensionLinePosition?: "above" | "below";
   extensionOvershoot?: number;
@@ -77,6 +78,14 @@ function resolveArrowSize(arrowSize: MyDrawingDimensionLineProps["arrowSize"]) {
   }
 
   return ARROW_SIZES[arrowSize ?? "md"];
+}
+
+function resolveSizeScale(sizeScale: number | undefined) {
+  if (!sizeScale || Number.isNaN(sizeScale) || sizeScale <= 0) {
+    return 1;
+  }
+
+  return sizeScale;
 }
 
 function createArrowHeadPath(
@@ -164,6 +173,7 @@ function getDimensionGeometry({
   value,
   unit = "mm",
   symbol,
+  sizeScale = 1,
   offset = 36,
   dimensionLinePosition = "above",
   extensionOvershoot = 8,
@@ -181,6 +191,7 @@ function getDimensionGeometry({
   | "value"
   | "unit"
   | "symbol"
+  | "sizeScale"
   | "offset"
   | "dimensionLinePosition"
   | "extensionOvershoot"
@@ -204,20 +215,27 @@ function getDimensionGeometry({
     x: deltaX / length,
     y: deltaY / length,
   };
-  const resolvedTextSize = resolveTextSize(textSize);
-  const resolvedArrowSize = resolveArrowSize(arrowSize);
+  const resolvedSizeScale = resolveSizeScale(sizeScale);
+  const scaledOffset = offset * resolvedSizeScale;
+  const scaledExtensionOvershoot = extensionOvershoot * resolvedSizeScale;
+  const scaledExtensionGap = extensionGap * resolvedSizeScale;
+  const scaledTextGap = textGap * resolvedSizeScale;
+  const scaledTextOffsetX = textOffsetX * resolvedSizeScale;
+  const scaledTextOffsetY = textOffsetY * resolvedSizeScale;
+  const resolvedTextSize = resolveTextSize(textSize) * resolvedSizeScale;
+  const resolvedArrowSize = resolveArrowSize(arrowSize) * resolvedSizeScale;
   const positionMultiplier = dimensionLinePosition === "below" ? 1 : -1;
   const normal = {
     x: -direction.y * positionMultiplier,
     y: direction.x * positionMultiplier,
   };
   const dimensionStart = {
-    x: start.x + normal.x * offset,
-    y: start.y + normal.y * offset,
+    x: start.x + normal.x * scaledOffset,
+    y: start.y + normal.y * scaledOffset,
   };
   const dimensionEnd = {
-    x: end.x + normal.x * offset,
-    y: end.y + normal.y * offset,
+    x: end.x + normal.x * scaledOffset,
+    y: end.y + normal.y * scaledOffset,
   };
   const { dimensionText, label } = getDimensionLabel({ value, unit, symbol });
   const estimatedLabelWidth = estimateTextWidth(label, resolvedTextSize);
@@ -233,19 +251,20 @@ function getDimensionGeometry({
   const textPosition = isVerticalDimension
     ? textOrientation === "vertical"
       ? {
-          x: textAnchorPoint.x + normal.x * textGap + textOffsetX,
-          y: textAnchorPoint.y + textOffsetY,
+          x: textAnchorPoint.x + normal.x * scaledTextGap + scaledTextOffsetX,
+          y: textAnchorPoint.y + scaledTextOffsetY,
         }
       : {
           x:
             textAnchorPoint.x +
-            normal.x * (resolvedArrowSize + textGap + estimatedLabelWidth / 2) +
-            textOffsetX,
-          y: textAnchorPoint.y + resolvedTextSize * 0.35 + textOffsetY,
+            normal.x *
+              (resolvedArrowSize + scaledTextGap + estimatedLabelWidth / 2) +
+            scaledTextOffsetX,
+          y: textAnchorPoint.y + resolvedTextSize * 0.35 + scaledTextOffsetY,
         }
     : {
-        x: textAnchorPoint.x + textOffsetX,
-        y: textAnchorPoint.y - textGap + textOffsetY,
+        x: textAnchorPoint.x + scaledTextOffsetX,
+        y: textAnchorPoint.y - scaledTextGap + scaledTextOffsetY,
       };
   const lineStart = useExternalArrows
     ? {
@@ -266,20 +285,20 @@ function getDimensionGeometry({
     ? { x: -direction.x, y: -direction.y }
     : { x: direction.x, y: direction.y };
   const startExtensionEnd = {
-    x: dimensionStart.x + normal.x * extensionOvershoot,
-    y: dimensionStart.y + normal.y * extensionOvershoot,
+    x: dimensionStart.x + normal.x * scaledExtensionOvershoot,
+    y: dimensionStart.y + normal.y * scaledExtensionOvershoot,
   };
   const startExtensionStart = {
-    x: start.x + normal.x * extensionGap,
-    y: start.y + normal.y * extensionGap,
+    x: start.x + normal.x * scaledExtensionGap,
+    y: start.y + normal.y * scaledExtensionGap,
   };
   const endExtensionEnd = {
-    x: dimensionEnd.x + normal.x * extensionOvershoot,
-    y: dimensionEnd.y + normal.y * extensionOvershoot,
+    x: dimensionEnd.x + normal.x * scaledExtensionOvershoot,
+    y: dimensionEnd.y + normal.y * scaledExtensionOvershoot,
   };
   const endExtensionStart = {
-    x: end.x + normal.x * extensionGap,
-    y: end.y + normal.y * extensionGap,
+    x: end.x + normal.x * scaledExtensionGap,
+    y: end.y + normal.y * scaledExtensionGap,
   };
 
   return {
@@ -313,6 +332,7 @@ export function getDrawingDimensionLineBounds({
   value,
   unit = "mm",
   symbol,
+  sizeScale = 1,
   offset = 36,
   dimensionLinePosition = "above",
   extensionOvershoot = 8,
@@ -331,6 +351,7 @@ export function getDrawingDimensionLineBounds({
   | "value"
   | "unit"
   | "symbol"
+  | "sizeScale"
   | "offset"
   | "dimensionLinePosition"
   | "extensionOvershoot"
@@ -349,6 +370,7 @@ export function getDrawingDimensionLineBounds({
     value,
     unit,
     symbol,
+    sizeScale,
     offset,
     dimensionLinePosition,
     extensionOvershoot,
@@ -408,6 +430,7 @@ function MyDrawingDimensionLine({
   value,
   unit = "mm",
   symbol,
+  sizeScale = 1,
   offset = 36,
   dimensionLinePosition = "above",
   extensionOvershoot = 8,
@@ -436,6 +459,7 @@ function MyDrawingDimensionLine({
     value,
     unit,
     symbol,
+    sizeScale,
     offset,
     dimensionLinePosition,
     extensionOvershoot,
@@ -459,6 +483,7 @@ function MyDrawingDimensionLine({
     value,
     unit,
     symbol,
+    sizeScale,
     offset,
     dimensionLinePosition,
     extensionOvershoot,

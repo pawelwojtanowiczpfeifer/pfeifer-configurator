@@ -5,6 +5,7 @@ import {
   MyBearingsEffectiveSurfaceAreaResult,
   MyBearingsModuleConfigurator,
   MyBearingsModuleDrawingContent,
+  MyBearingsModuleFireResistanceForm,
   MyBearingsModuleForceAndDeformationForm,
   MyBearingsModuleGeometricDataForm,
 } from "@/app/components/bearings-module";
@@ -50,17 +51,18 @@ export default function CalcPage() {
             width="full"
             p="none"
           >
-            <MySidebar
-              title="Fill in the geometric data"
-              size="lg"
-              height="full"
-            >
+            <MySidebar title="Geometric" size="lg" height="full">
               <MyBearingsModuleGeometricDataForm />
             </MySidebar>
             <MyVStack flex={1} minHeight="0" gap="sm">
-              <MySidebar title="Force and Deformation" size="full">
-                <MyBearingsModuleForceAndDeformationForm />
-              </MySidebar>
+              <MyHStack gap="sm" align="stretch" width="full">
+                <MySidebar title="Force and Deformation" size="full" flex={4}>
+                  <MyBearingsModuleForceAndDeformationForm />
+                </MySidebar>
+                <MySidebar title="Fire resistance" size="full" flex={1}>
+                  <MyBearingsModuleFireResistanceForm />
+                </MySidebar>
+              </MyHStack>
               <MySidebar title="Drawing" size="full" height="full" flex={1}>
                 <MyBearingsModuleDrawingContent />
               </MySidebar>

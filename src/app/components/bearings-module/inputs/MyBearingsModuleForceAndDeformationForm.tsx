@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { useMyBearingsModuleConfigurator } from "@/app/components/bearings-module/MyBearingsModuleConfigurator";
+import MyFieldLabel from "@/app/components/ui/MyFieldLabel";
 import MyHStack from "@/app/components/ui/MyHStack";
 import MyInput from "@/app/components/ui/MyInput";
-import MyLabel from "@/app/components/ui/MyLabel";
 import MyVStack from "@/app/components/ui/MyVStack";
 
 export default function MyBearingsModuleForceAndDeformationForm() {
@@ -50,15 +50,22 @@ export default function MyBearingsModuleForceAndDeformationForm() {
   };
 
   return (
-    <MyHStack gap="sm" align="end" className="overflow-x-auto">
+    <MyHStack
+      gap="sm"
+      align="end"
+      justify="between"
+      width="full"
+      className="overflow-x-auto"
+    >
       <MyVStack gap="xs" className="shrink-0">
-        <MyLabel size="small">
-          design vertical force (
-          <b>
-            F<sub>E,d</sub>
-          </b>
-          )
-        </MyLabel>
+        <MyFieldLabel
+          symbol={
+            <>
+              F<sub>E,d</sub>
+            </>
+          }
+          description="design vertical force"
+        />
         <MyInput
           type="number"
           size="sm"
@@ -71,11 +78,7 @@ export default function MyBearingsModuleForceAndDeformationForm() {
       </MyVStack>
 
       <MyVStack gap="xs" className="shrink-0">
-        <MyLabel size="small">
-          bearing rotation (
-          <b>&alpha;</b>
-          )
-        </MyLabel>
+        <MyFieldLabel symbol="α" description="bearing rotation" />
         <MyInput
           type="number"
           size="sm"
@@ -88,9 +91,7 @@ export default function MyBearingsModuleForceAndDeformationForm() {
       </MyVStack>
 
       <MyVStack gap="xs" className="shrink-0">
-        <MyLabel size="small">
-          horizontal deformation (<b>u</b>)
-        </MyLabel>
+        <MyFieldLabel symbol="u" description="horizontal deformation" />
         <MyInput
           type="number"
           size="sm"

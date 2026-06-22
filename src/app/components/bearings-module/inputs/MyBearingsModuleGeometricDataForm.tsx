@@ -1,12 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import MyFieldLabel from "@/app/components/ui/MyFieldLabel";
 import MyInput from "@/app/components/ui/MyInput";
-import MyLabel from "@/app/components/ui/MyLabel";
+import MySegmentedControl, {
+  type SegmentedControlOption,
+} from "@/app/components/ui/MySegmentedControl";
+import MySelect, { type SelectOption } from "@/app/components/ui/MySelect";
 import MyVStack from "@/app/components/ui/MyVStack";
+import MyLabel from "@/app/components/ui/MyLabel";
 import { useMyBearingsModuleConfigurator } from "@/app/components/bearings-module/MyBearingsModuleConfigurator";
 import MyCheckbox from "../../ui/MyCheckbox";
-import MySelect, { type SelectOption } from "../../ui/MySelect";
 
 function getStudDefaults(n: 1 | 2, s1: number) {
   if (n === 2) {
@@ -23,9 +27,32 @@ function getStudDefaults(n: 1 | 2, s1: number) {
 }
 
 export default function MyBearingsModuleGeometricDataForm() {
-  const studsNumber: SelectOption<1 | 2>[] = [
+  const beamTypeOptions: SegmentedControlOption<
+    "without-end-notch" | "end-notched"
+  >[] = [
+    {
+      label: "without end notch",
+      value: "without-end-notch",
+    },
+    {
+      label: "with end notch",
+      value: "end-notched",
+    },
+  ];
+  const studsNumber: SegmentedControlOption<1 | 2>[] = [
     { label: "1", value: 1 },
     { label: "2", value: 2 },
+  ];
+  const studDiameterOptions: SelectOption<number>[] = [
+    { label: "10 mm", value: 10 },
+    { label: "12 mm", value: 12 },
+    { label: "16 mm", value: 16 },
+    { label: "20 mm", value: 20 },
+    { label: "25 mm", value: 25 },
+    { label: "30 mm", value: 30 },
+    { label: "32 mm", value: 32 },
+    { label: "36 mm", value: 36 },
+    { label: "40 mm", value: 40 },
   ];
   const { geometry, setGeometry, hasStuds, setHasStuds } =
     useMyBearingsModuleConfigurator();
@@ -37,7 +64,6 @@ export default function MyBearingsModuleGeometricDataForm() {
     s2: `${geometry.s2}`,
     b: `${geometry.b}`,
     c: `${geometry.c}`,
-    ds: `${geometry.ds}`,
     e1: `${geometry.e1}`,
     e2: `${geometry.e2}`,
     e3: `${geometry.e3}`,
@@ -76,7 +102,7 @@ export default function MyBearingsModuleGeometricDataForm() {
     }));
   };
 
-  const updateStudCount = (event: React.ChangeEvent<HTMLSelectElement>) => {
+  const updateStudCount = (event: React.ChangeEvent<HTMLInputElement>) => {
     const nextStudCount: 1 | 2 = event.target.value === "2" ? 2 : 1;
     const studDefaults = getStudDefaults(nextStudCount, geometry.s1);
 
@@ -92,22 +118,62 @@ export default function MyBearingsModuleGeometricDataForm() {
     }));
   };
 
+  const updateBeamType = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const nextIsEndNotchedBeam = event.target.value === "end-notched";
+
+    setGeometry((current) => ({
+      ...current,
+      isEndNotchedBeam: nextIsEndNotchedBeam,
+    }));
+  };
+
   const updateHasStuds = (event: React.ChangeEvent<HTMLInputElement>) => {
     const nextHasStuds = event.target.checked;
 
     setHasStuds(nextHasStuds);
   };
 
+  const updateStudDiameter = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const nextStudDiameter = Number(event.target.value);
+
+    if (Number.isNaN(nextStudDiameter)) {
+      return;
+    }
+
+    setGeometry((current) => ({
+      ...current,
+      ds: nextStudDiameter,
+    }));
+  };
+
   return (
     <MyVStack gap="sm">
       <MyVStack gap="xs">
         <MyLabel size="small">
-          column-beam offset (
-          <b>
-            g<sub>1</sub>
-          </b>
-          )
+          <span className="text-[0.8125rem] font-normal text-zinc-600">
+            beam type
+          </span>
         </MyLabel>
+        <MySegmentedControl
+          options={beamTypeOptions}
+          size="sm"
+          density="dense"
+          variant="tabs"
+          tone="subtle"
+          orientation="vertical"
+          value={
+            geometry.isEndNotchedBeam ? "end-notched" : "without-end-notch"
+          }
+          onChange={updateBeamType}
+        />
+        <MyFieldLabel
+          symbol={
+            <>
+              g<sub>1</sub>
+            </>
+          }
+          description="column-beam offset"
+        />
         <MyInput
           type="number"
           size="sm"
@@ -120,13 +186,14 @@ export default function MyBearingsModuleGeometricDataForm() {
       </MyVStack>
 
       <MyVStack gap="xs">
-        <MyLabel size="small">
-          bearing gap (
-          <b>
-            g<sub>2</sub>
-          </b>
-          )
-        </MyLabel>
+        <MyFieldLabel
+          symbol={
+            <>
+              g<sub>2</sub>
+            </>
+          }
+          description="bearing gap"
+        />
         <MyInput
           type="number"
           size="sm"
@@ -139,13 +206,14 @@ export default function MyBearingsModuleGeometricDataForm() {
       </MyVStack>
 
       <MyVStack gap="xs">
-        <MyLabel size="small">
-          cantilever width (
-          <b>
-            S<sub>1</sub>
-          </b>
-          )
-        </MyLabel>
+        <MyFieldLabel
+          symbol={
+            <>
+              S<sub>1</sub>
+            </>
+          }
+          description="cantilever width"
+        />
         <MyInput
           type="number"
           size="sm"
@@ -158,13 +226,14 @@ export default function MyBearingsModuleGeometricDataForm() {
       </MyVStack>
 
       <MyVStack gap="xs">
-        <MyLabel size="small">
-          cantilever length (
-          <b>
-            S<sub>2</sub>
-          </b>
-          )
-        </MyLabel>
+        <MyFieldLabel
+          symbol={
+            <>
+              S<sub>2</sub>
+            </>
+          }
+          description="cantilever length"
+        />
         <MyInput
           type="number"
           size="sm"
@@ -177,9 +246,7 @@ export default function MyBearingsModuleGeometricDataForm() {
       </MyVStack>
 
       <MyVStack gap="xs">
-        <MyLabel size="small">
-          beam width (<b>B</b>)
-        </MyLabel>
+        <MyFieldLabel symbol="B" description="beam width" />
         <MyInput
           type="number"
           size="sm"
@@ -192,9 +259,7 @@ export default function MyBearingsModuleGeometricDataForm() {
       </MyVStack>
 
       <MyVStack gap="xs">
-        <MyLabel size="small">
-          bearing edge distance (<b>c</b>)
-        </MyLabel>
+        <MyFieldLabel symbol="c" description="bearing edge distance" />
         <MyInput
           type="number"
           size="sm"
@@ -213,38 +278,40 @@ export default function MyBearingsModuleGeometricDataForm() {
         />
         {hasStuds ? (
           <>
-            <MyLabel size="small">
-              number of studs (<b>n</b>)
-            </MyLabel>
-            <MySelect
+            <MyFieldLabel symbol="n" description="number of studs" />
+            <MySegmentedControl
               options={studsNumber}
               size="sm"
+              density="dense"
+              variant="tabs"
+              tone="subtle"
               value={geometry.n}
               onChange={updateStudCount}
             />
-            <MyLabel size="small">
-              {geometry.n === 1 ? "stud diameter " : "studs diameter "}(
-              <b>
-                d<sub>s</sub>
-              </b>
-              )
-            </MyLabel>
-            <MyInput
-              type="number"
-              size="sm"
-              density="compact"
-              suffix="mm"
-              value={geometryInputs.ds}
-              onChange={updateGeometryInput("ds")}
-              onBlur={restoreGeometryInput("ds")}
+            <MyFieldLabel
+              symbol={
+                <>
+                  d<sub>s</sub>
+                </>
+              }
+              description={
+                geometry.n === 1 ? "stud diameter" : "studs diameter"
+              }
             />
-            <MyLabel size="small">
-              edge distance (
-              <b>
-                e<sub>1</sub>
-              </b>
-              )
-            </MyLabel>
+            <MySelect
+              options={studDiameterOptions}
+              size="sm"
+              value={geometry.ds}
+              onChange={updateStudDiameter}
+            />
+            <MyFieldLabel
+              symbol={
+                <>
+                  e<sub>1</sub>
+                </>
+              }
+              description="edge distance"
+            />
             <MyInput
               type="number"
               size="sm"
@@ -254,13 +321,14 @@ export default function MyBearingsModuleGeometricDataForm() {
               onChange={updateGeometryInput("e1")}
               onBlur={restoreGeometryInput("e1")}
             />
-            <MyLabel size="small">
-              edge distance (
-              <b>
-                e<sub>2</sub>
-              </b>
-              )
-            </MyLabel>
+            <MyFieldLabel
+              symbol={
+                <>
+                  e<sub>2</sub>
+                </>
+              }
+              description="edge distance"
+            />
             <MyInput
               type="number"
               size="sm"
@@ -272,13 +340,14 @@ export default function MyBearingsModuleGeometricDataForm() {
             />
             {geometry.n === 2 ? (
               <>
-                <MyLabel size="small">
-                  distance between (
-                  <b>
-                    e<sub>3</sub>
-                  </b>
-                  )
-                </MyLabel>
+                <MyFieldLabel
+                  symbol={
+                    <>
+                      e<sub>3</sub>
+                    </>
+                  }
+                  description="distance between"
+                />
                 <MyInput
                   type="number"
                   size="sm"

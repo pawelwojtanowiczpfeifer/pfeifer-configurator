@@ -7,6 +7,7 @@ import {
   type PropsWithChildren,
 } from "react";
 import type {
+  MyBearingsModuleFireResistance,
   MyBearingsModuleForceAndDeformation,
   MyBearingsModuleParameters,
 } from "./model/types";
@@ -14,6 +15,7 @@ import type {
 const INITIAL_S2 = 200;
 
 const INITIAL_GEOMETRY: MyBearingsModuleParameters = {
+  isEndNotchedBeam: false,
   g1: 20,
   g2: 15,
   s1: 300,
@@ -33,12 +35,19 @@ const INITIAL_FORCE_AND_DEFORMATION: MyBearingsModuleForceAndDeformation = {
   horizontalDeformation: 3,
 };
 
+const INITIAL_FIRE_RESISTANCE: MyBearingsModuleFireResistance =
+  "not-specified";
+
 type MyBearingsModuleConfiguratorContextValue = {
   geometry: MyBearingsModuleParameters;
   setGeometry: React.Dispatch<React.SetStateAction<MyBearingsModuleParameters>>;
   forceAndDeformation: MyBearingsModuleForceAndDeformation;
   setForceAndDeformation: React.Dispatch<
     React.SetStateAction<MyBearingsModuleForceAndDeformation>
+  >;
+  fireResistance: MyBearingsModuleFireResistance;
+  setFireResistance: React.Dispatch<
+    React.SetStateAction<MyBearingsModuleFireResistance>
   >;
   hasStuds: boolean;
   setHasStuds: React.Dispatch<React.SetStateAction<boolean>>;
@@ -68,6 +77,9 @@ export default function MyBearingsModuleConfigurator({
     useState<MyBearingsModuleForceAndDeformation>(
       INITIAL_FORCE_AND_DEFORMATION,
     );
+  const [fireResistance, setFireResistance] = useState(
+    INITIAL_FIRE_RESISTANCE,
+  );
   const [hasStuds, setHasStuds] = useState(false);
 
   return (
@@ -77,6 +89,8 @@ export default function MyBearingsModuleConfigurator({
         setGeometry,
         forceAndDeformation,
         setForceAndDeformation,
+        fireResistance,
+        setFireResistance,
         hasStuds,
         setHasStuds,
       }}

@@ -9,8 +9,10 @@ import MyHeader from "../components/ui/MyHeader";
 import MyInput from "../components/ui/MyInput";
 import MyLabel from "../components/ui/MyLabel";
 import MyPageLayout from "../components/ui/MyPageLayout";
+import MyRadio from "../components/ui/MyRadio";
 import MyRow from "../components/ui/MyRow";
 import MySection from "../components/ui/MySection";
+import MySegmentedControl from "../components/ui/MySegmentedControl";
 import MySelect from "../components/ui/MySelect";
 import MySidebar from "../components/ui/MySidebar";
 import MySummaryRow from "../components/ui/MySummaryRow";
@@ -33,6 +35,30 @@ export default function UIPage() {
     { label: "Standard", value: "standard" },
     { label: "Premium", value: "premium" },
     { label: "Custom", value: "custom" },
+  ];
+
+  const choiceOptions = [
+    { label: "Standard", value: "standard" },
+    { label: "Premium", value: "premium" },
+    { label: "Custom", value: "custom" },
+  ];
+
+  const radioCardOptions = [
+    {
+      label: "Single Rope",
+      value: "single",
+      description: "Best for straightforward hoisting scenarios.",
+    },
+    {
+      label: "Twin Rope",
+      value: "twin",
+      description: "Improves stability under asymmetric load.",
+    },
+    {
+      label: "Custom Layout",
+      value: "custom",
+      description: "Use a manual setup for non-standard geometry.",
+    },
   ];
 
   const stackAvatars = [
@@ -385,6 +411,109 @@ export default function UIPage() {
           description="Adds installation service to the final configuration."
         />
         <MyCheckbox label="Disabled checkbox" defaultChecked disabled />
+      </div>
+
+      <MyDivider />
+
+      <MyLabel variant="default" size="large">
+        Radio
+      </MyLabel>
+
+      <div className="max-w-2xl space-y-4">
+        <div className="space-y-2">
+          <MyLabel size="small">Basic Radio</MyLabel>
+          <MyRadio
+            name="ui-basic-radio"
+            options={choiceOptions}
+            defaultValue="premium"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <MyLabel size="small">Card Radio</MyLabel>
+          <MyRadio
+            name="ui-card-radio"
+            options={radioCardOptions}
+            defaultValue="twin"
+            variant="card"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <MyLabel size="small">Horizontal Compact Radio</MyLabel>
+          <MyRadio
+            name="ui-horizontal-radio"
+            options={choiceOptions}
+            defaultValue="standard"
+            orientation="horizontal"
+            density="compact"
+            size="full"
+          />
+        </div>
+      </div>
+
+      <MyDivider />
+
+      <MyLabel variant="default" size="large">
+        Segmented Control
+      </MyLabel>
+
+      <div className="max-w-2xl space-y-4">
+        <div className="space-y-2">
+          <MyLabel size="small">Default Segmented Control</MyLabel>
+          <MySegmentedControl
+            name="ui-segmented-default"
+            options={choiceOptions}
+            defaultValue="premium"
+            orientation="horizontal"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <MyLabel size="small">Compact Segmented Control</MyLabel>
+          <MySegmentedControl
+            name="ui-segmented-compact"
+            options={choiceOptions}
+            defaultValue="standard"
+            density="compact"
+            tone="subtle"
+            variant="tabs"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <MyLabel size="small">Dense Tab Segmented Control</MyLabel>
+          <MySegmentedControl
+            name="ui-segmented-dense"
+            options={choiceOptions}
+            defaultValue="premium"
+            density="dense"
+            tone="subtle"
+            variant="tabs"
+            size="md"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <MyLabel size="small">Fixed Width Segmented Control</MyLabel>
+          <MySegmentedControl
+            name="ui-segmented-fixed"
+            options={choiceOptions}
+            defaultValue="custom"
+            size="lg"
+            fullWidthOptions={false}
+          />
+        </div>
+
+        <div className="space-y-2">
+          <MyLabel size="small">Vertical Segmented Control</MyLabel>
+          <MySegmentedControl
+            name="ui-segmented-vertical"
+            options={choiceOptions}
+            defaultValue="standard"
+            orientation="vertical"
+          />
+        </div>
       </div>
 
       <MyDivider />

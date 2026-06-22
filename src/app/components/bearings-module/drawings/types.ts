@@ -14,10 +14,14 @@ export type MyBearingsSideViewProps = MyBearingsDrawingSharedProps & {
   className?: string;
   ariaLabel?: string;
   fitBounds?: DrawingBounds;
+  dimensionScale?: number;
+  hatchScale?: number;
 };
 
 export type MyBearingsTopViewProps = MyBearingsDrawingSharedProps & {
   className?: string;
   ariaLabel?: string;
   fitBounds?: DrawingBounds;
+  dimensionScale?: number;
+  hatchScale?: number;
 };

@@ -2,6 +2,7 @@ export { default as MyBearingsModuleConfigurator } from "./MyBearingsModuleConfi
 export { useMyBearingsModuleConfigurator } from "./MyBearingsModuleConfigurator";
 export { default as MyBearingsModuleDrawingContent } from "./drawings/MyBearingsModuleDrawingContent";
 export { default as MyBearingsModuleDrawing } from "./drawings/MyBearingsModuleDrawing";
+export { default as MyBearingsModuleFireResistanceForm } from "./inputs/MyBearingsModuleFireResistanceForm";
 export { default as MyBearingsSideView } from "./drawings/MyBearingsSideView";
 export { default as MyBearingsTopView } from "./drawings/MyBearingsTopView";
 export { default as MyBearingsModuleForceAndDeformationForm } from "./inputs/MyBearingsModuleForceAndDeformationForm";
@@ -12,6 +13,7 @@ export { getMyBearingsContactArea } from "./model/getMyBearingsContactArea";
 export { getMyBearingsEffectiveSurfaceArea } from "./model/getMyBearingsEffectiveSurfaceArea";
 export type {
   MyBearingsContactArea,
+  MyBearingsModuleFireResistance,
   MyBearingsModuleForceAndDeformation,
   MyBearingsEffectiveArea,
   MyBearingsModuleParameters,
