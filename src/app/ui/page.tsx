@@ -171,7 +171,7 @@ export default function UIPage() {
                 start={{ x: 40, y: 120 }}
                 end={{ x: 540, y: 120 }}
                 value={500}
-                symbol="S2"
+                symbol="A1"
                 dimensionLinePosition="below"
                 textSize="xl"
                 arrowSize="xl"

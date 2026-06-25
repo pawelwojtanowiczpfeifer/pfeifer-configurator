@@ -12,21 +12,33 @@ import MyLabel from "@/app/components/ui/MyLabel";
 import { useMyBearingsModuleConfigurator } from "@/app/components/bearings-module/MyBearingsModuleConfigurator";
 import MyCheckbox from "../../ui/MyCheckbox";
 
-function getStudDefaults(n: 1 | 2, s1: number) {
+function getStudDefaults(n: 1 | 2, b1: number) {
   if (n === 2) {
     return {
-      e2: 0.3 * s1,
-      e3: 0.4 * s1,
+      e2: 0.3 * b1,
+      e3: 0.4 * b1,
     };
   }
 
   return {
-    e2: 0.5 * s1,
+    e2: 0.5 * b1,
     e3: 0,
   };
 }
 
 export default function MyBearingsModuleGeometricDataForm() {
+  const connectionTypeOptions: SegmentedControlOption<
+    "cantilever" | "beam-top"
+  >[] = [
+    {
+      label: "cantilever",
+      value: "cantilever",
+    },
+    {
+      label: "beam top",
+      value: "beam-top",
+    },
+  ];
   const beamTypeOptions: SegmentedControlOption<
     "without-end-notch" | "end-notched"
   >[] = [
@@ -54,16 +66,25 @@ export default function MyBearingsModuleGeometricDataForm() {
     { label: "36 mm", value: 36 },
     { label: "40 mm", value: 40 },
   ];
-  const { geometry, setGeometry, hasStuds, setHasStuds } =
-    useMyBearingsModuleConfigurator();
+  const {
+    geometry,
+    setGeometry,
+    connectionType,
+    setConnectionType,
+    hasStuds,
+    setHasStuds,
+  } = useMyBearingsModuleConfigurator();
 
   const [geometryInputs, setGeometryInputs] = useState({
     g1: `${geometry.g1}`,
     g2: `${geometry.g2}`,
-    s1: `${geometry.s1}`,
-    s2: `${geometry.s2}`,
-    b: `${geometry.b}`,
-    c: `${geometry.c}`,
+    tc: `${geometry.tc}`,
+    b1: `${geometry.b1}`,
+    a1: `${geometry.a1}`,
+    a2: `${geometry.a2}`,
+    b2: `${geometry.b2}`,
+    b3: `${geometry.b3}`,
+    cmin: `${geometry.cmin}`,
     e1: `${geometry.e1}`,
     e2: `${geometry.e2}`,
     e3: `${geometry.e3}`,
@@ -104,7 +125,9 @@ export default function MyBearingsModuleGeometricDataForm() {
 
   const updateStudCount = (event: React.ChangeEvent<HTMLInputElement>) => {
     const nextStudCount: 1 | 2 = event.target.value === "2" ? 2 : 1;
-    const studDefaults = getStudDefaults(nextStudCount, geometry.s1);
+    const referenceWidth =
+      connectionType === "beam-top" ? geometry.b3 : geometry.b1;
+    const studDefaults = getStudDefaults(nextStudCount, referenceWidth);
 
     setGeometry((current) => ({
       ...current,
@@ -125,6 +148,15 @@ export default function MyBearingsModuleGeometricDataForm() {
       ...current,
       isEndNotchedBeam: nextIsEndNotchedBeam,
     }));
+  };
+
+  const updateConnectionType = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const nextConnectionType =
+      event.target.value === "beam-top" ? "beam-top" : "cantilever";
+
+    setConnectionType(nextConnectionType);
   };
 
   const updateHasStuds = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -151,6 +183,24 @@ export default function MyBearingsModuleGeometricDataForm() {
       <MyVStack gap="xs">
         <MyLabel size="small">
           <span className="text-[0.8125rem] font-normal text-zinc-600">
+            connection type
+          </span>
+        </MyLabel>
+        <MySegmentedControl
+          options={connectionTypeOptions}
+          size="sm"
+          density="dense"
+          variant="tabs"
+          tone="subtle"
+          orientation="vertical"
+          value={connectionType}
+          onChange={updateConnectionType}
+        />
+      </MyVStack>
+
+      <MyVStack gap="xs">
+        <MyLabel size="small">
+          <span className="text-[0.8125rem] font-normal text-zinc-600">
             beam type
           </span>
         </MyLabel>
@@ -166,30 +216,54 @@ export default function MyBearingsModuleGeometricDataForm() {
           }
           onChange={updateBeamType}
         />
-        <MyFieldLabel
-          symbol={
-            <>
-              g<sub>1</sub>
-            </>
-          }
-          description="column-beam offset"
-        />
-        <MyInput
-          type="number"
-          size="sm"
-          density="compact"
-          suffix="mm"
-          value={geometryInputs.g1}
-          onChange={updateGeometryInput("g1")}
-          onBlur={restoreGeometryInput("g1")}
-        />
+        {connectionType === "cantilever" ? (
+          <>
+            <MyFieldLabel
+              symbol={
+                <>
+                  g<sub>1</sub>
+                </>
+              }
+              description="column-beam offset"
+            />
+            <MyInput
+              type="number"
+              size="sm"
+              density="compact"
+              suffix="mm"
+              value={geometryInputs.g1}
+              onChange={updateGeometryInput("g1")}
+              onBlur={restoreGeometryInput("g1")}
+            />
+          </>
+        ) : (
+          <>
+            <MyFieldLabel
+              symbol={
+                <>
+                  g<sub>2</sub>
+                </>
+              }
+              description="column-beam offset"
+            />
+            <MyInput
+              type="number"
+              size="sm"
+              density="compact"
+              suffix="mm"
+              value={geometryInputs.g2}
+              onChange={updateGeometryInput("g2")}
+              onBlur={restoreGeometryInput("g2")}
+            />
+          </>
+        )}
       </MyVStack>
 
       <MyVStack gap="xs">
         <MyFieldLabel
           symbol={
             <>
-              g<sub>2</sub>
+              t<sub>c</sub>
             </>
           }
           description="bearing gap"
@@ -199,9 +273,115 @@ export default function MyBearingsModuleGeometricDataForm() {
           size="sm"
           density="compact"
           suffix="mm"
-          value={geometryInputs.g2}
-          onChange={updateGeometryInput("g2")}
-          onBlur={restoreGeometryInput("g2")}
+          value={geometryInputs.tc}
+          onChange={updateGeometryInput("tc")}
+          onBlur={restoreGeometryInput("tc")}
+        />
+      </MyVStack>
+
+      {connectionType === "cantilever" ? (
+        <>
+          <MyVStack gap="xs">
+            <MyFieldLabel
+              symbol={
+                <>
+                  A<sub>1</sub>
+                </>
+              }
+              description="cantilever length"
+            />
+            <MyInput
+              type="number"
+              size="sm"
+              density="compact"
+              suffix="mm"
+              value={geometryInputs.a1}
+              onChange={updateGeometryInput("a1")}
+              onBlur={restoreGeometryInput("a1")}
+            />
+          </MyVStack>
+
+          <MyVStack gap="xs">
+            <MyFieldLabel
+              symbol={
+                <>
+                  B<sub>1</sub>
+                </>
+              }
+              description="cantilever width"
+            />
+            <MyInput
+              type="number"
+              size="sm"
+              density="compact"
+              suffix="mm"
+              value={geometryInputs.b1}
+              onChange={updateGeometryInput("b1")}
+              onBlur={restoreGeometryInput("b1")}
+            />
+          </MyVStack>
+        </>
+      ) : (
+        <>
+          <MyVStack gap="xs">
+            <MyFieldLabel
+              symbol={
+                <>
+                  A<sub>2</sub>
+                </>
+              }
+              description="column width"
+            />
+            <MyInput
+              type="number"
+              size="sm"
+              density="compact"
+              suffix="mm"
+              value={geometryInputs.a2}
+              onChange={updateGeometryInput("a2")}
+              onBlur={restoreGeometryInput("a2")}
+            />
+          </MyVStack>
+
+          <MyVStack gap="xs">
+            <MyFieldLabel
+              symbol={
+                <>
+                  B<sub>3</sub>
+                </>
+              }
+              description="column width"
+            />
+            <MyInput
+              type="number"
+              size="sm"
+              density="compact"
+              suffix="mm"
+              value={geometryInputs.b3}
+              onChange={updateGeometryInput("b3")}
+              onBlur={restoreGeometryInput("b3")}
+            />
+          </MyVStack>
+        </>
+      )}
+
+      <MyVStack gap="xs">
+        <MyFieldLabel
+          symbol={
+            <>
+              B<sub>2</sub>
+            </>
+          }
+          description="beam width"
+        />
+        <MyInput
+          type="number"
+          size="sm"
+          density="compact"
+          suffix="mm"
+          value={geometryInputs.b2}
+          onChange={updateGeometryInput("b2")}
+          onBlur={restoreGeometryInput("b2")}
         />
       </MyVStack>
 
@@ -209,65 +389,19 @@ export default function MyBearingsModuleGeometricDataForm() {
         <MyFieldLabel
           symbol={
             <>
-              S<sub>1</sub>
+              c<sub>min</sub>
             </>
           }
-          description="cantilever width"
+          description="bearing edge dist."
         />
         <MyInput
           type="number"
           size="sm"
           density="compact"
           suffix="mm"
-          value={geometryInputs.s1}
-          onChange={updateGeometryInput("s1")}
-          onBlur={restoreGeometryInput("s1")}
-        />
-      </MyVStack>
-
-      <MyVStack gap="xs">
-        <MyFieldLabel
-          symbol={
-            <>
-              S<sub>2</sub>
-            </>
-          }
-          description="cantilever length"
-        />
-        <MyInput
-          type="number"
-          size="sm"
-          density="compact"
-          suffix="mm"
-          value={geometryInputs.s2}
-          onChange={updateGeometryInput("s2")}
-          onBlur={restoreGeometryInput("s2")}
-        />
-      </MyVStack>
-
-      <MyVStack gap="xs">
-        <MyFieldLabel symbol="B" description="beam width" />
-        <MyInput
-          type="number"
-          size="sm"
-          density="compact"
-          suffix="mm"
-          value={geometryInputs.b}
-          onChange={updateGeometryInput("b")}
-          onBlur={restoreGeometryInput("b")}
-        />
-      </MyVStack>
-
-      <MyVStack gap="xs">
-        <MyFieldLabel symbol="c" description="bearing edge distance" />
-        <MyInput
-          type="number"
-          size="sm"
-          density="compact"
-          suffix="mm"
-          value={geometryInputs.c}
-          onChange={updateGeometryInput("c")}
-          onBlur={restoreGeometryInput("c")}
+          value={geometryInputs.cmin}
+          onChange={updateGeometryInput("cmin")}
+          onBlur={restoreGeometryInput("cmin")}
         />
       </MyVStack>
       <MyVStack gap="xs">

@@ -33,10 +33,11 @@ export type MyDrawingDimensionLineProps = {
 };
 
 const DEFAULT_LINE_COLOR = "#111827";
+const SHOW_DIMENSION_UNIT = false;
 const TEXT_SIZES = {
   sm: 12,
   md: 14,
-  lg: 18,
+  lg: 24,
   xl: 24,
 } as const;
 
@@ -52,6 +53,15 @@ function formatDimensionValue(value: number | string) {
 }
 
 function splitSymbol(symbol: string) {
+  const underscoreMatch = symbol.match(/^([^_]+)_([^_]+)$/);
+
+  if (underscoreMatch) {
+    return {
+      base: underscoreMatch[1],
+      subscript: underscoreMatch[2],
+    };
+  }
+
   const match = symbol.match(/^([^0-9]+)([0-9]+)$/);
 
   if (!match) {
@@ -158,7 +168,8 @@ function getDimensionLabel({
   unit,
   symbol,
 }: Pick<MyDrawingDimensionLineProps, "value" | "unit" | "symbol">) {
-  const dimensionText = `${formatDimensionValue(value)}${unit ?? "mm"}`;
+  const resolvedUnit = SHOW_DIMENSION_UNIT ? (unit ?? "mm") : "";
+  const dimensionText = `${formatDimensionValue(value)}${resolvedUnit}`;
   const label = symbol ? `${symbol}=${dimensionText}` : `=${dimensionText}`;
 
   return {
@@ -174,7 +185,7 @@ function getDimensionGeometry({
   unit = "mm",
   symbol,
   sizeScale = 1,
-  offset = 36,
+  offset = 48,
   dimensionLinePosition = "above",
   extensionOvershoot = 8,
   extensionGap = 4,
@@ -333,7 +344,7 @@ export function getDrawingDimensionLineBounds({
   unit = "mm",
   symbol,
   sizeScale = 1,
-  offset = 36,
+  offset = 48,
   dimensionLinePosition = "above",
   extensionOvershoot = 8,
   extensionGap = 4,
@@ -431,7 +442,7 @@ function MyDrawingDimensionLine({
   unit = "mm",
   symbol,
   sizeScale = 1,
-  offset = 36,
+  offset = 48,
   dimensionLinePosition = "above",
   extensionOvershoot = 8,
   extensionGap = 4,

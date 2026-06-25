@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "PFEIFER Configurator",
+  title: "PFEIFER Studio",
   description: "Configurator and structural calculations for PFEIFER products.",
   icons: {
     icon: "/icon.png",
@@ -35,4 +35,3 @@ export default function RootLayout({
     </html>
   );
 }
-

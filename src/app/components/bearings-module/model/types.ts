@@ -2,10 +2,13 @@ export type MyBearingsModuleParameters = {
   isEndNotchedBeam: boolean;
   g1: number;
   g2: number;
-  s1: number;
-  s2: number;
-  b: number;
-  c: number;
+  tc: number;
+  b1: number;
+  a1: number;
+  a2: number;
+  b2: number;
+  b3: number;
+  cmin: number;
   n: 1 | 2;
   ds: number;
   e1: number;
@@ -18,6 +21,8 @@ export type MyBearingsModuleForceAndDeformation = {
   bearingRotation: number;
   horizontalDeformation: number;
 };
+
+export type MyBearingsConnectionType = "cantilever" | "beam-top";
 
 export type MyBearingsModuleFireResistance =
   | "not-specified"

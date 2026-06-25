@@ -7,6 +7,7 @@ import {
   type PropsWithChildren,
 } from "react";
 import type {
+  MyBearingsConnectionType,
   MyBearingsModuleFireResistance,
   MyBearingsModuleForceAndDeformation,
   MyBearingsModuleParameters,
@@ -17,11 +18,14 @@ const INITIAL_S2 = 200;
 const INITIAL_GEOMETRY: MyBearingsModuleParameters = {
   isEndNotchedBeam: false,
   g1: 20,
-  g2: 15,
-  s1: 300,
-  s2: INITIAL_S2,
-  b: 250,
-  c: 30,
+  g2: 20,
+  tc: 15,
+  b1: 300,
+  a1: INITIAL_S2,
+  a2: 300,
+  b2: 250,
+  b3: 300,
+  cmin: 40,
   n: 1,
   ds: 16,
   e1: 0.5 * INITIAL_S2,
@@ -37,10 +41,15 @@ const INITIAL_FORCE_AND_DEFORMATION: MyBearingsModuleForceAndDeformation = {
 
 const INITIAL_FIRE_RESISTANCE: MyBearingsModuleFireResistance =
   "not-specified";
+const INITIAL_CONNECTION_TYPE: MyBearingsConnectionType = "cantilever";
 
 type MyBearingsModuleConfiguratorContextValue = {
   geometry: MyBearingsModuleParameters;
   setGeometry: React.Dispatch<React.SetStateAction<MyBearingsModuleParameters>>;
+  connectionType: MyBearingsConnectionType;
+  setConnectionType: React.Dispatch<
+    React.SetStateAction<MyBearingsConnectionType>
+  >;
   forceAndDeformation: MyBearingsModuleForceAndDeformation;
   setForceAndDeformation: React.Dispatch<
     React.SetStateAction<MyBearingsModuleForceAndDeformation>
@@ -73,6 +82,9 @@ export default function MyBearingsModuleConfigurator({
 }: PropsWithChildren) {
   const [geometry, setGeometry] =
     useState<MyBearingsModuleParameters>(INITIAL_GEOMETRY);
+  const [connectionType, setConnectionType] = useState<MyBearingsConnectionType>(
+    INITIAL_CONNECTION_TYPE,
+  );
   const [forceAndDeformation, setForceAndDeformation] =
     useState<MyBearingsModuleForceAndDeformation>(
       INITIAL_FORCE_AND_DEFORMATION,
@@ -87,6 +99,8 @@ export default function MyBearingsModuleConfigurator({
       value={{
         geometry,
         setGeometry,
+        connectionType,
+        setConnectionType,
         forceAndDeformation,
         setForceAndDeformation,
         fireResistance,

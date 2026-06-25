@@ -5,12 +5,12 @@ import type {
 
 export function getMyBearingsContactArea({
   g1,
-  s1,
-  s2,
-  b,
+  b1,
+  a1,
+  b2,
 }: MyBearingsModuleParameters): MyBearingsContactArea {
-  const contactLength = Math.max(s2 - g1, 0);
-  const contactWidth = Math.max(Math.min(b, s1), 0);
+  const contactLength = Math.max(a1 - g1, 0);
+  const contactWidth = Math.max(Math.min(b2, b1), 0);
   const contactAreaMm2 = contactLength * contactWidth;
 
   return {

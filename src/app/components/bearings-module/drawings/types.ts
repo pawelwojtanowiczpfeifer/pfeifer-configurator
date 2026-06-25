@@ -1,4 +1,5 @@
 import type { DrawingBounds } from "@/app/components/drawings/primitives/MyDrawingCanvas";
+import type { MyBearingsConnectionType } from "@/app/components/bearings-module/model/types";
 import type { MyBearingsModuleParameters } from "@/app/components/bearings-module/model/types";
 
 type MyBearingsDrawingSharedProps = MyBearingsModuleParameters & {
@@ -8,6 +9,10 @@ type MyBearingsDrawingSharedProps = MyBearingsModuleParameters & {
 export type MyBearingsModuleDrawingProps = MyBearingsDrawingSharedProps & {
   className?: string;
   ariaLabel?: string;
+};
+
+export type MyBearingsVariantDrawingProps = MyBearingsModuleDrawingProps & {
+  connectionType: MyBearingsConnectionType;
 };
 
 export type MyBearingsSideViewProps = MyBearingsDrawingSharedProps & {
