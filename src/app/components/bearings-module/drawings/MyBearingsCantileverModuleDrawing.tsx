@@ -14,7 +14,7 @@ import {
 
 const DEFAULT_DIMENSION_REFERENCE = {
   g1: 20,
-  g2: 20,
+  g2: 0.25 * 300,
   tc: 15,
   b1: 300,
   a1: 200,
@@ -37,21 +37,17 @@ function getBoundsScale(currentSize: number, referenceSize: number) {
   return currentSize / referenceSize;
 }
 
-function getBoundsRatio(
+function getBoundsWidthRatio(
   currentBounds:
     | {
         minX: number;
-        minY: number;
         maxX: number;
-        maxY: number;
       }
     | undefined,
   referenceBounds:
     | {
         minX: number;
-        minY: number;
         maxX: number;
-        maxY: number;
       }
     | undefined,
 ) {
@@ -59,15 +55,9 @@ function getBoundsRatio(
     return 1;
   }
 
-  return Math.max(
-    getBoundsScale(
-      currentBounds.maxX - currentBounds.minX,
-      referenceBounds.maxX - referenceBounds.minX,
-    ),
-    getBoundsScale(
-      currentBounds.maxY - currentBounds.minY,
-      referenceBounds.maxY - referenceBounds.minY,
-    ),
+  return getBoundsScale(
+    currentBounds.maxX - currentBounds.minX,
+    referenceBounds.maxX - referenceBounds.minX,
   );
 }
 
@@ -103,26 +93,6 @@ export default function MyBearingsCantileverModuleDrawing({
         cmin,
       }),
     ].filter((bounds) => bounds !== null)) ?? undefined;
-  const sideGeometryBounds =
-    getMyBearingsCantileverSideViewGeometryBounds({
-      ...geometry,
-      g1,
-      tc,
-      b1,
-      a1,
-      b2,
-      cmin,
-    }) ?? undefined;
-  const topGeometryBounds =
-    getMyBearingsCantileverTopViewGeometryBounds({
-      ...geometry,
-      g1,
-      tc,
-      b1,
-      a1,
-      b2,
-      cmin,
-    }) ?? undefined;
   const defaultSharedGeometryBounds =
     mergeDrawingBounds([
       getMyBearingsCantileverSideViewGeometryBounds({
@@ -146,40 +116,11 @@ export default function MyBearingsCantileverModuleDrawing({
         cmin: DEFAULT_DIMENSION_REFERENCE.cmin,
       }),
     ].filter((bounds) => bounds !== null)) ?? undefined;
-  const defaultSideGeometryBounds =
-    getMyBearingsCantileverSideViewGeometryBounds({
-      ...DEFAULT_DIMENSION_REFERENCE,
-      ...geometry,
-      g1: DEFAULT_DIMENSION_REFERENCE.g1,
-      tc: DEFAULT_DIMENSION_REFERENCE.tc,
-      b1: DEFAULT_DIMENSION_REFERENCE.b1,
-      a1: DEFAULT_DIMENSION_REFERENCE.a1,
-      b2: DEFAULT_DIMENSION_REFERENCE.b2,
-      cmin: DEFAULT_DIMENSION_REFERENCE.cmin,
-    }) ?? undefined;
-  const defaultTopGeometryBounds =
-    getMyBearingsCantileverTopViewGeometryBounds({
-      ...DEFAULT_DIMENSION_REFERENCE,
-      ...geometry,
-      g1: DEFAULT_DIMENSION_REFERENCE.g1,
-      tc: DEFAULT_DIMENSION_REFERENCE.tc,
-      b1: DEFAULT_DIMENSION_REFERENCE.b1,
-      a1: DEFAULT_DIMENSION_REFERENCE.a1,
-      b2: DEFAULT_DIMENSION_REFERENCE.b2,
-      cmin: DEFAULT_DIMENSION_REFERENCE.cmin,
-    }) ?? undefined;
-  const dimensionScale = getBoundsRatio(
+  const dimensionScale = getBoundsWidthRatio(
     sharedGeometryBounds,
     defaultSharedGeometryBounds,
   );
-  const sideHatchScale = getBoundsRatio(
-    sideGeometryBounds,
-    defaultSideGeometryBounds,
-  );
-  const topHatchScale = getBoundsRatio(
-    topGeometryBounds,
-    defaultTopGeometryBounds,
-  );
+  const hatchScale = dimensionScale;
   const sharedBounds =
     mergeDrawingBounds([
       getMyBearingsCantileverSideViewBounds({
@@ -224,7 +165,7 @@ export default function MyBearingsCantileverModuleDrawing({
         cmin={cmin}
         fitBounds={sharedBounds}
         dimensionScale={dimensionScale}
-        hatchScale={sideHatchScale}
+        hatchScale={hatchScale}
         ariaLabel={`${ariaLabel} side view`}
       />
       <MyBearingsCantileverTopView
@@ -237,7 +178,7 @@ export default function MyBearingsCantileverModuleDrawing({
         cmin={cmin}
         fitBounds={sharedBounds}
         dimensionScale={dimensionScale}
-        hatchScale={topHatchScale}
+        hatchScale={hatchScale}
         ariaLabel={`${ariaLabel} top view`}
       />
     </MyHStack>

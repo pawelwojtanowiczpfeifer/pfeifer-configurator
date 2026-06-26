@@ -6,37 +6,12 @@ import { MyDrawingPolygonShape } from "@/app/components/drawings/primitives/MyDr
 import type { MyBearingsTopViewProps } from "./types";
 import { MyDrawingCircle } from "../../drawings";
 
-const DRAWING_REFERENCE = {
-  a2: 200,
-  b2: 250,
-  b3: 300,
-};
-
-const INPUT_REFERENCE = {
-  a2: 300,
-  b2: 250,
-  b3: 300,
-};
-
-function clamp(value: number, min: number, max: number) {
-  return Math.min(Math.max(value, min), max);
-}
-
-function scaleWithinFrame(
-  value: number,
-  inputReference: number,
-  drawingReference: number,
-  minRatio: number,
-  maxRatio: number,
-) {
-  const scaled =
-    inputReference > 0 ? (value / inputReference) * drawingReference : value;
-
-  return clamp(scaled, drawingReference * minRatio, drawingReference * maxRatio);
-}
-
 function renderMyBearingsBeamTopTopViewGeometry({
+  g1,
   g2,
+  tc,
+  b1,
+  a1,
   a2,
   b2,
   b3,
@@ -51,62 +26,39 @@ function renderMyBearingsBeamTopTopViewGeometry({
   hatchScale = 1,
   ...geometry
 }: MyBearingsTopViewProps) {
+  void tc;
   void geometry;
   void dimensionScale;
 
-  const columnLength = scaleWithinFrame(
-    a2,
-    INPUT_REFERENCE.a2,
-    DRAWING_REFERENCE.a2,
-    0.35,
-    1,
-  );
-  const columnWidth = scaleWithinFrame(
-    b3,
-    INPUT_REFERENCE.b3,
-    DRAWING_REFERENCE.b3,
-    0.35,
-    1,
-  );
-  const beamStartX = g2;
-  const beamEndX = columnLength + 0.75 * columnLength;
-  const beamWidth = scaleWithinFrame(
-    b2,
-    INPUT_REFERENCE.b2,
-    DRAWING_REFERENCE.b2,
-    0.12,
-    1,
-  );
-  const beamStartY = (columnWidth - beamWidth) / 2;
-  const beamEndY = beamStartY + beamWidth;
+  const supportStartX = 0;
+  const supportEndX = supportStartX + a2;
+  const beamStartX = supportStartX + g2;
+  const beamEndX = supportStartX + a2 + 0.5 * a2;
+  const beamStartY = (b3 - b2) / 2;
+  const beamEndY = beamStartY + b2;
 
-  const contactStartX = Math.max(0, beamStartX);
-  const contactEndX = Math.min(columnLength, beamEndX);
+  const contactStartX = Math.max(supportStartX, beamStartX);
+  const contactEndX = Math.min(supportEndX, beamEndX);
   const contactStartY = Math.max(0, beamStartY);
-  const contactEndY = Math.min(columnWidth, beamEndY);
+  const contactEndY = Math.min(b3, beamEndY);
 
-  const effectiveEdgeDistance = cmin;
-  const effectiveStartX = contactStartX + effectiveEdgeDistance;
-  const effectiveEndX = contactEndX - effectiveEdgeDistance;
-  const effectiveStartY = contactStartY + effectiveEdgeDistance;
-  const effectiveEndY = contactEndY - effectiveEdgeDistance;
+  const effectiveStartX = contactStartX + cmin;
+  const effectiveEndX = contactEndX - cmin;
+  const effectiveStartY = contactStartY + cmin;
+  const effectiveEndY = contactEndY - cmin;
   const shouldRenderEffectiveArea =
     effectiveStartX < effectiveEndX && effectiveStartY < effectiveEndY;
-
-  const studX = columnLength - e1;
-  const studY1 = e2;
-  const studY2 = e2 + e3;
 
   return (
     <>
       <MyDrawingPolygonShape
         points={[
-          { x: 0, y: 0 },
-          { x: columnLength, y: 0 },
-          { x: columnLength, y: columnWidth },
-          { x: 0, y: columnWidth },
+          { x: supportStartX, y: 0 },
+          { x: supportEndX, y: 0 },
+          { x: supportEndX, y: b3 },
+          { x: supportStartX, y: b3 },
         ]}
-        label="Column"
+        label="Support"
         edges={[
           {
             lineWidth: "thin",
@@ -138,6 +90,7 @@ function renderMyBearingsBeamTopTopViewGeometry({
           scale: hatchScale,
         }}
       />
+
       <MyDrawingPolygonShape
         points={[
           { x: beamStartX, y: beamStartY },
@@ -213,7 +166,7 @@ function renderMyBearingsBeamTopTopViewGeometry({
       ) : null}
       {hasStuds ? (
         <MyDrawingCircle
-          center={{ x: studX, y: studY1 }}
+          center={{ x: 1.2 * a1 + a1 - e1, y: e2 }}
           diameter={ds}
           lineWidth="thin"
           lineStyle="solid"
@@ -223,7 +176,7 @@ function renderMyBearingsBeamTopTopViewGeometry({
       ) : null}
       {hasStuds ? (
         <MyDrawingCircle
-          center={{ x: studX, y: studY1 }}
+          center={{ x: 1.2 * a1 + a1 - e1, y: e2 }}
           diameter={ds + 0.5 * ds}
           lineWidth="thin"
           lineStyle="solid"
@@ -233,7 +186,7 @@ function renderMyBearingsBeamTopTopViewGeometry({
       ) : null}
       {hasStuds && n === 2 ? (
         <MyDrawingCircle
-          center={{ x: studX, y: studY2 }}
+          center={{ x: 1.2 * a1 + a1 - e1, y: e2 + e3 }}
           diameter={ds}
           lineWidth="thin"
           lineStyle="solid"
@@ -243,7 +196,7 @@ function renderMyBearingsBeamTopTopViewGeometry({
       ) : null}
       {hasStuds && n === 2 ? (
         <MyDrawingCircle
-          center={{ x: studX, y: studY2 }}
+          center={{ x: 1.2 * a1 + a1 - e1, y: e2 + e3 }}
           diameter={ds + 0.5 * ds}
           lineWidth="thin"
           lineStyle="solid"
@@ -256,7 +209,11 @@ function renderMyBearingsBeamTopTopViewGeometry({
 }
 
 function renderMyBearingsBeamTopTopViewDimensions({
+  g1,
   g2,
+  tc,
+  b1,
+  a1,
   a2,
   b2,
   b3,
@@ -269,42 +226,22 @@ function renderMyBearingsBeamTopTopViewDimensions({
   hasStuds = false,
   dimensionScale = 1,
 }: MyBearingsTopViewProps) {
-  void cmin;
+  void tc;
   void n;
   void ds;
+  void cmin;
 
-  const columnLength = scaleWithinFrame(
-    a2,
-    INPUT_REFERENCE.a2,
-    DRAWING_REFERENCE.a2,
-    0.35,
-    1,
-  );
-  const columnWidth = scaleWithinFrame(
-    b3,
-    INPUT_REFERENCE.b3,
-    DRAWING_REFERENCE.b3,
-    0.35,
-    1,
-  );
-  const beamStartX = g2;
-  const beamWidth = scaleWithinFrame(
-    b2,
-    INPUT_REFERENCE.b2,
-    DRAWING_REFERENCE.b2,
-    0.12,
-    1,
-  );
-  const beamStartY = (columnWidth - beamWidth) / 2;
-  const beamEndY = beamStartY + beamWidth;
-  const studX = columnLength - e1;
-  const studY1 = e2;
-  const studY2 = e2 + e3;
+  const supportStartX = 0;
+  const supportEndX = supportStartX + a2;
+  const beamStartX = supportStartX + g2;
+  const beamEndX = supportStartX + a2 + 0.5 * a2;
+  const beamStartY = (b3 - b2) / 2;
+  const beamEndY = beamStartY + b2;
 
   return (
     <>
       <MyDrawingDimensionLine
-        start={{ x: 0, y: 0 }}
+        start={{ x: supportStartX, y: 0 }}
         end={{ x: beamStartX, y: 0 }}
         value={g2}
         symbol="g2"
@@ -317,11 +254,8 @@ function renderMyBearingsBeamTopTopViewDimensions({
         lineColor="black"
       />
       <MyDrawingDimensionLine
-        start={{ x: columnLength + (hasStuds ? 0.2 * columnLength : 0), y: 0 }}
-        end={{
-          x: columnLength + (hasStuds ? 0.2 * columnLength : 0),
-          y: columnWidth,
-        }}
+        start={{ x: supportEndX + (hasStuds ? 0.2 * a1 : 0), y: 0 }}
+        end={{ x: supportEndX + (hasStuds ? 0.2 * a1 : 0), y: b3 }}
         value={b3}
         symbol="B3"
         sizeScale={dimensionScale}
@@ -335,11 +269,11 @@ function renderMyBearingsBeamTopTopViewDimensions({
       />
       <MyDrawingDimensionLine
         start={{
-          x: columnLength + (hasStuds ? 0.4 * columnLength : 0.2 * columnLength),
+          x: supportEndX + (hasStuds ? 0.4 * a1 : 0.2 * a1),
           y: beamStartY,
         }}
         end={{
-          x: columnLength + (hasStuds ? 0.4 * columnLength : 0.2 * columnLength),
+          x: supportEndX + (hasStuds ? 0.4 * a1 : 0.2 * a1),
           y: beamEndY,
         }}
         value={b2}
@@ -355,8 +289,8 @@ function renderMyBearingsBeamTopTopViewDimensions({
       />
       {hasStuds ? (
         <MyDrawingDimensionLine
-          start={{ x: studX, y: columnWidth }}
-          end={{ x: columnLength, y: columnWidth }}
+          start={{ x: supportEndX - e1, y: b1 }}
+          end={{ x: supportEndX, y: b1 }}
           value={e1}
           symbol="e1"
           sizeScale={dimensionScale}
@@ -372,8 +306,8 @@ function renderMyBearingsBeamTopTopViewDimensions({
       ) : null}
       {hasStuds ? (
         <MyDrawingDimensionLine
-          start={{ x: columnLength, y: 0 }}
-          end={{ x: columnLength, y: studY1 }}
+          start={{ x: supportEndX, y: 0 }}
+          end={{ x: supportEndX, y: e2 }}
           value={e2}
           symbol="e2"
           sizeScale={dimensionScale}
@@ -389,8 +323,8 @@ function renderMyBearingsBeamTopTopViewDimensions({
       ) : null}
       {hasStuds && n === 2 ? (
         <MyDrawingDimensionLine
-          start={{ x: columnLength, y: studY1 }}
-          end={{ x: columnLength, y: studY2 }}
+          start={{ x: supportEndX, y: e2 }}
+          end={{ x: supportEndX, y: e2 + e3 }}
           value={e3}
           symbol="e3"
           sizeScale={dimensionScale}
@@ -408,30 +342,76 @@ function renderMyBearingsBeamTopTopViewDimensions({
   );
 }
 
-export function getMyBearingsBeamTopTopViewGeometryBounds(
-  props: MyBearingsTopViewProps,
-) {
+export function getMyBearingsBeamTopTopViewGeometryBounds({
+  g1,
+  tc,
+  b1,
+  a1,
+  b2,
+  cmin,
+  ...geometry
+}: MyBearingsTopViewProps) {
   return getDrawingBoundsFromChildren(
-    renderMyBearingsBeamTopTopViewGeometry(props),
+    renderMyBearingsBeamTopTopViewGeometry({
+      g1,
+      tc,
+      b1,
+      a1,
+      b2,
+      cmin,
+      ...geometry,
+    }),
   );
 }
 
-export function getMyBearingsBeamTopTopViewBounds(
-  props: MyBearingsTopViewProps,
-) {
+export function getMyBearingsBeamTopTopViewBounds({
+  g1,
+  tc,
+  b1,
+  a1,
+  b2,
+  cmin,
+  dimensionScale = 1,
+  ...geometry
+}: MyBearingsTopViewProps) {
   return getDrawingBoundsFromChildren(
     <>
-      {renderMyBearingsBeamTopTopViewGeometry(props)}
-      {renderMyBearingsBeamTopTopViewDimensions(props)}
+      {renderMyBearingsBeamTopTopViewGeometry({
+        g1,
+        tc,
+        b1,
+        a1,
+        b2,
+        cmin,
+        ...geometry,
+      })}
+      {renderMyBearingsBeamTopTopViewDimensions({
+        g1,
+        tc,
+        b1,
+        a1,
+        b2,
+        cmin,
+        dimensionScale,
+        ...geometry,
+      })}
     </>,
   );
 }
 
-export default function MyBearingsBeamTopTopView(
-  props: MyBearingsTopViewProps,
-) {
-  const { className, ariaLabel = "Bearings top view", fitBounds } = props;
-
+export default function MyBearingsBeamTopTopView({
+  g1,
+  tc,
+  b1,
+  a1,
+  b2,
+  cmin,
+  className,
+  ariaLabel = "Bearings top view",
+  fitBounds,
+  dimensionScale = 1,
+  ...geometry
+}: MyBearingsTopViewProps) {
   return (
     <MyDrawingCanvas
       fit="content"
@@ -445,8 +425,25 @@ export default function MyBearingsBeamTopTopView(
       className={className}
       ariaLabel={ariaLabel}
     >
-      {renderMyBearingsBeamTopTopViewGeometry(props)}
-      {renderMyBearingsBeamTopTopViewDimensions(props)}
+      {renderMyBearingsBeamTopTopViewGeometry({
+        g1,
+        tc,
+        b1,
+        a1,
+        b2,
+        cmin,
+        ...geometry,
+      })}
+      {renderMyBearingsBeamTopTopViewDimensions({
+        g1,
+        tc,
+        b1,
+        a1,
+        b2,
+        cmin,
+        dimensionScale,
+        ...geometry,
+      })}
     </MyDrawingCanvas>
   );
 }

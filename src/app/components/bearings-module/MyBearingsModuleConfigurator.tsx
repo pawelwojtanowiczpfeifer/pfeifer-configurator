@@ -14,15 +14,16 @@ import type {
 } from "./model/types";
 
 const INITIAL_S2 = 200;
+const INITIAL_A2 = 300;
 
 const INITIAL_GEOMETRY: MyBearingsModuleParameters = {
   isEndNotchedBeam: false,
   g1: 20,
-  g2: 20,
+  g2: 0.25 * INITIAL_A2,
   tc: 15,
   b1: 300,
   a1: INITIAL_S2,
-  a2: 300,
+  a2: INITIAL_A2,
   b2: 250,
   b3: 300,
   cmin: 40,

@@ -12,7 +12,7 @@ import MyBearingsBeamTopTopView, {
 
 const DEFAULT_DIMENSION_REFERENCE = {
   g1: 20,
-  g2: 20,
+  g2: 0.25 * 300,
   tc: 15,
   b1: 300,
   a1: 200,
@@ -35,38 +35,10 @@ function getBoundsScale(currentSize: number, referenceSize: number) {
   return currentSize / referenceSize;
 }
 
-function getBoundsRatio(
-  currentBounds:
-    | {
-        minX: number;
-        minY: number;
-        maxX: number;
-        maxY: number;
-      }
-    | undefined,
-  referenceBounds:
-    | {
-        minX: number;
-        minY: number;
-        maxX: number;
-        maxY: number;
-      }
-    | undefined,
-) {
-  if (!currentBounds || !referenceBounds) {
-    return 1;
-  }
-
-  return Math.max(
-    getBoundsScale(
-      currentBounds.maxX - currentBounds.minX,
-      referenceBounds.maxX - referenceBounds.minX,
-    ),
-    getBoundsScale(
-      currentBounds.maxY - currentBounds.minY,
-      referenceBounds.maxY - referenceBounds.minY,
-    ),
-  );
+function getBeamTopDetailScale({
+  a2,
+}: Pick<MyBearingsModuleDrawingProps, "a2">) {
+  return getBoundsScale(a2, DEFAULT_DIMENSION_REFERENCE.a2);
 }
 
 export default function MyBearingsBeamTopModuleDrawing({
@@ -81,45 +53,10 @@ export default function MyBearingsBeamTopModuleDrawing({
         getMyBearingsBeamTopTopViewGeometryBounds(geometry),
       ].filter((bounds) => bounds !== null),
     ) ?? undefined;
-  const sideGeometryBounds =
-    getMyBearingsBeamTopSideViewGeometryBounds(geometry) ?? undefined;
-  const topGeometryBounds =
-    getMyBearingsBeamTopTopViewGeometryBounds(geometry) ?? undefined;
-  const defaultSharedGeometryBounds =
-    mergeDrawingBounds(
-      [
-        getMyBearingsBeamTopSideViewGeometryBounds({
-          ...DEFAULT_DIMENSION_REFERENCE,
-          ...geometry,
-        }),
-        getMyBearingsBeamTopTopViewGeometryBounds({
-          ...DEFAULT_DIMENSION_REFERENCE,
-          ...geometry,
-        }),
-      ].filter((bounds) => bounds !== null),
-    ) ?? undefined;
-  const defaultSideGeometryBounds =
-    getMyBearingsBeamTopSideViewGeometryBounds({
-      ...DEFAULT_DIMENSION_REFERENCE,
-      ...geometry,
-    }) ?? undefined;
-  const defaultTopGeometryBounds =
-    getMyBearingsBeamTopTopViewGeometryBounds({
-      ...DEFAULT_DIMENSION_REFERENCE,
-      ...geometry,
-    }) ?? undefined;
-  const dimensionScale = getBoundsRatio(
-    sharedGeometryBounds,
-    defaultSharedGeometryBounds,
-  );
-  const sideHatchScale = getBoundsRatio(
-    sideGeometryBounds,
-    defaultSideGeometryBounds,
-  );
-  const topHatchScale = getBoundsRatio(
-    topGeometryBounds,
-    defaultTopGeometryBounds,
-  );
+  const beamTopDetailScale = getBeamTopDetailScale(geometry);
+  const dimensionScale = beamTopDetailScale;
+  const sideHatchScale = beamTopDetailScale;
+  const topHatchScale = beamTopDetailScale;
   const sharedBounds =
     mergeDrawingBounds(
       [
