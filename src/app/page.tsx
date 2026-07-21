@@ -40,6 +40,13 @@ export default function Home() {
           </MyButton>
         </Link>
       </div>
+      <div>
+        <Link href="/bearing-types">
+          <MyButton variant="primary" size="medium">
+            Go to Bearing Types Page
+          </MyButton>
+        </Link>
+      </div>
     </main>
   );
 }

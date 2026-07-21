@@ -1,3 +1,4 @@
+import { getSupabaseClient } from "@/lib/supabaseClient";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -8,6 +9,7 @@ import {
   MyBearingsModuleFireResistanceForm,
   MyBearingsModuleForceAndDeformationForm,
   MyBearingsModuleGeometricDataForm,
+  MyBearingsPadSizeSelectionResultView,
 } from "@/app/components/bearings-module";
 import MyBottombar from "@/app/components/ui/MyBottombar";
 import MyHStack from "@/app/components/ui/MyHStack";
@@ -15,8 +17,36 @@ import MySidebar from "@/app/components/ui/MySidebar";
 import MyTopbar from "@/app/components/ui/MyTopbar";
 import MyUserAvatar from "@/app/components/ui/MyUserAvatar";
 import MyVStack from "@/app/components/ui/MyVStack";
+import type { MyBearingsPadSizeBearingTypeSource } from "@/app/components/bearings-module/model/selection";
 
-export default function CalcPage() {
+type BearingTypeRow = MyBearingsPadSizeBearingTypeSource;
+
+async function getSupportedBearingTypes() {
+  const supabase = await getSupabaseClient();
+
+  const { data } = await supabase
+    .from("bearing_types")
+    .select(
+      `
+      id,
+      code,
+      name,
+      manufacturer,
+      description,
+      bearing_type_parameters (*),
+      bearing_type_min_dimensions (*)
+    `,
+    )
+    .in("code", ["S 65", "S 70"]);
+
+  const bearingTypes = (data ?? []) as BearingTypeRow[];
+
+  return bearingTypes;
+}
+
+export default async function CalcPage() {
+  const bearingTypes = await getSupportedBearingTypes();
+
   return (
     <MyBearingsModuleConfigurator>
       <MyHStack width="full" maxWidth="app" centered>
@@ -70,6 +100,15 @@ export default function CalcPage() {
             <MySidebar title="Results" size="lg" height="full">
               <MyBearingsContactAreaResult />
               <MyBearingsEffectiveSurfaceAreaResult />
+              {bearingTypes && bearingTypes.length > 0 ? (
+                <MyBearingsPadSizeSelectionResultView
+                  bearingTypes={bearingTypes}
+                />
+              ) : (
+                <div className="rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-600">
+                  No supported parameters found in Supabase.
+                </div>
+              )}
             </MySidebar>
           </MyHStack>
 

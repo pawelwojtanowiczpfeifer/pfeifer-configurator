@@ -111,12 +111,9 @@ export default function MyUserMenu({
               <MyHStack gap="md" align="center" justify="between">
                 <MyVStack gap="xs" align="start">
                   <MyLabel size="medium">Hi, {displayName}</MyLabel>
-                  <MyLabel
-                    size="small"
-                    variant="muted"
-                    children={undefined}
-                  ></MyLabel>
-                  Engineer account
+                  <MyLabel size="small" variant="muted">
+                    Engineer account
+                  </MyLabel>
                 </MyVStack>
               </MyHStack>
 

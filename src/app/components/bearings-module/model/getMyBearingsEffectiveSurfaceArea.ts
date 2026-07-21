@@ -1,13 +1,18 @@
 import type {
   MyBearingsEffectiveArea,
+  MyBearingsConnectionType,
   MyBearingsModuleParameters,
 } from "./types";
 import { getMyBearingsContactArea } from "./getMyBearingsContactArea";
 
+type MyBearingsEffectiveAreaInput = MyBearingsModuleParameters & {
+  connectionType?: MyBearingsConnectionType;
+};
+
 export function getMyBearingsEffectiveSurfaceArea({
   cmin,
   ...geometry
-}: MyBearingsModuleParameters): MyBearingsEffectiveArea {
+}: MyBearingsEffectiveAreaInput): MyBearingsEffectiveArea {
   const contactArea = getMyBearingsContactArea({ cmin, ...geometry });
   const effectiveLength = Math.max(contactArea.contactLength - 2 * cmin, 0);
   const effectiveWidth = Math.max(contactArea.contactWidth - 2 * cmin, 0);

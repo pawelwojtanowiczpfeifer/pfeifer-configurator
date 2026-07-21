@@ -37,15 +37,15 @@ function renderMyBearingsBeamTopSideViewGeometry({
       {hasStuds ? (
         <MyDrawingPolygonShape
           points={[
-            { x: 1.2 * a1 + a1 - e1 - 0.5 * ds, y: 0 },
-            { x: 1.2 * a1 + a1 - e1 - 0.5 * ds + ds, y: 0 },
+            { x: a2 - e1 - 0.5 * ds, y: 0 },
+            { x: a2 - e1 - 0.5 * ds + ds, y: 0 },
             {
-              x: 1.2 * a1 + a1 - e1 - 0.5 * ds + ds,
-              y: 1.2 * a1 + tc + a1 - 35,
+              x: a2 - e1 - 0.5 * ds + ds,
+              y: 0.75 * a2 + tc + 0.75 * a2,
             },
             {
-              x: 1.2 * a1 + a1 - e1 - 0.5 * ds,
-              y: 1.2 * a1 + tc + a1 - 35,
+              x: a2 - e1 - 0.5 * ds,
+              y: 0.75 * a2 + tc + 0.75 * a2,
             },
           ]}
           label="Stud"
@@ -84,12 +84,12 @@ function renderMyBearingsBeamTopSideViewGeometry({
       {hasStuds ? (
         <MyDrawingLine
           start={{
-            x: 1.2 * a1 + a1 - e1 - 0.5 * ds - (1.5 * ds - ds) / 2,
+            x: a2 - e1 - 0.5 * ds - (1.5 * ds - ds) / 2,
             y: 0,
           }}
           end={{
-            x: 1.2 * a1 + a1 - e1 - 0.5 * ds - (1.5 * ds - ds) / 2,
-            y: 1.2 * a1,
+            x: a2 - e1 - 0.5 * ds - (1.5 * ds - ds) / 2,
+            y: 0.75 * a2,
           }}
           lineWidth="thin"
           lineStyle="dashed"
@@ -99,12 +99,12 @@ function renderMyBearingsBeamTopSideViewGeometry({
       {hasStuds ? (
         <MyDrawingLine
           start={{
-            x: 1.2 * a1 + a1 - e1 + 0.5 * ds + (1.5 * ds - ds) / 2,
+            x: a2 - e1 + 0.5 * ds + (1.5 * ds - ds) / 2,
             y: 0,
           }}
           end={{
-            x: 1.2 * a1 + a1 - e1 + 0.5 * ds + (1.5 * ds - ds) / 2,
-            y: 1.2 * a1,
+            x: a2 - e1 + 0.5 * ds + (1.5 * ds - ds) / 2,
+            y: 0.75 * a2,
           }}
           lineWidth="thin"
           lineStyle="dashed"
@@ -313,10 +313,10 @@ function renderMyBearingsBeamTopSideViewDimensions({
       {hasStuds ? (
         <MyDrawingDimensionLine
           start={{
-            x: 1.2 * a1 + a1 - e1,
-            y: 1.2 * a1 + tc + a1,
+            x: a2 - e1,
+            y: 0.75 * a2 + tc + 0.75 * a2,
           }}
-          end={{ x: 1.2 * a1 + a1, y: 1.2 * a1 + tc + a1 }}
+          end={{ x: a2, y: 0.75 * a2 + tc + 0.75 * a2 }}
           value={e1}
           symbol="e1"
           sizeScale={dimensionScale}

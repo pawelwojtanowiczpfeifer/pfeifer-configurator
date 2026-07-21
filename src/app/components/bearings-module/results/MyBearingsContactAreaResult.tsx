@@ -12,8 +12,11 @@ function formatMillimeters(value: number) {
 }
 
 export default function MyBearingsContactAreaResult() {
-  const { geometry } = useMyBearingsModuleConfigurator();
-  const contactArea = getMyBearingsContactArea(geometry);
+  const { geometry, connectionType } = useMyBearingsModuleConfigurator();
+  const contactArea = getMyBearingsContactArea({
+    ...geometry,
+    connectionType,
+  });
 
   return (
     <div className="space-y-3">

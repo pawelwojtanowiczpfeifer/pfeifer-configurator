@@ -166,7 +166,7 @@ function renderMyBearingsBeamTopTopViewGeometry({
       ) : null}
       {hasStuds ? (
         <MyDrawingCircle
-          center={{ x: 1.2 * a1 + a1 - e1, y: e2 }}
+          center={{ x: a2 - e1, y: e2 }}
           diameter={ds}
           lineWidth="thin"
           lineStyle="solid"
@@ -176,7 +176,7 @@ function renderMyBearingsBeamTopTopViewGeometry({
       ) : null}
       {hasStuds ? (
         <MyDrawingCircle
-          center={{ x: 1.2 * a1 + a1 - e1, y: e2 }}
+          center={{ x: a2 - e1, y: e2 }}
           diameter={ds + 0.5 * ds}
           lineWidth="thin"
           lineStyle="solid"
@@ -186,7 +186,7 @@ function renderMyBearingsBeamTopTopViewGeometry({
       ) : null}
       {hasStuds && n === 2 ? (
         <MyDrawingCircle
-          center={{ x: 1.2 * a1 + a1 - e1, y: e2 + e3 }}
+          center={{ x: a2 - e1, y: e2 + e3 }}
           diameter={ds}
           lineWidth="thin"
           lineStyle="solid"
@@ -196,7 +196,7 @@ function renderMyBearingsBeamTopTopViewGeometry({
       ) : null}
       {hasStuds && n === 2 ? (
         <MyDrawingCircle
-          center={{ x: 1.2 * a1 + a1 - e1, y: e2 + e3 }}
+          center={{ x: a2 - e1, y: e2 + e3 }}
           diameter={ds + 0.5 * ds}
           lineWidth="thin"
           lineStyle="solid"
@@ -254,14 +254,14 @@ function renderMyBearingsBeamTopTopViewDimensions({
         lineColor="black"
       />
       <MyDrawingDimensionLine
-        start={{ x: supportEndX + (hasStuds ? 0.2 * a1 : 0), y: 0 }}
-        end={{ x: supportEndX + (hasStuds ? 0.2 * a1 : 0), y: b3 }}
+        start={{ x: supportEndX + (hasStuds ? 0.15 * a2 : 0), y: 0 }}
+        end={{ x: supportEndX + (hasStuds ? 0.15 * a2 : 0), y: b3 }}
         value={b3}
         symbol="B3"
         sizeScale={dimensionScale}
         textSize="lg"
         textOrientation="vertical"
-        textGap={-10}
+        textGap={-15}
         dimensionLinePosition="above"
         arrowSize="xl"
         arrowStyle="filled"
@@ -269,11 +269,11 @@ function renderMyBearingsBeamTopTopViewDimensions({
       />
       <MyDrawingDimensionLine
         start={{
-          x: supportEndX + (hasStuds ? 0.4 * a1 : 0.2 * a1),
+          x: supportEndX + (hasStuds ? 0.25 * a2 : 0.2 * a2),
           y: beamStartY,
         }}
         end={{
-          x: supportEndX + (hasStuds ? 0.4 * a1 : 0.2 * a1),
+          x: supportEndX + (hasStuds ? 0.25 * a2 : 0.2 * a2),
           y: beamEndY,
         }}
         value={b2}
@@ -289,8 +289,8 @@ function renderMyBearingsBeamTopTopViewDimensions({
       />
       {hasStuds ? (
         <MyDrawingDimensionLine
-          start={{ x: supportEndX - e1, y: b1 }}
-          end={{ x: supportEndX, y: b1 }}
+          start={{ x: supportEndX - e1, y: b3 }}
+          end={{ x: supportEndX, y: b3 }}
           value={e1}
           symbol="e1"
           sizeScale={dimensionScale}

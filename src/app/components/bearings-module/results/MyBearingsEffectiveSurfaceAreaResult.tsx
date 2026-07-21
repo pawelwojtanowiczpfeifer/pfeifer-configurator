@@ -18,8 +18,11 @@ function formatSquareMillimeters(value: number) {
 }
 
 export default function MyBearingsEffectiveSurfaceAreaResult() {
-  const { geometry } = useMyBearingsModuleConfigurator();
-  const effectiveArea = getMyBearingsEffectiveSurfaceArea(geometry);
+  const { geometry, connectionType } = useMyBearingsModuleConfigurator();
+  const effectiveArea = getMyBearingsEffectiveSurfaceArea({
+    ...geometry,
+    connectionType,
+  });
 
   return (
     <div className="space-y-3">
