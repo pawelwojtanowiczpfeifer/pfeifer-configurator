@@ -11,6 +11,9 @@ import MyVStack from "@/app/components/ui/MyVStack";
 import MyLabel from "@/app/components/ui/MyLabel";
 import { useMyBearingsModuleConfigurator } from "@/app/components/bearings-module/MyBearingsModuleConfigurator";
 import MyCheckbox from "../../ui/MyCheckbox";
+type MyBearingsModuleGeometricDataFormProps = {
+  bearingGapOptions: SelectOption<number>[];
+};
 
 function getStudDefaults(n: 1 | 2, b1: number) {
   if (n === 2) {
@@ -26,7 +29,9 @@ function getStudDefaults(n: 1 | 2, b1: number) {
   };
 }
 
-export default function MyBearingsModuleGeometricDataForm() {
+export default function MyBearingsModuleGeometricDataForm({
+  bearingGapOptions,
+}: MyBearingsModuleGeometricDataFormProps) {
   const connectionTypeOptions: SegmentedControlOption<
     "cantilever" | "beam-top"
   >[] = [
@@ -78,7 +83,6 @@ export default function MyBearingsModuleGeometricDataForm() {
   const [geometryInputs, setGeometryInputs] = useState({
     g1: `${geometry.g1}`,
     g2: `${geometry.g2}`,
-    tc: `${geometry.tc}`,
     b1: `${geometry.b1}`,
     a1: `${geometry.a1}`,
     a2: `${geometry.a2}`,
@@ -138,6 +142,19 @@ export default function MyBearingsModuleGeometricDataForm() {
       ...current,
       e2: `${studDefaults.e2}`,
       e3: `${studDefaults.e3}`,
+    }));
+  };
+
+  const updateBearingGap = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const bearingGapMm = Number(event.target.value);
+
+    if (!Number.isFinite(bearingGapMm)) {
+      return;
+    }
+
+    setGeometry((current) => ({
+      ...current,
+      tc: bearingGapMm,
     }));
   };
 
@@ -268,14 +285,11 @@ export default function MyBearingsModuleGeometricDataForm() {
           }
           description="bearing gap"
         />
-        <MyInput
-          type="number"
+        <MySelect
+          options={bearingGapOptions}
           size="sm"
-          density="compact"
-          suffix="mm"
-          value={geometryInputs.tc}
-          onChange={updateGeometryInput("tc")}
-          onBlur={restoreGeometryInput("tc")}
+          value={geometry.tc}
+          onChange={updateBearingGap}
         />
       </MyVStack>
 

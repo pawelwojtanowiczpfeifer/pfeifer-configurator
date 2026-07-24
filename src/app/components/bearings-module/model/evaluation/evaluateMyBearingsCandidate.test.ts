@@ -77,34 +77,23 @@ describe("evaluateMyBearingsCandidate", () => {
     expect(result.checks[0]?.status).toBe("fail");
   });
 
-  it("fails for S65 when the strength check is exceeded", () => {
-    const result = evaluateMyBearingsCandidate({
-      methodCode: "s65",
-      context: BASE_CONTEXT,
-      loadInput: {
-        designVerticalForceKN: 2000,
-      },
-    });
+  it("applies the same compressive-stress check to S65 and S70", () => {
+    for (const methodCode of ["s65", "s70"] as const) {
+      const result = evaluateMyBearingsCandidate({
+        methodCode,
+        context: BASE_CONTEXT,
+        loadInput: {
+          designVerticalForceKN: 2000,
+        },
+      });
 
-    expect(result.isValid).toBe(false);
-    expect(result.checks.find((check) => check.name === "strength")?.status).toBe(
-      "fail",
-    );
-    expect(result.reasons).toContain("strength exceeds allowable limit.");
-  });
-
-  it("passes for S65 when the strength check is within the limit", () => {
-    const result = evaluateMyBearingsCandidate({
-      methodCode: "s65",
-      context: BASE_CONTEXT,
-      loadInput: {
-        designVerticalForceKN: 100,
-      },
-    });
-
-    expect(result.checks.find((check) => check.name === "strength")?.status).toBe(
-      "pass",
-    );
+      expect(result.isValid).toBe(false);
+      expect(result.checks).toHaveLength(4);
+      expect(
+        result.checks.find((check) => check.name === "compressiveStress")
+          ?.status,
+      ).toBe("fail");
+    }
   });
 
   it("fails when the pad dimensions are outside the allowed range", () => {
@@ -138,4 +127,5 @@ describe("evaluateMyBearingsCandidate", () => {
     );
     expect(result.reasons).toContain("dimensions exceed allowable limits.");
   });
+
 });

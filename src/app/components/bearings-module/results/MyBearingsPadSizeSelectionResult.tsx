@@ -6,8 +6,7 @@ import { useMyBearingsModuleConfigurator } from "../MyBearingsModuleConfigurator
 import { selectBestMyBearingsPadSizeAcrossMethods } from "../model/selection";
 import type {
   MyBearingsPadSizeBearingTypeSource,
-  MyBearingsPadSizeMinDimensionSource,
-  MyBearingsPadSizeRangeSource,
+  MyBearingsPadSizeRange,
   MyBearingsPadSizeVariant,
 } from "../model/selection";
 import type { MyBearingsCalculationMethodCode } from "../model/calculations";
@@ -23,10 +22,6 @@ function formatPercent(value: number) {
   return `${new Intl.NumberFormat("en-US", {
     maximumFractionDigits: 1,
   }).format(value)}%`;
-}
-
-function formatRange(minValue: number, maxValue: number) {
-  return `${minValue} - ${maxValue}`;
 }
 
 function formatKn(value: number) {
@@ -55,7 +50,8 @@ function isSupportedMethodCode(
     value === "s70" ||
     value === "cr2000" ||
     value === "typeZ" ||
-    value === "q"
+    value === "q" ||
+    value === "compression"
   );
 }
 
@@ -65,6 +61,7 @@ function buildCandidateEvaluationInput(
   forceAndDeformation: MyBearingsCandidateEvaluationInput["context"]["forceAndDeformation"],
   hasStuds: boolean,
   variant: MyBearingsPadSizeVariant,
+  padThicknessMm: number,
 ): MyBearingsCandidateEvaluationInput {
   const padArea = getMyBearingsPadArea({
     widthMm: variant.widthMm,
@@ -77,6 +74,7 @@ function buildCandidateEvaluationInput(
   const candidateGeometry: MyBearingsCandidateEvaluationInput["context"]["geometry"] =
     {
       ...geometry,
+      tc: padThicknessMm,
       a1: variant.widthMm,
       a2: variant.widthMm,
       b1: variant.lengthMm,
@@ -89,7 +87,7 @@ function buildCandidateEvaluationInput(
       contactLength: variant.lengthMm,
       contactWidth: variant.widthMm,
       contactAreaMm2: padArea.netAreaMm2,
-      contactAreaM2: padArea.netAreaM2 / 1_000_000,
+      contactAreaM2: padArea.netAreaM2,
     };
 
   const effectiveArea: MyBearingsCandidateEvaluationInput["context"]["effectiveArea"] =
@@ -97,7 +95,7 @@ function buildCandidateEvaluationInput(
       effectiveLength: variant.lengthMm,
       effectiveWidth: variant.widthMm,
       effectiveAreaMm2: padArea.netAreaMm2,
-      effectiveAreaM2: padArea.netAreaM2 / 1_000_000,
+      effectiveAreaM2: padArea.netAreaM2,
     };
 
   const context: MyBearingsCalculationContext = {
@@ -119,21 +117,6 @@ function buildCandidateEvaluationInput(
   };
 }
 
-function getMinDimensionForThickness(
-  minDimensions: MyBearingsPadSizeMinDimensionSource[],
-  thicknessMm: number,
-) {
-  const activeDimensions = minDimensions
-    .filter((item) => item.is_active)
-    .sort((left, right) => left.thickness_mm - right.thickness_mm);
-
-  return (
-    activeDimensions.find((item) => item.thickness_mm >= thicknessMm) ??
-    activeDimensions[activeDimensions.length - 1] ??
-    null
-  );
-}
-
 export default function MyBearingsPadSizeSelectionResult({
   bearingTypes,
 }: MyBearingsPadSizeSelectionResultProps) {
@@ -151,27 +134,38 @@ export default function MyBearingsPadSizeSelectionResult({
     );
   }
 
-  const methods = bearingTypes.flatMap((bearingType) => {
-    const minDimension = getMinDimensionForThickness(
-      bearingType.bearing_type_min_dimensions,
-      geometry.tc,
-    );
+  type MethodSelection = {
+    methodCode: MyBearingsCalculationMethodCode;
+    parameter: MyBearingsPadSizeRange;
+    mapGeneratedVariant: (
+      variant: MyBearingsPadSizeVariant,
+    ) => MyBearingsPadSizeVariant;
+    isEligibleForSelection: (
+      variant: MyBearingsPadSizeVariant,
+    ) => boolean;
+    buildEvaluationInput: (
+      variant: MyBearingsPadSizeVariant,
+    ) => MyBearingsCandidateEvaluationInput;
+  };
 
-    if (!minDimension) {
-      return [];
-    }
+  const methods = bearingTypes.flatMap((bearingType): MethodSelection[] => {
+    return bearingType.bearing_type_min_dimensions
+      .filter((minDimension) => minDimension.is_active)
+      .flatMap((minDimension): MethodSelection[] =>
+        bearingType.bearing_type_parameters.flatMap(
+          (parameterItem): MethodSelection[] => {
+        const methodCode = parameterItem.calculation_method_code;
 
-    return bearingType.bearing_type_parameters
-      .filter((p) => isSupportedMethodCode(p.calculation_method_code))
-      .map((parameterItem) => {
-        const methodCode = parameterItem.calculation_method_code as any;
+        if (!isSupportedMethodCode(methodCode)) {
+          return [];
+        }
 
         // require max widths/lengths
         if (
           parameterItem.max_width_mm == null ||
           parameterItem.max_length_mm == null
         ) {
-          return null;
+          return [];
         }
 
         const stepMm =
@@ -180,55 +174,51 @@ export default function MyBearingsPadSizeSelectionResult({
           parameterItem.dimension_step_normal_mm ??
           undefined;
 
-        return {
-          methodCode,
-          parameter: {
-            minWidthMm: parameterItem.min_width_mm ?? minDimension.min_width_mm,
-            maxWidthMm: parameterItem.max_width_mm,
-            minLengthMm:
-              parameterItem.min_length_mm ?? minDimension.min_length_mm,
-            maxLengthMm: parameterItem.max_length_mm,
-            widthStepMm: stepMm,
-            lengthStepMm: stepMm,
+        return [
+          {
+            methodCode,
+            parameter: {
+              minWidthMm:
+                parameterItem.min_width_mm ?? minDimension.min_width_mm,
+              maxWidthMm: parameterItem.max_width_mm,
+              minLengthMm:
+                parameterItem.min_length_mm ?? minDimension.min_length_mm,
+              maxLengthMm: parameterItem.max_length_mm,
+              widthStepMm: stepMm,
+              lengthStepMm: stepMm,
+            },
+            mapGeneratedVariant: (variant) => ({
+              ...variant,
+              padThicknessMm: minDimension.thickness_mm,
+              bearingGapMm: minDimension.bearing_gap_mm,
+              bearingTypeCode: bearingType.code,
+              bearingTypeName: bearingType.name,
+            }),
+            isEligibleForSelection: (variant) =>
+              variant.bearingGapMm === geometry.tc,
+            buildEvaluationInput: (variant: MyBearingsPadSizeVariant) =>
+              buildCandidateEvaluationInput(
+                methodCode,
+                geometry,
+                forceAndDeformation,
+                hasStuds,
+                variant,
+                minDimension.thickness_mm,
+              ),
           },
-          buildEvaluationInput: (variant: MyBearingsPadSizeVariant) =>
-            buildCandidateEvaluationInput(
-              methodCode,
-              geometry,
-              forceAndDeformation,
-              hasStuds,
-              variant,
-            ),
-        } as any;
-      })
-      .filter(Boolean) as any[];
+        ];
+          },
+        ),
+      );
   });
 
   const supportedParameters = bearingTypes.flatMap(
     (bt) => bt.bearing_type_parameters || [],
   );
 
-  const minDimension = (() => {
-    for (const bt of bearingTypes) {
-      const md = getMinDimensionForThickness(
-        bt.bearing_type_min_dimensions,
-        geometry.tc,
-      );
-      if (md) return md;
-    }
-
-    return null;
-  })();
-
   const selection = selectBestMyBearingsPadSizeAcrossMethods({
     geometry,
     connectionType,
-    parameter: {
-      minWidthMm: 0,
-      maxWidthMm: geometry.a1,
-      minLengthMm: 0,
-      maxLengthMm: geometry.b1,
-    },
     methods,
   });
 
@@ -241,6 +231,9 @@ export default function MyBearingsPadSizeSelectionResult({
         numberOfStuds: geometry.n,
       })
     : null;
+  const candidatesForSelectedGap = selection.candidates.filter(
+    (candidate) => candidate.isEligibleForSelection,
+  );
 
   return (
     <div className="space-y-3">
@@ -249,11 +242,20 @@ export default function MyBearingsPadSizeSelectionResult({
         {selection?.selected ? (
           <>
             <MySummaryRow
-              label="Selected size"
+              label="Selected type"
               value={
-                selection.selected.variant.label ??
-                selection.selected.variant.code
+                selection.selected.variant.bearingTypeName ??
+                selection.selected.variant.bearingTypeCode ??
+                selection.selected.evaluation.methodCode
               }
+            />
+            <MySummaryRow
+              label="Selected size (a x b)"
+              value={`${selection.selected.variant.widthMm} x ${selection.selected.variant.lengthMm} mm`}
+            />
+            <MySummaryRow
+              label="Pad thickness"
+              value={`${selection.selected.variant.padThicknessMm ?? "n/a"} mm`}
             />
             <MySummaryRow
               label="Usage"
@@ -261,7 +263,7 @@ export default function MyBearingsPadSizeSelectionResult({
             />
             <MySummaryRow
               label="Candidates"
-              value={selection.candidates.length}
+              value={candidatesForSelectedGap.length}
               className="border-b-0"
             />
           </>
@@ -279,15 +281,11 @@ export default function MyBearingsPadSizeSelectionResult({
             value={selection?.selected?.evaluation.methodCode ?? "none"}
           />
           <MySummaryRow label="Studs" value={hasStuds ? "on" : "off"} />
-          <MySummaryRow label="tc" value={`${geometry.tc} mm`} />
-          <MySummaryRow
-            label="Min dim"
-            value={`${minDimension.min_width_mm} x ${minDimension.min_length_mm} mm`}
-          />
+          <MySummaryRow label="Bearing gap" value={`${geometry.tc} mm`} />
           <MySummaryRow label="Methods" value={supportedParameters.length} />
           <MySummaryRow
             label="Candidates"
-            value={selection ? selection.candidates.length : 0}
+            value={candidatesForSelectedGap.length}
           />
           <MySummaryRow
             label="Selected"
@@ -304,9 +302,13 @@ export default function MyBearingsPadSizeSelectionResult({
               />
               <MySummaryRow
                 label="S"
-                value={formatNumber(
-                  selection.selected.evaluation.calculation.shapeCoefficient,
-                )}
+                value={
+                  "shapeCoefficient" in selection.selected.evaluation.calculation
+                    ? formatNumber(
+                        selection.selected.evaluation.calculation.shapeCoefficient,
+                      )
+                    : "n/a"
+                }
               />
               <MySummaryRow
                 label="sigma raw"
@@ -329,14 +331,6 @@ export default function MyBearingsPadSizeSelectionResult({
                 )}
               />
               <MySummaryRow
-                label="Strength check"
-                value={
-                  selection.selected.evaluation.checks.find(
-                    (check) => check.name === "strength",
-                  )?.status ?? "skipped"
-                }
-              />
-              <MySummaryRow
                 label="FRd"
                 value={formatKn(
                   (selection.selected.evaluation.calculation
@@ -347,10 +341,23 @@ export default function MyBearingsPadSizeSelectionResult({
                 className="border-b-0"
               />
               <MySummaryRow
+                label="Pad width a"
+                value={`${selection.selected.variant.widthMm} mm`}
+              />
+              <MySummaryRow
+                label="Pad length b"
+                value={`${selection.selected.variant.lengthMm} mm`}
+              />
+              <MySummaryRow
+                label="Pad thickness t"
+                value={`${selection.selected.variant.padThicknessMm ?? "n/a"} mm`}
+              />
+              <MySummaryRow
                 label="Pad gross area"
                 value={`${formatNumber(
                   selectedPadArea?.grossAreaMm2 ?? 0,
                 )} mm2`}
+                className="border-b-0"
               />
               <MySummaryRow
                 label="Hole area"

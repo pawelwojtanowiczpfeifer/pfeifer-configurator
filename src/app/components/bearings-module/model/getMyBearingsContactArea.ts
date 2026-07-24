@@ -18,11 +18,11 @@ export function getMyBearingsContactArea({
   a2,
   b3,
 }: MyBearingsContactAreaInput): MyBearingsContactArea {
-  const contactLength =
+  const contactWidth =
     connectionType === "beam-top"
       ? Math.max(a2 - g2, 0)
       : Math.max(a1 - g1, 0);
-  const contactWidth =
+  const contactLength =
     connectionType === "beam-top"
       ? Math.max(Math.min(b2, b3), 0)
       : Math.max(Math.min(b2, b1), 0);

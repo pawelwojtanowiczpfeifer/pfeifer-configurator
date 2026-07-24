@@ -27,8 +27,8 @@ describe("bearings contact and effective area", () => {
       connectionType: "cantilever",
     });
 
-    expect(result.contactLength).toBe(180);
-    expect(result.contactWidth).toBe(250);
+    expect(result.contactWidth).toBe(180);
+    expect(result.contactLength).toBe(250);
     expect(result.contactAreaMm2).toBe(45000);
   });
 
@@ -38,8 +38,8 @@ describe("bearings contact and effective area", () => {
       connectionType: "beam-top",
     });
 
-    expect(result.contactLength).toBe(225);
-    expect(result.contactWidth).toBe(250);
+    expect(result.contactWidth).toBe(225);
+    expect(result.contactLength).toBe(250);
     expect(result.contactAreaMm2).toBe(56250);
   });
 
@@ -49,8 +49,8 @@ describe("bearings contact and effective area", () => {
       connectionType: "beam-top",
     });
 
-    expect(result.effectiveLength).toBe(145);
-    expect(result.effectiveWidth).toBe(170);
+    expect(result.effectiveWidth).toBe(145);
+    expect(result.effectiveLength).toBe(170);
     expect(result.effectiveAreaMm2).toBe(24650);
   });
 });

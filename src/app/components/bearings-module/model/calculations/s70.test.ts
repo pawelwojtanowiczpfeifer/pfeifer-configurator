@@ -43,14 +43,14 @@ describe("S70 calculation", () => {
       },
       hasStuds: true,
       contactArea: {
-        contactLength: 225,
-        contactWidth: 250,
+        contactWidth: 225,
+        contactLength: 250,
         contactAreaMm2: 56250,
         contactAreaM2: 0.05625,
       },
       effectiveArea: {
-        effectiveLength: 145,
-        effectiveWidth: 170,
+        effectiveWidth: 145,
+        effectiveLength: 170,
         effectiveAreaMm2: 24650,
         effectiveAreaM2: 0.02465,
       },

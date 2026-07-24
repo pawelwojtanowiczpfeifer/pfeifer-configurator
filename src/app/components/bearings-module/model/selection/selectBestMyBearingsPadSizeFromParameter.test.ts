@@ -120,11 +120,14 @@ describe("selectBestMyBearingsPadSizeFromParameter", () => {
     });
 
     expect(result?.selected?.variant.widthMm).toBe(100);
-    expect(result?.selected?.variant.lengthMm).toBe(100);
+    expect(result?.selected?.variant.lengthMm).toBe(130);
     expect(result?.candidates.every((candidate) => candidate.variant.widthMm <= 120)).toBe(
       true,
     );
     expect(result?.candidates.every((candidate) => candidate.variant.lengthMm <= 130)).toBe(
+      true,
+    );
+    expect(result?.candidates.every((candidate) => candidate.variant.lengthMm >= 130)).toBe(
       true,
     );
   });

@@ -23,12 +23,12 @@ export default function MyBearingsContactAreaResult() {
       <MyLabel size="small">Contact area</MyLabel>
       <div className="rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-3">
         <MySummaryRow
-          label="Contact length"
-          value={formatMillimeters(contactArea.contactLength)}
-        />
-        <MySummaryRow
           label="Contact width"
           value={formatMillimeters(contactArea.contactWidth)}
+        />
+        <MySummaryRow
+          label="Contact length"
+          value={formatMillimeters(contactArea.contactLength)}
           className="border-b-0"
         />
       </div>

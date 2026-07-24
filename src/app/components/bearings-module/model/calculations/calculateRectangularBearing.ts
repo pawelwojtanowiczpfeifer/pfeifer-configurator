@@ -6,10 +6,15 @@ import { getRectangularShapeCoefficient } from "./getRectangularShapeCoefficient
 import { getStudHoleDiameter } from "./getStudHoleDiameter";
 
 type RectangularBearingFormula = {
-  methodCode: "s65" | "s70" | "cr2000";
+  methodCode: "s65" | "s70" | "cr2000" | "compression";
   rawCompressiveStress: (shapeCoefficient: number) => number;
   compressiveStressLimitMPa: number;
   hasHoleSensitivity?: "none" | "studs";
+  allowableHorizontalDeformationMm?: (thicknessMm: number) => number;
+  allowableRotationPermille?: (
+    shorterSideMm: number,
+    thicknessMm: number,
+  ) => number;
 };
 
 function getTransverseForce(
@@ -66,14 +71,12 @@ export function calculateRectangularBearing(
     rawCompressiveStressMPa,
     formula.compressiveStressLimitMPa,
   );
-  const allowableHorizontalDeformationMm = Math.max(
-    0.6 * (geometry.tc - 2),
-    0,
-  );
-  const allowableRotationPermille = Math.min(
-    (450 * geometry.tc) / Math.max(shorterSideMm, 1),
-    40,
-  );
+  const allowableHorizontalDeformationMm =
+    formula.allowableHorizontalDeformationMm?.(geometry.tc) ??
+    Math.max(0.6 * (geometry.tc - 2), 0);
+  const allowableRotationPermille =
+    formula.allowableRotationPermille?.(shorterSideMm, geometry.tc) ??
+    Math.min((450 * geometry.tc) / Math.max(shorterSideMm, 1), 40);
   const tensileForceShortSideKN =
     (1.5 * forceAndDeformation.designVerticalForce * geometry.tc) /
     Math.max(longerSideMm, 1);
@@ -99,5 +102,5 @@ export function calculateRectangularBearing(
     notes: [
       "Horizontal force is only calculated when transverse stiffness is available.",
     ],
-  };
+  } as MyBearingsCalculationResult;
 }

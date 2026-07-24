@@ -6,6 +6,7 @@ export { selectBestMyBearingsPadSizeAcrossMethods } from "./selectBestMyBearings
 export { generateMyBearingsPadSizeVariantsFromRange } from "./generateMyBearingsPadSizeVariantsFromRange";
 export { getMyBearingsPadSizeRangeFromParameter } from "./getMyBearingsPadSizeRangeFromParameter";
 export { constrainMyBearingsPadSizeRangeToBounds } from "./constrainMyBearingsPadSizeRangeToBounds";
+export { resolveMyBearingsPadSizeRange } from "./resolveMyBearingsPadSizeRange";
 export type {
   MyBearingsPadSizeBearingTypeSource,
   MyBearingsPadSizeMinDimensionSource,

@@ -1,6 +1,5 @@
 import { evaluateMyBearingsCandidate } from "../evaluation";
 import type { MyBearingsCandidateEvaluationInput } from "../evaluation";
-import { selectBestMyBearingsPadSize } from "./selectBestMyBearingsPadSize";
 import type {
   MyBearingsPadSizeRange,
   MyBearingsPadSizeSelectionResult,
@@ -9,13 +8,18 @@ import type {
 import type { MyBearingsCalculationMethodCode } from "../calculations";
 import type { MyBearingsModuleParameters } from "../types";
 import { getMyBearingsPadSizeRangeFromParameter } from "./getMyBearingsPadSizeRangeFromParameter";
-import { constrainMyBearingsPadSizeRangeToBounds } from "./constrainMyBearingsPadSizeRangeToBounds";
 import { generateMyBearingsPadSizeVariantsFromRange } from "./generateMyBearingsPadSizeVariantsFromRange";
+import { resolveMyBearingsPadSizeRange } from "./resolveMyBearingsPadSizeRange";
 import { getMyBearingsEffectiveSurfaceArea } from "../getMyBearingsEffectiveSurfaceArea";
 
 type MethodSelectionInput<TVariant extends MyBearingsPadSizeVariant> = {
   methodCode: MyBearingsCalculationMethodCode;
   parameter: MyBearingsPadSizeRange;
+  mapGeneratedVariant?: (variant: MyBearingsPadSizeVariant) => TVariant;
+  isEligibleForSelection?: (
+    variant: TVariant,
+    evaluation: ReturnType<typeof evaluateMyBearingsCandidate>,
+  ) => boolean;
   buildEvaluationInput: (variant: TVariant) => MyBearingsCandidateEvaluationInput;
 };
 
@@ -24,7 +28,6 @@ type SelectBestMyBearingsPadSizeAcrossMethodsInput<
 > = {
   geometry: MyBearingsModuleParameters;
   connectionType?: "cantilever" | "beam-top";
-  parameter: MyBearingsPadSizeRange;
   methods: MethodSelectionInput<TVariant>[];
 };
 
@@ -37,7 +40,6 @@ export function selectBestMyBearingsPadSizeAcrossMethods<
 >({
   geometry,
   connectionType,
-  parameter,
   methods,
 }: SelectBestMyBearingsPadSizeAcrossMethodsInput<TVariant>): MyBearingsPadSizeSelectionResult<TVariant> {
   const allCandidates: Array<{
@@ -45,9 +47,16 @@ export function selectBestMyBearingsPadSizeAcrossMethods<
     evaluation: ReturnType<typeof evaluateMyBearingsCandidate>;
     footprintAreaMm2: number;
     usagePercent: number;
+    isEligibleForSelection: boolean;
   }> = [];
 
-  methods.forEach(({ methodCode, parameter: methodParameter, buildEvaluationInput }) => {
+  methods.forEach(
+    ({
+      parameter: methodParameter,
+      mapGeneratedVariant,
+      isEligibleForSelection,
+      buildEvaluationInput,
+    }) => {
     const range = getMyBearingsPadSizeRangeFromParameter({
       parameter: {
         min_width_mm: methodParameter.minWidthMm,
@@ -63,23 +72,28 @@ export function selectBestMyBearingsPadSizeAcrossMethods<
       connectionType,
     });
 
-    const constrainedRange = range
-      ? constrainMyBearingsPadSizeRangeToBounds({
+    const resolvedRange = range
+      ? resolveMyBearingsPadSizeRange({
           range,
           bounds: {
             maxWidthMm: effectiveArea.effectiveWidth,
             maxLengthMm: effectiveArea.effectiveLength,
           },
+          effectiveWidthMm: effectiveArea.effectiveWidth,
+          effectiveLengthMm: effectiveArea.effectiveLength,
         })
       : null;
 
-    if (!constrainedRange) {
+    if (!resolvedRange) {
       return;
     }
 
-    const variants = generateMyBearingsPadSizeVariantsFromRange({
-      range: constrainedRange,
-    }) as TVariant[];
+    const generatedVariants = generateMyBearingsPadSizeVariantsFromRange({
+      range: resolvedRange,
+    });
+    const variants = mapGeneratedVariant
+      ? generatedVariants.map(mapGeneratedVariant)
+      : (generatedVariants as TVariant[]);
 
     variants.forEach((variant) => {
       const evaluation = evaluateMyBearingsCandidate(
@@ -92,22 +106,35 @@ export function selectBestMyBearingsPadSizeAcrossMethods<
         evaluation,
         footprintAreaMm2,
         usagePercent: evaluation.compressiveStressUsagePercent,
+        isEligibleForSelection:
+          isEligibleForSelection?.(variant, evaluation) ?? true,
       });
     });
-  });
+    },
+  );
 
   const selected = allCandidates
-    .filter((candidate) => candidate.evaluation.isValid)
+    .filter(
+      (candidate) =>
+        candidate.evaluation.isValid && candidate.isEligibleForSelection,
+    )
     .sort((left, right) => {
-      if (left.usagePercent !== right.usagePercent) {
-        return right.usagePercent - left.usagePercent;
+      const leftUsageGapToTarget = Math.abs(100 - left.usagePercent);
+      const rightUsageGapToTarget = Math.abs(100 - right.usagePercent);
+
+      if (leftUsageGapToTarget !== rightUsageGapToTarget) {
+        return leftUsageGapToTarget - rightUsageGapToTarget;
       }
 
       if (left.footprintAreaMm2 !== right.footprintAreaMm2) {
         return left.footprintAreaMm2 - right.footprintAreaMm2;
       }
 
-      return left.variant.widthMm - right.variant.widthMm;
+      if (left.variant.widthMm !== right.variant.widthMm) {
+        return left.variant.widthMm - right.variant.widthMm;
+      }
+
+      return left.variant.lengthMm - right.variant.lengthMm;
     })[0] ?? null;
 
   return {

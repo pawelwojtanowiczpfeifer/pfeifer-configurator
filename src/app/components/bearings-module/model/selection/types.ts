@@ -4,6 +4,10 @@ export type MyBearingsPadSizeVariant = {
   code: string;
   widthMm: number;
   lengthMm: number;
+  bearingGapMm?: number | null;
+  padThicknessMm?: number;
+  bearingTypeCode?: string;
+  bearingTypeName?: string;
   label?: string;
 };
 
@@ -26,13 +30,17 @@ export type MyBearingsPadSizeRangeSource = {
   max_width_mm: number | null;
   min_length_mm: number | null;
   max_length_mm: number | null;
-  dimension_step_normal_mm: number | null;
+  dimension_step_normal_mm: number | null | undefined;
+  dimension_step_optimal_mm?: number | null;
+  step_mm?: number | null;
 };
 
 export type MyBearingsPadSizeTypeParameterSource = {
   id: number;
   bearing_type_id: number;
+  min_width_mm: number | null;
   max_width_mm: number | null;
+  min_length_mm: number | null;
   max_length_mm: number | null;
   max_compressive_stress_sigma_rd_MPa: number | null;
   calculation_method_code: string | null;
@@ -49,6 +57,7 @@ export type MyBearingsPadSizeMinDimensionSource = {
   min_length_mm: number;
   min_dimension_factor: number | null;
   is_active: boolean;
+  bearing_gap_mm: number | null;
 };
 
 export type MyBearingsPadSizeBearingTypeSource = {
@@ -66,6 +75,7 @@ export type MyBearingsPadSizeSelection<TVariant extends MyBearingsPadSizeVariant
   evaluation: MyBearingsCandidateEvaluation;
   footprintAreaMm2: number;
   usagePercent: number;
+  isEligibleForSelection?: boolean;
 };
 
 export type MyBearingsPadSizeSelectionResult<

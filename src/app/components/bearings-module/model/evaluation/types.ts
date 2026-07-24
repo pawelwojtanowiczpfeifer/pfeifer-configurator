@@ -23,8 +23,7 @@ export type MyBearingsCandidateCheckName =
   | "compressiveStress"
   | "bearingRotation"
   | "horizontalDeformation"
-  | "dimensions"
-  | "strength";
+  | "dimensions";
 
 export type MyBearingsCandidateCheck = {
   name: MyBearingsCandidateCheckName;

@@ -10,7 +10,8 @@ export type MyBearingsCalculationMethodCode =
   | "s70"
   | "cr2000"
   | "typeZ"
-  | "q";
+  | "q"
+  | "compression";
 
 export type MyBearingsCalculationContext = {
   geometry: MyBearingsModuleParameters;
@@ -84,12 +85,26 @@ export type MyBearingsQCalculationResult = {
   notes: string[];
 };
 
+export type MyBearingsCompressionCalculationResult = {
+  methodCode: "compression";
+  shapeCoefficient: number;
+  rawCompressiveStressMPa: number;
+  compressiveStressLimitMPa: number;
+  allowableHorizontalDeformationMm: number;
+  allowableRotationPermille: number;
+  tensileForceShortSideKN: number;
+  tensileForceLongSideKN: number;
+  horizontalForceKN: number | null;
+  notes: string[];
+};
+
 export type MyBearingsCalculationResult =
   | MyBearingsS65CalculationResult
   | MyBearingsS70CalculationResult
   | MyBearingsCR2000CalculationResult
   | MyBearingsTypeZCalculationResult
-  | MyBearingsQCalculationResult;
+  | MyBearingsQCalculationResult
+  | MyBearingsCompressionCalculationResult;
 
 export type MyBearingsCalculationCalculator = (
   context: MyBearingsCalculationContext,

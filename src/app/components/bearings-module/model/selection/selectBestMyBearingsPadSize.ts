@@ -18,11 +18,22 @@ function compareSelections<TVariant extends MyBearingsPadSizeVariant>(
   left: MyBearingsPadSizeSelection<TVariant>,
   right: MyBearingsPadSizeSelection<TVariant>,
 ) {
+  const leftUsageGapToTarget = Math.abs(100 - left.usagePercent);
+  const rightUsageGapToTarget = Math.abs(100 - right.usagePercent);
+
+  if (leftUsageGapToTarget !== rightUsageGapToTarget) {
+    return leftUsageGapToTarget - rightUsageGapToTarget;
+  }
+
   if (left.footprintAreaMm2 !== right.footprintAreaMm2) {
     return left.footprintAreaMm2 - right.footprintAreaMm2;
   }
 
-  return left.usagePercent - right.usagePercent;
+  if (left.variant.widthMm !== right.variant.widthMm) {
+    return left.variant.widthMm - right.variant.widthMm;
+  }
+
+  return left.variant.lengthMm - right.variant.lengthMm;
 }
 
 export function selectBestMyBearingsPadSize<

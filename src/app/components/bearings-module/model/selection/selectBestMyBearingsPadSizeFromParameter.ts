@@ -1,5 +1,5 @@
 import type { MyBearingsCandidateEvaluationInput } from "../evaluation";
-import { constrainMyBearingsPadSizeRangeToBounds } from "./constrainMyBearingsPadSizeRangeToBounds";
+import { resolveMyBearingsPadSizeRange } from "./resolveMyBearingsPadSizeRange";
 import {
   getMyBearingsPadSizeRangeFromParameter,
 } from "./getMyBearingsPadSizeRangeFromParameter";
@@ -36,26 +36,28 @@ export function selectBestMyBearingsPadSizeFromParameter<
     return null;
   }
 
-  const constrainedRange = bounds
-    ? constrainMyBearingsPadSizeRangeToBounds({
+  const resolvedRange = bounds
+    ? resolveMyBearingsPadSizeRange({
         range,
         bounds,
+        effectiveWidthMm: bounds.maxWidthMm,
+        effectiveLengthMm: bounds.maxLengthMm,
       })
     : range;
 
-  if (!constrainedRange) {
+  if (!resolvedRange) {
     return null;
   }
 
   return selectBestMyBearingsPadSizeFromRange({
-    range: constrainedRange,
+    range: resolvedRange,
     buildEvaluationInput: (variant) => ({
       ...buildEvaluationInput(variant),
       dimensionalLimits: {
-        minWidthMm: constrainedRange.minWidthMm,
-        maxWidthMm: constrainedRange.maxWidthMm,
-        minLengthMm: constrainedRange.minLengthMm,
-        maxLengthMm: constrainedRange.maxLengthMm,
+        minWidthMm: resolvedRange.minWidthMm,
+        maxWidthMm: resolvedRange.maxWidthMm,
+        minLengthMm: resolvedRange.minLengthMm,
+        maxLengthMm: resolvedRange.maxLengthMm,
       },
     }),
   });

@@ -18,6 +18,9 @@ import MyTopbar from "@/app/components/ui/MyTopbar";
 import MyUserAvatar from "@/app/components/ui/MyUserAvatar";
 import MyVStack from "@/app/components/ui/MyVStack";
 import type { MyBearingsPadSizeBearingTypeSource } from "@/app/components/bearings-module/model/selection";
+import type { SelectOption } from "@/app/components/ui/MySelect";
+
+export const dynamic = "force-dynamic";
 
 type BearingTypeRow = MyBearingsPadSizeBearingTypeSource;
 
@@ -37,15 +40,54 @@ async function getSupportedBearingTypes() {
       bearing_type_min_dimensions (*)
     `,
     )
-    .in("code", ["S 65", "S 70"]);
+    .in("code", [
+      "S 65",
+      "S 70",
+      "Compression",
+      "CR 2000",
+      "Q",
+      "Type Z",
+    ])
+    .eq("is_active", true);
 
   const bearingTypes = (data ?? []) as BearingTypeRow[];
 
   return bearingTypes;
 }
 
+function getBearingGapOptions(
+  bearingTypes: MyBearingsPadSizeBearingTypeSource[],
+): SelectOption<number>[] {
+  const thicknessesByGap = new Map<number, Set<number>>();
+
+  bearingTypes.forEach((bearingType) => {
+    bearingType.bearing_type_min_dimensions.forEach((dimension) => {
+      if (!dimension.is_active || dimension.bearing_gap_mm == null) {
+        return;
+      }
+
+      const thicknesses = thicknessesByGap.get(dimension.bearing_gap_mm) ??
+        new Set<number>();
+      thicknesses.add(dimension.thickness_mm);
+      thicknessesByGap.set(dimension.bearing_gap_mm, thicknesses);
+    });
+  });
+
+  return [...thicknessesByGap.entries()]
+    .sort(([leftGapMm], [rightGapMm]) => leftGapMm - rightGapMm)
+    .map(([bearingGapMm, thicknesses]) => {
+      const thicknessLabel = [...thicknesses].sort((left, right) => left - right).join("/");
+
+      return {
+        value: bearingGapMm,
+        label: `${bearingGapMm} mm (pad ${thicknessLabel} mm)`,
+      };
+    });
+}
+
 export default async function CalcPage() {
   const bearingTypes = await getSupportedBearingTypes();
+  const bearingGapOptions = getBearingGapOptions(bearingTypes);
 
   return (
     <MyBearingsModuleConfigurator>
@@ -82,7 +124,9 @@ export default async function CalcPage() {
             p="none"
           >
             <MySidebar title="Geometric" size="lg" height="full">
-              <MyBearingsModuleGeometricDataForm />
+              <MyBearingsModuleGeometricDataForm
+                bearingGapOptions={bearingGapOptions}
+              />
             </MySidebar>
             <MyVStack flex={1} minHeight="0" gap="sm">
               <MyHStack gap="sm" align="stretch" width="full">

@@ -29,12 +29,12 @@ export default function MyBearingsEffectiveSurfaceAreaResult() {
       <MyLabel size="small">Effective area</MyLabel>
       <div className="rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-3">
         <MySummaryRow
-          label="Effective length"
-          value={formatMillimeters(effectiveArea.effectiveLength)}
-        />
-        <MySummaryRow
           label="Effective width"
           value={formatMillimeters(effectiveArea.effectiveWidth)}
+        />
+        <MySummaryRow
+          label="Effective length"
+          value={formatMillimeters(effectiveArea.effectiveLength)}
         />
         <MySummaryRow
           label="Aeff"

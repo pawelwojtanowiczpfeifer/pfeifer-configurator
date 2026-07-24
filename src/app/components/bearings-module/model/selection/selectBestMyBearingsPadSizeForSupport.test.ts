@@ -10,12 +10,12 @@ describe("selectBestMyBearingsPadSizeForSupport", () => {
         g1: 20,
         g2: 75,
         tc: 20,
-        b1: 160,
-        a1: 160,
+        b1: 300,
+        a1: 200,
         a2: 300,
-        b2: 160,
+        b2: 250,
         b3: 160,
-        cmin: 0,
+        cmin: 40,
         n: 1,
         ds: 16,
         e1: 80,
@@ -24,9 +24,9 @@ describe("selectBestMyBearingsPadSizeForSupport", () => {
       },
       connectionType: "cantilever",
       parameter: {
-        min_width_mm: 100,
+        min_width_mm: 75,
         max_width_mm: 200,
-        min_length_mm: 100,
+        min_length_mm: 75,
         max_length_mm: 200,
         dimension_step_normal_mm: 50,
       },
@@ -43,7 +43,7 @@ describe("selectBestMyBearingsPadSizeForSupport", () => {
             a2: 300,
             b2: variant.lengthMm,
             b3: variant.lengthMm,
-            cmin: 0,
+            cmin: 40,
             n: 1,
             ds: 16,
             e1: variant.widthMm / 2,
@@ -75,7 +75,13 @@ describe("selectBestMyBearingsPadSizeForSupport", () => {
       }),
     });
 
-    expect(result?.selected?.variant.code).toBe("100x100");
-    expect(result?.candidates).toHaveLength(2);
+    expect(result?.selected?.variant.code).toBe("100x150");
+    expect(result?.candidates).toHaveLength(1);
+    expect(result?.candidates.every((candidate) => candidate.variant.widthMm <= 100)).toBe(
+      true,
+    );
+    expect(result?.candidates.every((candidate) => candidate.variant.lengthMm <= 170)).toBe(
+      true,
+    );
   });
 });

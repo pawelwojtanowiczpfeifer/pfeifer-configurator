@@ -14,6 +14,7 @@ export { getMyBearingsContactArea } from "./model/getMyBearingsContactArea";
 export { getMyBearingsEffectiveSurfaceArea } from "./model/getMyBearingsEffectiveSurfaceArea";
 export {
   calculateS65,
+  calculateCompression,
   getCalculationForMethod,
   getRectangularShapeCoefficient,
   getMyBearingsPadArea,
@@ -38,6 +39,7 @@ export type {
   MyBearingsCalculationMethodCode,
   MyBearingsCalculationResult,
   MyBearingsS65CalculationResult,
+  MyBearingsCompressionCalculationResult,
 } from "./model/calculations";
 export type {
   MyBearingsCandidateCheck,

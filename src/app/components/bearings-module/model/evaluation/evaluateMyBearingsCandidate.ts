@@ -68,13 +68,6 @@ export function evaluateMyBearingsCandidate({
   const compressiveStressUsagePercent =
     (designCompressiveStressKNPerMm2 / Math.max(compressiveStressLimitMPa, 1)) *
     100;
-  const strengthCheckStatus =
-    methodCode === "s65"
-      ? getCheckStatus(
-          designCompressiveStressKNPerMm2,
-          compressiveStressLimitMPa,
-        )
-      : "skipped";
   const checks: MyBearingsCandidateCheck[] = [
     {
       name: "compressiveStress",
@@ -117,12 +110,6 @@ export function evaluateMyBearingsCandidate({
       minLengthMm: dimensionalLimits?.minLengthMm,
       maxLengthMm: dimensionalLimits?.maxLengthMm,
     },
-    {
-      name: "strength",
-      status: strengthCheckStatus,
-      valueKNPerMm2: designCompressiveStressKNPerMm2,
-      limitKNPerMm2: compressiveStressLimitMPa,
-    },
   ];
 
   const reasons = checks
@@ -130,10 +117,6 @@ export function evaluateMyBearingsCandidate({
     .map((check) => {
       if (check.name === "dimensions") {
         return "dimensions exceed allowable limits.";
-      }
-
-      if (check.name === "strength") {
-        return "strength exceeds allowable limit.";
       }
 
       return `${check.name} exceeds allowable limit.`;

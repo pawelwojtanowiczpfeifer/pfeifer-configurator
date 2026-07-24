@@ -3,6 +3,7 @@ import type {
   MyBearingsCalculationMethodCode,
 } from "./types";
 import { calculateCR2000 } from "./cr2000";
+import { calculateCompression } from "./compression";
 import { calculateS65 } from "./s65";
 import { calculateS70 } from "./s70";
 import { calculateQ } from "./q";
@@ -17,6 +18,7 @@ const calculationRegistry: Record<
   cr2000: calculateCR2000,
   typeZ: calculateTypeZ,
   q: calculateQ,
+  compression: calculateCompression,
 };
 
 export function getCalculationForMethod(
