@@ -96,7 +96,7 @@ describe("evaluateMyBearingsCandidate", () => {
     }
   });
 
-  it("fails when the pad dimensions are outside the allowed range", () => {
+  it("fails when the bearing dimensions are outside the allowed range", () => {
     const result = evaluateMyBearingsCandidate({
       methodCode: "q",
       context: {

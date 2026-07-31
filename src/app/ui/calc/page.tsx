@@ -80,7 +80,9 @@ function getBearingGapOptions(
 
       return {
         value: bearingGapMm,
-        label: `${bearingGapMm} mm (pad ${thicknessLabel} mm)`,
+        label: `${bearingGapMm} mm`,
+        secondaryLabel: `(t = ${thicknessLabel} mm)`,
+        tooltip: `Available bearing thicknesses: ${thicknessLabel} mm`,
       };
     });
 }

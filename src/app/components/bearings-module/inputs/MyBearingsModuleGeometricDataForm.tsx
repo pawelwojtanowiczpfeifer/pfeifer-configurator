@@ -7,13 +7,21 @@ import MySegmentedControl, {
   type SegmentedControlOption,
 } from "@/app/components/ui/MySegmentedControl";
 import MySelect, { type SelectOption } from "@/app/components/ui/MySelect";
+import MyRichSelect from "@/app/components/ui/MyRichSelect";
 import MyVStack from "@/app/components/ui/MyVStack";
 import MyLabel from "@/app/components/ui/MyLabel";
 import { useMyBearingsModuleConfigurator } from "@/app/components/bearings-module/MyBearingsModuleConfigurator";
 import MyCheckbox from "../../ui/MyCheckbox";
 type MyBearingsModuleGeometricDataFormProps = {
-  bearingGapOptions: SelectOption<number>[];
+  bearingGapOptions: Array<SelectOption<number> & { secondaryLabel?: string }>;
 };
+
+// Set to false to restore the original native <select> for the bearing-gap field.
+const USE_RICH_BEARING_GAP_SELECT = true;
+// Set to false to restore the wider bearing-gap dropdown.
+const USE_COMPACT_BEARING_GAP_SELECT = true;
+// Set to "inline" to restore the previous one-line compact presentation.
+const BEARING_GAP_SELECT_LAYOUT = "stacked" as const;
 
 function getStudDefaults(n: 1 | 2, b1: number) {
   if (n === 2) {
@@ -145,8 +153,7 @@ export default function MyBearingsModuleGeometricDataForm({
     }));
   };
 
-  const updateBearingGap = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const bearingGapMm = Number(event.target.value);
+  const updateBearingGap = (bearingGapMm: number) => {
 
     if (!Number.isFinite(bearingGapMm)) {
       return;
@@ -285,12 +292,27 @@ export default function MyBearingsModuleGeometricDataForm({
           }
           description="bearing gap"
         />
-        <MySelect
-          options={bearingGapOptions}
-          size="sm"
-          value={geometry.tc}
-          onChange={updateBearingGap}
-        />
+        {USE_RICH_BEARING_GAP_SELECT ? (
+          <MyRichSelect
+            options={bearingGapOptions}
+            size="sm"
+            width={USE_COMPACT_BEARING_GAP_SELECT ? "default" : "wide"}
+            layout={BEARING_GAP_SELECT_LAYOUT}
+            value={geometry.tc}
+            ariaLabel="Bearing gap"
+            onValueChange={updateBearingGap}
+          />
+        ) : (
+          <MySelect
+            options={bearingGapOptions.map(({ label, secondaryLabel, ...option }) => ({
+              ...option,
+              label: `${label} ${secondaryLabel ?? ""}`.trim(),
+            }))}
+            size="sm"
+            value={geometry.tc}
+            onChange={(event) => updateBearingGap(Number(event.target.value))}
+          />
+        )}
       </MyVStack>
 
       {connectionType === "cantilever" ? (

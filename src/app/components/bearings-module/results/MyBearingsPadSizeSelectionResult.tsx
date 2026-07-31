@@ -126,7 +126,7 @@ export default function MyBearingsPadSizeSelectionResult({
   if (!bearingTypes || bearingTypes.length === 0) {
     return (
       <div className="space-y-3">
-        <MyLabel size="small">Pad size selection</MyLabel>
+        <MyLabel size="small">Bearing size selection</MyLabel>
         <div className="rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-600">
           No supported calculation method found for these bearing types.
         </div>
@@ -237,7 +237,7 @@ export default function MyBearingsPadSizeSelectionResult({
 
   return (
     <div className="space-y-3">
-      <MyLabel size="small">Pad size selection</MyLabel>
+      <MyLabel size="small">Bearing size selection</MyLabel>
       <div className="rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-3">
         {selection?.selected ? (
           <>
@@ -254,7 +254,7 @@ export default function MyBearingsPadSizeSelectionResult({
               value={`${selection.selected.variant.widthMm} x ${selection.selected.variant.lengthMm} mm`}
             />
             <MySummaryRow
-              label="Pad thickness"
+              label="Bearing thickness"
               value={`${selection.selected.variant.padThicknessMm ?? "n/a"} mm`}
             />
             <MySummaryRow
@@ -269,7 +269,7 @@ export default function MyBearingsPadSizeSelectionResult({
           </>
         ) : (
           <div className="text-sm text-zinc-600">
-            No pad size fits inside the effective support area.
+            No bearing size fits inside the effective support area.
           </div>
         )}
       </div>
@@ -341,19 +341,19 @@ export default function MyBearingsPadSizeSelectionResult({
                 className="border-b-0"
               />
               <MySummaryRow
-                label="Pad width a"
+                label="Bearing width a"
                 value={`${selection.selected.variant.widthMm} mm`}
               />
               <MySummaryRow
-                label="Pad length b"
+                label="Bearing length b"
                 value={`${selection.selected.variant.lengthMm} mm`}
               />
               <MySummaryRow
-                label="Pad thickness t"
+                label="Bearing thickness t"
                 value={`${selection.selected.variant.padThicknessMm ?? "n/a"} mm`}
               />
               <MySummaryRow
-                label="Pad gross area"
+                label="Bearing gross area"
                 value={`${formatNumber(
                   selectedPadArea?.grossAreaMm2 ?? 0,
                 )} mm2`}
@@ -364,7 +364,7 @@ export default function MyBearingsPadSizeSelectionResult({
                 value={`${formatNumber(selectedPadArea?.holeAreaMm2 ?? 0)} mm2`}
               />
               <MySummaryRow
-                label="Pad net area"
+                label="Bearing net area"
                 value={`${formatNumber(selectedPadArea?.netAreaMm2 ?? 0)} mm2`}
                 className="border-b-0"
               />
