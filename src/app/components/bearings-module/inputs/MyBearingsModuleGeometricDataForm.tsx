@@ -78,6 +78,7 @@ export default function MyBearingsModuleGeometricDataForm({
     { label: "32 mm", value: 32 },
     { label: "36 mm", value: 36 },
     { label: "40 mm", value: 40 },
+    { label: "45 mm", value: 45 },
   ];
   const {
     geometry,
@@ -154,7 +155,6 @@ export default function MyBearingsModuleGeometricDataForm({
   };
 
   const updateBearingGap = (bearingGapMm: number) => {
-
     if (!Number.isFinite(bearingGapMm)) {
       return;
     }
@@ -174,9 +174,7 @@ export default function MyBearingsModuleGeometricDataForm({
     }));
   };
 
-  const updateConnectionType = (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
+  const updateConnectionType = (event: React.ChangeEvent<HTMLInputElement>) => {
     const nextConnectionType =
       event.target.value === "beam-top" ? "beam-top" : "cantilever";
 
@@ -304,10 +302,12 @@ export default function MyBearingsModuleGeometricDataForm({
           />
         ) : (
           <MySelect
-            options={bearingGapOptions.map(({ label, secondaryLabel, ...option }) => ({
-              ...option,
-              label: `${label} ${secondaryLabel ?? ""}`.trim(),
-            }))}
+            options={bearingGapOptions.map(
+              ({ label, secondaryLabel, ...option }) => ({
+                ...option,
+                label: `${label} ${secondaryLabel ?? ""}`.trim(),
+              }),
+            )}
             size="sm"
             value={geometry.tc}
             onChange={(event) => updateBearingGap(Number(event.target.value))}

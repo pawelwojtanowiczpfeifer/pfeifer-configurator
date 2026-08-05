@@ -3,10 +3,9 @@ import type {
   MyBearingsCalculationResult,
 } from "./types";
 import { getRectangularShapeCoefficient } from "./getRectangularShapeCoefficient";
-import { getStudHoleDiameter } from "./getStudHoleDiameter";
 
 type RectangularBearingFormula = {
-  methodCode: "s65" | "s70" | "cr2000" | "compression";
+  methodCode: "s65" | "s70" | "cr2000" | "compression" | "perforated205";
   rawCompressiveStress: (shapeCoefficient: number) => number;
   compressiveStressLimitMPa: number;
   hasHoleSensitivity?: "none" | "studs";
@@ -45,6 +44,7 @@ export function calculateRectangularBearing(
     contactArea,
     effectiveArea,
     hasStuds,
+    studHoleDiameterMm,
     transverseStiffness,
   } = context;
 
@@ -57,14 +57,13 @@ export function calculateRectangularBearing(
     contactArea.contactWidth,
   );
 
-  const holeDiameterMm = getStudHoleDiameter(geometry.ds);
   const shapeCoefficient = getRectangularShapeCoefficient({
     shorterSideMm,
     longerSideMm,
     thicknessMm: geometry.tc,
     hasHoles: formula.hasHoleSensitivity === "studs" ? hasStuds : false,
     numberOfHoles: geometry.n,
-    holeDiameterMm,
+    holeDiameterMm: studHoleDiameterMm,
   });
   const rawCompressiveStressMPa = formula.rawCompressiveStress(shapeCoefficient);
   const compressiveStressLimitMPa = Math.min(

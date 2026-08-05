@@ -18,11 +18,16 @@ import MyTopbar from "@/app/components/ui/MyTopbar";
 import MyUserAvatar from "@/app/components/ui/MyUserAvatar";
 import MyVStack from "@/app/components/ui/MyVStack";
 import type { MyBearingsPadSizeBearingTypeSource } from "@/app/components/bearings-module/model/selection";
+import type { MyBearingsStudOpeningDiameter } from "@/app/components/bearings-module/model/types";
 import type { SelectOption } from "@/app/components/ui/MySelect";
 
 export const dynamic = "force-dynamic";
 
 type BearingTypeRow = MyBearingsPadSizeBearingTypeSource;
+type BearingOpeningDiameterRow = {
+  stud_diameter_mm: number;
+  opening_diameter_mm: number;
+};
 
 async function getSupportedBearingTypes() {
   const supabase = await getSupabaseClient();
@@ -47,12 +52,31 @@ async function getSupportedBearingTypes() {
       "CR 2000",
       "Q",
       "Type Z",
+      "Perforated 205",
     ])
     .eq("is_active", true);
 
   const bearingTypes = (data ?? []) as BearingTypeRow[];
 
   return bearingTypes;
+}
+
+async function getStudOpeningDiameters(): Promise<
+  MyBearingsStudOpeningDiameter[]
+> {
+  const supabase = await getSupabaseClient();
+  const { data, error } = await supabase
+    .from("bearing_opening_diameters")
+    .select("stud_diameter_mm, opening_diameter_mm");
+
+  if (error) {
+    throw error;
+  }
+
+  return ((data ?? []) as BearingOpeningDiameterRow[]).map((row) => ({
+    studDiameterMm: row.stud_diameter_mm,
+    openingDiameterMm: row.opening_diameter_mm,
+  }));
 }
 
 function getBearingGapOptions(
@@ -88,7 +112,10 @@ function getBearingGapOptions(
 }
 
 export default async function CalcPage() {
-  const bearingTypes = await getSupportedBearingTypes();
+  const [bearingTypes, openingDiameters] = await Promise.all([
+    getSupportedBearingTypes(),
+    getStudOpeningDiameters(),
+  ]);
   const bearingGapOptions = getBearingGapOptions(bearingTypes);
 
   return (
@@ -149,6 +176,7 @@ export default async function CalcPage() {
               {bearingTypes && bearingTypes.length > 0 ? (
                 <MyBearingsPadSizeSelectionResultView
                   bearingTypes={bearingTypes}
+                  openingDiameters={openingDiameters}
                 />
               ) : (
                 <div className="rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-600">

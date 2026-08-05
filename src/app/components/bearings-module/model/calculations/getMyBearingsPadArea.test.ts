@@ -9,7 +9,7 @@ describe("getMyBearingsPadArea", () => {
         widthMm: 160,
         lengthMm: 370,
         hasStuds: false,
-        studDiameterMm: 16,
+        holeDiameterMm: 20,
         numberOfStuds: 1,
       }),
     ).toMatchObject({
@@ -24,7 +24,7 @@ describe("getMyBearingsPadArea", () => {
       widthMm: 160,
       lengthMm: 370,
       hasStuds: true,
-      studDiameterMm: 16,
+      holeDiameterMm: 20,
       numberOfStuds: 2,
     });
 

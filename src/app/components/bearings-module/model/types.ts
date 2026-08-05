@@ -16,6 +16,11 @@ export type MyBearingsModuleParameters = {
   e3: number;
 };
 
+export type MyBearingsStudOpeningDiameter = {
+  studDiameterMm: number;
+  openingDiameterMm: number;
+};
+
 export type MyBearingsModuleForceAndDeformation = {
   designVerticalForce: number;
   bearingRotation: number;

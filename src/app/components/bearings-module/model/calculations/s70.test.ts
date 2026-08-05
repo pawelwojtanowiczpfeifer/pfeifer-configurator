@@ -11,7 +11,9 @@ describe("S70 calculation", () => {
       thicknessMm: 15,
       hasHoles: false,
       numberOfHoles: 1,
-      holeDiameterMm: getStudHoleDiameter(16),
+      holeDiameterMm: getStudHoleDiameter(16, [
+        { studDiameterMm: 16, openingDiameterMm: 20 },
+      ]),
     });
 
     expect(result).toBeCloseTo(4.5455, 4);
@@ -42,6 +44,7 @@ describe("S70 calculation", () => {
         horizontalDeformation: 3,
       },
       hasStuds: true,
+      studHoleDiameterMm: 20,
       contactArea: {
         contactWidth: 225,
         contactLength: 250,

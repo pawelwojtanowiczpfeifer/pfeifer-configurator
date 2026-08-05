@@ -1,14 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { calculateCompression } from "./compression";
+import { calculatePerforated205 } from "./perforated205";
 
-describe("Compression calculation", () => {
-  it("calculates the DIN 4141 compression-bearing limits", () => {
-    const result = calculateCompression({
+describe("Perforated 205 calculation", () => {
+  it("applies the catalogue stress, deformation and rotation limits", () => {
+    const result = calculatePerforated205({
       geometry: {
         isEndNotchedBeam: false,
         g1: 20,
         g2: 75,
-        tc: 15,
+        tc: 5,
         b1: 300,
         a1: 200,
         a2: 300,
@@ -42,11 +42,11 @@ describe("Compression calculation", () => {
       },
     });
 
-    expect(result.methodCode).toBe("compression");
-    expect(result.shapeCoefficient).toBeCloseTo(4.5455, 4);
-    expect(result.rawCompressiveStressMPa).toBeCloseTo(13.1, 1);
-    expect(result.compressiveStressLimitMPa).toBe(5);
-    expect(result.allowableHorizontalDeformationMm).toBeCloseTo(7.8, 1);
-    expect(result.allowableRotationPermille).toBe(12);
+    expect(result.methodCode).toBe("perforated205");
+    expect(result.shapeCoefficient).toBeCloseTo(13.6364, 4);
+    expect(result.rawCompressiveStressMPa).toBeCloseTo(211.14, 2);
+    expect(result.compressiveStressLimitMPa).toBe(25);
+    expect(result.allowableHorizontalDeformationMm).toBeCloseTo(1.705, 3);
+    expect(result.allowableRotationPermille).toBeCloseTo(3.2, 3);
   });
 });

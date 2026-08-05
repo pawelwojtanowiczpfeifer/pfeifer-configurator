@@ -4,6 +4,7 @@ import type {
 } from "./types";
 import { calculateCR2000 } from "./cr2000";
 import { calculateCompression } from "./compression";
+import { calculatePerforated205 } from "./perforated205";
 import { calculateS65 } from "./s65";
 import { calculateS70 } from "./s70";
 import { calculateQ } from "./q";
@@ -19,6 +20,7 @@ const calculationRegistry: Record<
   typeZ: calculateTypeZ,
   q: calculateQ,
   compression: calculateCompression,
+  perforated205: calculatePerforated205,
 };
 
 export function getCalculationForMethod(

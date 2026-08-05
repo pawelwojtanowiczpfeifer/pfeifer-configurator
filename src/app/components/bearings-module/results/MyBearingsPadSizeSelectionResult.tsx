@@ -12,10 +12,12 @@ import type {
 import type { MyBearingsCalculationMethodCode } from "../model/calculations";
 import type { MyBearingsCandidateEvaluationInput } from "../model/evaluation";
 import type { MyBearingsCalculationContext } from "../model/calculations";
-import { getMyBearingsPadArea } from "../model/calculations";
+import { getMyBearingsPadArea, getStudHoleDiameter } from "../model/calculations";
+import type { MyBearingsStudOpeningDiameter } from "../model/types";
 
 type MyBearingsPadSizeSelectionResultProps = {
   bearingTypes: MyBearingsPadSizeBearingTypeSource[];
+  openingDiameters: MyBearingsStudOpeningDiameter[];
 };
 
 function formatPercent(value: number) {
@@ -51,7 +53,8 @@ function isSupportedMethodCode(
     value === "cr2000" ||
     value === "typeZ" ||
     value === "q" ||
-    value === "compression"
+    value === "compression" ||
+    value === "perforated205"
   );
 }
 
@@ -60,6 +63,7 @@ function buildCandidateEvaluationInput(
   geometry: MyBearingsCandidateEvaluationInput["context"]["geometry"],
   forceAndDeformation: MyBearingsCandidateEvaluationInput["context"]["forceAndDeformation"],
   hasStuds: boolean,
+  studHoleDiameterMm: number,
   variant: MyBearingsPadSizeVariant,
   padThicknessMm: number,
 ): MyBearingsCandidateEvaluationInput {
@@ -67,7 +71,7 @@ function buildCandidateEvaluationInput(
     widthMm: variant.widthMm,
     lengthMm: variant.lengthMm,
     hasStuds,
-    studDiameterMm: geometry.ds,
+    holeDiameterMm: studHoleDiameterMm,
     numberOfStuds: geometry.n,
   });
 
@@ -104,6 +108,7 @@ function buildCandidateEvaluationInput(
     contactArea,
     effectiveArea,
     hasStuds,
+    studHoleDiameterMm,
   };
 
   return {
@@ -119,6 +124,7 @@ function buildCandidateEvaluationInput(
 
 export default function MyBearingsPadSizeSelectionResult({
   bearingTypes,
+  openingDiameters,
 }: MyBearingsPadSizeSelectionResultProps) {
   const { geometry, connectionType, forceAndDeformation, hasStuds } =
     useMyBearingsModuleConfigurator();
@@ -134,8 +140,26 @@ export default function MyBearingsPadSizeSelectionResult({
     );
   }
 
+  const hasOpeningDiameterForSelectedStud = openingDiameters.some(
+    (item) => item.studDiameterMm === geometry.ds,
+  );
+
+  if (!hasOpeningDiameterForSelectedStud) {
+    return (
+      <div className="space-y-3">
+        <MyLabel size="small">Bearing size selection</MyLabel>
+        <div className="rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-600">
+          No opening diameter is configured for the selected stud diameter.
+        </div>
+      </div>
+    );
+  }
+
+  const studHoleDiameterMm = getStudHoleDiameter(geometry.ds, openingDiameters);
+
   type MethodSelection = {
     methodCode: MyBearingsCalculationMethodCode;
+    maxCompressiveStressMPa: number | null;
     parameter: MyBearingsPadSizeRange;
     mapGeneratedVariant: (
       variant: MyBearingsPadSizeVariant,
@@ -177,6 +201,8 @@ export default function MyBearingsPadSizeSelectionResult({
         return [
           {
             methodCode,
+            maxCompressiveStressMPa:
+              parameterItem.max_compressive_stress_sigma_rd_MPa,
             parameter: {
               minWidthMm:
                 parameterItem.min_width_mm ?? minDimension.min_width_mm,
@@ -202,6 +228,7 @@ export default function MyBearingsPadSizeSelectionResult({
                 geometry,
                 forceAndDeformation,
                 hasStuds,
+                studHoleDiameterMm,
                 variant,
                 minDimension.thickness_mm,
               ),
@@ -227,7 +254,7 @@ export default function MyBearingsPadSizeSelectionResult({
         widthMm: selection.selected.variant.widthMm,
         lengthMm: selection.selected.variant.lengthMm,
         hasStuds,
-        studDiameterMm: geometry.ds,
+        holeDiameterMm: studHoleDiameterMm,
         numberOfStuds: geometry.n,
       })
     : null;

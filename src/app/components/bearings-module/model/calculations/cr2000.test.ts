@@ -11,7 +11,9 @@ describe("CR2000 calculation", () => {
       thicknessMm: 16,
       hasHoles: false,
       numberOfHoles: 1,
-      holeDiameterMm: getStudHoleDiameter(16),
+      holeDiameterMm: getStudHoleDiameter(16, [
+        { studDiameterMm: 16, openingDiameterMm: 20 },
+      ]),
     });
 
     expect(result).toBeCloseTo(3.2, 1);
@@ -42,6 +44,7 @@ describe("CR2000 calculation", () => {
         horizontalDeformation: 3,
       },
       hasStuds: false,
+      studHoleDiameterMm: 20,
       contactArea: {
         contactLength: 150,
         contactWidth: 320,

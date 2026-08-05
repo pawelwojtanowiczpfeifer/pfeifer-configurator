@@ -15,6 +15,7 @@ export { getMyBearingsEffectiveSurfaceArea } from "./model/getMyBearingsEffectiv
 export {
   calculateS65,
   calculateCompression,
+  calculatePerforated205,
   getCalculationForMethod,
   getRectangularShapeCoefficient,
   getMyBearingsPadArea,
@@ -33,6 +34,7 @@ export type {
   MyBearingsModuleForceAndDeformation,
   MyBearingsEffectiveArea,
   MyBearingsModuleParameters,
+  MyBearingsStudOpeningDiameter,
 } from "./model/types";
 export type {
   MyBearingsCalculationContext,
@@ -40,6 +42,7 @@ export type {
   MyBearingsCalculationResult,
   MyBearingsS65CalculationResult,
   MyBearingsCompressionCalculationResult,
+  MyBearingsPerforated205CalculationResult,
 } from "./model/calculations";
 export type {
   MyBearingsCandidateCheck,

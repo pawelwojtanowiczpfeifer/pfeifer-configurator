@@ -14,6 +14,7 @@ import { getMyBearingsEffectiveSurfaceArea } from "../getMyBearingsEffectiveSurf
 
 type MethodSelectionInput<TVariant extends MyBearingsPadSizeVariant> = {
   methodCode: MyBearingsCalculationMethodCode;
+  maxCompressiveStressMPa?: number | null;
   parameter: MyBearingsPadSizeRange;
   mapGeneratedVariant?: (variant: MyBearingsPadSizeVariant) => TVariant;
   isEligibleForSelection?: (
@@ -31,8 +32,40 @@ type SelectBestMyBearingsPadSizeAcrossMethodsInput<
   methods: MethodSelectionInput<TVariant>[];
 };
 
+export const MINIMUM_TARGET_USAGE_PERCENT = 85;
+
 function getVariantFootprintAreaMm2(variant: MyBearingsPadSizeVariant) {
   return variant.widthMm * variant.lengthMm;
+}
+
+function compareCandidates<TVariant extends MyBearingsPadSizeVariant>(
+  left: {
+    variant: TVariant;
+    footprintAreaMm2: number;
+    usagePercent: number;
+  },
+  right: {
+    variant: TVariant;
+    footprintAreaMm2: number;
+    usagePercent: number;
+  },
+) {
+  const leftUsageGapToTarget = Math.abs(100 - left.usagePercent);
+  const rightUsageGapToTarget = Math.abs(100 - right.usagePercent);
+
+  if (leftUsageGapToTarget !== rightUsageGapToTarget) {
+    return leftUsageGapToTarget - rightUsageGapToTarget;
+  }
+
+  if (left.footprintAreaMm2 !== right.footprintAreaMm2) {
+    return left.footprintAreaMm2 - right.footprintAreaMm2;
+  }
+
+  if (left.variant.widthMm !== right.variant.widthMm) {
+    return left.variant.widthMm - right.variant.widthMm;
+  }
+
+  return left.variant.lengthMm - right.variant.lengthMm;
 }
 
 export function selectBestMyBearingsPadSizeAcrossMethods<
@@ -48,11 +81,13 @@ export function selectBestMyBearingsPadSizeAcrossMethods<
     footprintAreaMm2: number;
     usagePercent: number;
     isEligibleForSelection: boolean;
+    maxCompressiveStressMPa: number;
   }> = [];
 
   methods.forEach(
     ({
       parameter: methodParameter,
+      maxCompressiveStressMPa,
       mapGeneratedVariant,
       isEligibleForSelection,
       buildEvaluationInput,
@@ -108,34 +143,39 @@ export function selectBestMyBearingsPadSizeAcrossMethods<
         usagePercent: evaluation.compressiveStressUsagePercent,
         isEligibleForSelection:
           isEligibleForSelection?.(variant, evaluation) ?? true,
+        // Missing data is tried last, while the fallback below still keeps
+        // the configurator usable with incomplete records.
+        maxCompressiveStressMPa:
+          typeof maxCompressiveStressMPa === "number" &&
+          Number.isFinite(maxCompressiveStressMPa)
+            ? maxCompressiveStressMPa
+            : Number.POSITIVE_INFINITY,
       });
     });
     },
   );
 
-  const selected = allCandidates
-    .filter(
-      (candidate) =>
-        candidate.evaluation.isValid && candidate.isEligibleForSelection,
+  const validCandidates = allCandidates.filter(
+    (candidate) =>
+      candidate.evaluation.isValid && candidate.isEligibleForSelection,
+  );
+  const strengthLevels = [...new Set(
+    validCandidates.map((candidate) => candidate.maxCompressiveStressMPa),
+  )].sort((left, right) => left - right);
+
+  const selected = strengthLevels
+    .map((strengthLevel) =>
+      validCandidates
+        .filter(
+          (candidate) =>
+            candidate.maxCompressiveStressMPa === strengthLevel &&
+            candidate.usagePercent >= MINIMUM_TARGET_USAGE_PERCENT,
+        )
+        .sort(compareCandidates)[0] ?? null,
     )
-    .sort((left, right) => {
-      const leftUsageGapToTarget = Math.abs(100 - left.usagePercent);
-      const rightUsageGapToTarget = Math.abs(100 - right.usagePercent);
-
-      if (leftUsageGapToTarget !== rightUsageGapToTarget) {
-        return leftUsageGapToTarget - rightUsageGapToTarget;
-      }
-
-      if (left.footprintAreaMm2 !== right.footprintAreaMm2) {
-        return left.footprintAreaMm2 - right.footprintAreaMm2;
-      }
-
-      if (left.variant.widthMm !== right.variant.widthMm) {
-        return left.variant.widthMm - right.variant.widthMm;
-      }
-
-      return left.variant.lengthMm - right.variant.lengthMm;
-    })[0] ?? null;
+    .find((candidate) => candidate !== null) ??
+    validCandidates.sort(compareCandidates)[0] ??
+    null;
 
   return {
     selected,

@@ -11,7 +11,8 @@ export type MyBearingsCalculationMethodCode =
   | "cr2000"
   | "typeZ"
   | "q"
-  | "compression";
+  | "compression"
+  | "perforated205";
 
 export type MyBearingsCalculationContext = {
   geometry: MyBearingsModuleParameters;
@@ -19,6 +20,7 @@ export type MyBearingsCalculationContext = {
   contactArea: MyBearingsContactArea;
   effectiveArea: MyBearingsEffectiveArea;
   hasStuds: boolean;
+  studHoleDiameterMm: number;
   transverseStiffness?: number | null;
 };
 
@@ -98,13 +100,27 @@ export type MyBearingsCompressionCalculationResult = {
   notes: string[];
 };
 
+export type MyBearingsPerforated205CalculationResult = {
+  methodCode: "perforated205";
+  shapeCoefficient: number;
+  rawCompressiveStressMPa: number;
+  compressiveStressLimitMPa: number;
+  allowableHorizontalDeformationMm: number;
+  allowableRotationPermille: number;
+  tensileForceShortSideKN: number;
+  tensileForceLongSideKN: number;
+  horizontalForceKN: number | null;
+  notes: string[];
+};
+
 export type MyBearingsCalculationResult =
   | MyBearingsS65CalculationResult
   | MyBearingsS70CalculationResult
   | MyBearingsCR2000CalculationResult
   | MyBearingsTypeZCalculationResult
   | MyBearingsQCalculationResult
-  | MyBearingsCompressionCalculationResult;
+  | MyBearingsCompressionCalculationResult
+  | MyBearingsPerforated205CalculationResult;
 
 export type MyBearingsCalculationCalculator = (
   context: MyBearingsCalculationContext,

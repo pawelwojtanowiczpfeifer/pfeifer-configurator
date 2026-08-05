@@ -1,10 +1,8 @@
-import { getStudHoleDiameter } from "./getStudHoleDiameter";
-
 type GetMyBearingsPadAreaInput = {
   widthMm: number;
   lengthMm: number;
   hasStuds: boolean;
-  studDiameterMm: number;
+  holeDiameterMm: number;
   numberOfStuds: 1 | 2;
 };
 
@@ -21,7 +19,7 @@ export function getMyBearingsPadArea({
   widthMm,
   lengthMm,
   hasStuds,
-  studDiameterMm,
+  holeDiameterMm,
   numberOfStuds,
 }: GetMyBearingsPadAreaInput): MyBearingsPadArea {
   const grossAreaMm2 = widthMm * lengthMm;
@@ -37,7 +35,6 @@ export function getMyBearingsPadArea({
     };
   }
 
-  const holeDiameterMm = getStudHoleDiameter(studDiameterMm);
   const holeAreaMm2 =
     numberOfStuds * ((Math.PI * holeDiameterMm * holeDiameterMm) / 4);
   const netAreaMm2 = Math.max(grossAreaMm2 - holeAreaMm2, 0);

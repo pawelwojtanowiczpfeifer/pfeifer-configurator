@@ -4,6 +4,7 @@ export { calculateCR2000 } from "./cr2000";
 export { calculateTypeZ } from "./typeZ";
 export { calculateQ } from "./q";
 export { calculateCompression } from "./compression";
+export { calculatePerforated205 } from "./perforated205";
 export { calculateRectangularBearing } from "./calculateRectangularBearing";
 export { getRectangularShapeCoefficient } from "./getRectangularShapeCoefficient";
 export { getMyBearingsPadArea } from "./getMyBearingsPadArea";
@@ -15,4 +16,5 @@ export type {
   MyBearingsCalculationResult,
   MyBearingsS65CalculationResult,
   MyBearingsCompressionCalculationResult,
+  MyBearingsPerforated205CalculationResult,
 } from "./types";

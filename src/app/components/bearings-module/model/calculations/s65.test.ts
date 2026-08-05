@@ -4,8 +4,12 @@ import { getRectangularShapeCoefficient } from "./getRectangularShapeCoefficient
 import { getStudHoleDiameter } from "./getStudHoleDiameter";
 
 describe("S65 calculation", () => {
-  it("maps stud diameter to hole diameter with the current production allowance", () => {
-    expect(getStudHoleDiameter(16)).toBe(20);
+  it("maps stud diameter to its configured opening diameter", () => {
+    expect(
+      getStudHoleDiameter(16, [
+        { studDiameterMm: 16, openingDiameterMm: 21 },
+      ]),
+    ).toBe(21);
   });
 
   it("calculates the rectangular shape coefficient without holes", () => {
@@ -15,7 +19,9 @@ describe("S65 calculation", () => {
       thicknessMm: 15,
       hasHoles: false,
       numberOfHoles: 1,
-      holeDiameterMm: getStudHoleDiameter(16),
+      holeDiameterMm: getStudHoleDiameter(16, [
+        { studDiameterMm: 16, openingDiameterMm: 20 },
+      ]),
     });
 
     expect(result).toBeCloseTo(4.5455, 4);
@@ -46,6 +52,7 @@ describe("S65 calculation", () => {
         horizontalDeformation: 3,
       },
       hasStuds: true,
+      studHoleDiameterMm: 20,
       contactArea: {
         contactWidth: 225,
         contactLength: 250,
