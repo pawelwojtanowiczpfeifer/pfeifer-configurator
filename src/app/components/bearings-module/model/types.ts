@@ -29,6 +29,14 @@ export type MyBearingsModuleForceAndDeformation = {
 
 export type MyBearingsConnectionType = "cantilever" | "beam-top";
 
+// This describes the structural layout displayed for a beam on a column head.
+// It is intentionally not used by the calculation yet.
+export type MyBearingsBeamTopHeadArrangement =
+  | "no-upstand"
+  | "two-beams"
+  | "outer-head-upstand"
+  | "three-sided-head-upstand";
+
 export type MyBearingsModuleFireResistance =
   | "not-specified"
   | "R30"

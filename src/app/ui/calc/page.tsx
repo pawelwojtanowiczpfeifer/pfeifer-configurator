@@ -19,6 +19,7 @@ import MyUserAvatar from "@/app/components/ui/MyUserAvatar";
 import MyVStack from "@/app/components/ui/MyVStack";
 import type { MyBearingsPadSizeBearingTypeSource } from "@/app/components/bearings-module/model/selection";
 import type { MyBearingsStudOpeningDiameter } from "@/app/components/bearings-module/model/types";
+import type { MyBearingsFireResistanceSource } from "@/app/components/bearings-module/model/fire-resistance/types";
 import type { SelectOption } from "@/app/components/ui/MySelect";
 
 export const dynamic = "force-dynamic";
@@ -28,6 +29,8 @@ type BearingOpeningDiameterRow = {
   stud_diameter_mm: number;
   opening_diameter_mm: number;
 };
+
+type BearingFireResistanceRow = MyBearingsFireResistanceSource;
 
 async function getSupportedBearingTypes() {
   const supabase = await getSupabaseClient();
@@ -79,6 +82,23 @@ async function getStudOpeningDiameters(): Promise<
   }));
 }
 
+async function getBearingFireResistance(): Promise<
+  MyBearingsFireResistanceSource[]
+> {
+  const supabase = await getSupabaseClient();
+  const { data, error } = await supabase
+    .from("bearing_fire_resistance")
+    .select(
+      "bearing_type_id, thickness_mm, min_S_dimension_mm, degradation_rate_without_cover_mm_per_min",
+    );
+
+  if (error) {
+    throw error;
+  }
+
+  return (data ?? []) as BearingFireResistanceRow[];
+}
+
 function getBearingGapOptions(
   bearingTypes: MyBearingsPadSizeBearingTypeSource[],
 ): SelectOption<number>[] {
@@ -112,9 +132,11 @@ function getBearingGapOptions(
 }
 
 export default async function CalcPage() {
-  const [bearingTypes, openingDiameters] = await Promise.all([
+  const [bearingTypes, openingDiameters, bearingFireResistance] =
+    await Promise.all([
     getSupportedBearingTypes(),
     getStudOpeningDiameters(),
+    getBearingFireResistance(),
   ]);
   const bearingGapOptions = getBearingGapOptions(bearingTypes);
 
@@ -177,6 +199,7 @@ export default async function CalcPage() {
                 <MyBearingsPadSizeSelectionResultView
                   bearingTypes={bearingTypes}
                   openingDiameters={openingDiameters}
+                  bearingFireResistance={bearingFireResistance}
                 />
               ) : (
                 <div className="rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-600">

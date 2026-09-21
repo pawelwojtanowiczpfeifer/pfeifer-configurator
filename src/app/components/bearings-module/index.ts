@@ -12,6 +12,12 @@ export { default as MyBearingsEffectiveSurfaceAreaResult } from "./results/MyBea
 export { default as MyBearingsPadSizeSelectionResultView } from "./results/MyBearingsPadSizeSelectionResult";
 export { getMyBearingsContactArea } from "./model/getMyBearingsContactArea";
 export { getMyBearingsEffectiveSurfaceArea } from "./model/getMyBearingsEffectiveSurfaceArea";
+export { getMyBearingsFireExposure } from "./model/fire-resistance/getMyBearingsFireExposure";
+export { getMyBearingsFireDurationMinutes } from "./model/fire-resistance/getMyBearingsFireDurationMinutes";
+export { getMyBearingsFireReducedPadDimensions } from "./model/fire-resistance/getMyBearingsFireReducedPadDimensions";
+export { getMyBearingsFireResistanceStrategy } from "./model/fire-resistance/getMyBearingsFireResistanceStrategy";
+export { getMyBearingsFireResolution } from "./model/fire-resistance/getMyBearingsFireResolution";
+export { getMyBearingsMineralWoolRequirement } from "./model/fire-resistance/getMyBearingsMineralWoolRequirement";
 export {
   calculateS65,
   calculateCompression,
@@ -30,12 +36,33 @@ export { getMyBearingsPadSizeRangeFromParameter } from "./model/selection";
 export { constrainMyBearingsPadSizeRangeToBounds } from "./model/selection";
 export type {
   MyBearingsContactArea,
+  MyBearingsBeamTopHeadArrangement,
   MyBearingsModuleFireResistance,
   MyBearingsModuleForceAndDeformation,
   MyBearingsEffectiveArea,
   MyBearingsModuleParameters,
   MyBearingsStudOpeningDiameter,
 } from "./model/types";
+export type {
+  MyBearingsFireExposure,
+  MyBearingsFireExposureInput,
+  MyBearingsFireExposedSideCount,
+} from "./model/fire-resistance/getMyBearingsFireExposure";
+export type {
+  MyBearingsFireReducedPadDimensions,
+  MyBearingsFireReducedPadDimensionsInput,
+} from "./model/fire-resistance/getMyBearingsFireReducedPadDimensions";
+export type {
+  MyBearingsFireResistanceStrategy,
+  MyBearingsFireResistanceStrategyInput,
+} from "./model/fire-resistance/getMyBearingsFireResistanceStrategy";
+export type {
+  MyBearingsFireCheckStatus,
+  MyBearingsFireResolution,
+  MyBearingsFireResolutionInput,
+} from "./model/fire-resistance/getMyBearingsFireResolution";
+export type { MyBearingsMineralWoolRequirement } from "./model/fire-resistance/getMyBearingsMineralWoolRequirement";
+export type { MyBearingsFireResistanceSource } from "./model/fire-resistance/types";
 export type {
   MyBearingsCalculationContext,
   MyBearingsCalculationMethodCode,

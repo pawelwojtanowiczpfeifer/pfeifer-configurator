@@ -5,6 +5,16 @@ import MyDrawingDimensionLine from "@/app/components/drawings/primitives/MyDrawi
 import { MyDrawingPolygonShape } from "@/app/components/drawings/primitives/MyDrawingPolygon";
 import type { MyBearingsSideViewProps } from "./types";
 import { MyDrawingLine } from "../../drawings";
+import {
+  BEAM_TOP_SECONDARY_BEAM_GAP_MM,
+  BEAM_TOP_SECONDARY_BEAM_OVERHANG_MM,
+  BEAM_TOP_SECONDARY_BEAM_SIDE_VIEW_STYLE,
+} from "./beamTopSecondaryBeamParameters";
+import {
+  BEAM_TOP_OUTER_HEAD_UPSTAND_GAP_MM,
+  BEAM_TOP_THREE_SIDED_BEARING_GAP_STYLE,
+} from "./beamTopOuterHeadUpstandParameters";
+import { MyBearingsSelectedPadSide } from "./MyBearingsSelectedPadDrawing";
 
 function renderMyBearingsBeamTopSideViewGeometry({
   isEndNotchedBeam,
@@ -19,6 +29,8 @@ function renderMyBearingsBeamTopSideViewGeometry({
   e1,
   ds,
   hasStuds = false,
+  selectedPadDrawing,
+  beamTopHeadArrangement = "no-upstand",
   dimensionScale = 1,
   hatchScale = 1,
   ...geometry
@@ -28,12 +40,66 @@ function renderMyBearingsBeamTopSideViewGeometry({
   void cmin;
   void geometry;
   void dimensionScale;
-  const beamStartX = 1.2 * a1 + g1;
-  const beamEndX = 1.2 * a1 + a1 + 0.75 * a1;
-  const beamBottomY = 1.2 * a1;
+  const beamBottomY = 0.75 * a2;
+  const shouldRenderSecondaryBeam = beamTopHeadArrangement === "two-beams";
+  const shouldRenderOuterHeadUpstand =
+    beamTopHeadArrangement === "outer-head-upstand" ||
+    beamTopHeadArrangement === "three-sided-head-upstand";
+  const shouldRenderThreeSidedHeadUpstand =
+    beamTopHeadArrangement === "three-sided-head-upstand";
+  const secondaryBeamStartX = -BEAM_TOP_SECONDARY_BEAM_OVERHANG_MM;
+  const secondaryBeamEndX = g2 - BEAM_TOP_SECONDARY_BEAM_GAP_MM;
+  const supportTopY = 0.75 * a2 + tc;
+  const supportBottomY = supportTopY + 1.1 * a2;
+  const upstandRightX = Math.max(
+    0,
+    g2 - BEAM_TOP_OUTER_HEAD_UPSTAND_GAP_MM,
+  );
 
   return (
     <>
+      {shouldRenderSecondaryBeam ? (
+        <MyDrawingPolygonShape
+          points={[
+            { x: secondaryBeamStartX, y: 0 },
+            { x: secondaryBeamEndX, y: 0 },
+            { x: secondaryBeamEndX, y: 0.75 * a2 },
+            { x: secondaryBeamStartX, y: 0.75 * a2 },
+          ]}
+          label="Secondary beam"
+          edges={[
+            {
+              lineWidth: "thin",
+              lineStyle: "dashed",
+              lineColor: BEAM_TOP_SECONDARY_BEAM_SIDE_VIEW_STYLE.outlineColor,
+            },
+            {
+              lineWidth: "thin",
+              lineStyle: "dashed",
+              lineColor: BEAM_TOP_SECONDARY_BEAM_SIDE_VIEW_STYLE.outlineColor,
+            },
+            {
+              lineWidth: "thin",
+              lineStyle: "dashed",
+              lineColor: BEAM_TOP_SECONDARY_BEAM_SIDE_VIEW_STYLE.outlineColor,
+            },
+            {
+              lineWidth: "thin",
+              lineStyle: "dashed",
+              lineColor: BEAM_TOP_SECONDARY_BEAM_SIDE_VIEW_STYLE.outlineColor,
+            },
+          ]}
+          hatch={{
+            spacing: 20,
+            variant: "cross",
+            color: BEAM_TOP_SECONDARY_BEAM_SIDE_VIEW_STYLE.hatchColor,
+            lineWidth: 1,
+            backgroundColor:
+              BEAM_TOP_SECONDARY_BEAM_SIDE_VIEW_STYLE.hatchBackgroundColor,
+            scale: hatchScale,
+          }}
+        />
+      ) : null}
       {hasStuds ? (
         <MyDrawingPolygonShape
           points={[
@@ -111,19 +177,106 @@ function renderMyBearingsBeamTopSideViewGeometry({
           lineColor="gray"
         />
       ) : null}
+      {shouldRenderThreeSidedHeadUpstand ? (
+        <>
+          <MyDrawingPolygonShape
+            points={[
+              { x: upstandRightX, y: 0 },
+              { x: g2, y: 0 },
+              { x: g2, y: beamBottomY },
+              { x: upstandRightX, y: beamBottomY },
+            ]}
+            label="Three-sided upstand vertical gap"
+            edges={[
+              { lineColor: "transparent" },
+              { lineColor: "transparent" },
+              { lineColor: "transparent" },
+              { lineColor: "transparent" },
+            ]}
+            hatch={{
+              variant: "none",
+              color: BEAM_TOP_THREE_SIDED_BEARING_GAP_STYLE.color,
+              backgroundColor:
+                BEAM_TOP_THREE_SIDED_BEARING_GAP_STYLE.backgroundColor,
+              spacing: BEAM_TOP_THREE_SIDED_BEARING_GAP_STYLE.spacing,
+              lineWidth: BEAM_TOP_THREE_SIDED_BEARING_GAP_STYLE.lineWidth,
+              scale: hatchScale,
+            }}
+          />
+          <MyDrawingPolygonShape
+            points={[
+              { x: g2, y: beamBottomY },
+              { x: a2, y: beamBottomY },
+              { x: a2, y: supportTopY },
+              { x: g2, y: supportTopY },
+            ]}
+            label="Three-sided upstand bearing gap"
+            edges={[
+              { lineColor: "transparent" },
+              { lineColor: "transparent" },
+              { lineColor: "transparent" },
+              { lineColor: "transparent" },
+            ]}
+            hatch={{
+              variant: "none",
+              color: BEAM_TOP_THREE_SIDED_BEARING_GAP_STYLE.color,
+              backgroundColor:
+                BEAM_TOP_THREE_SIDED_BEARING_GAP_STYLE.backgroundColor,
+              spacing: BEAM_TOP_THREE_SIDED_BEARING_GAP_STYLE.spacing,
+              lineWidth: BEAM_TOP_THREE_SIDED_BEARING_GAP_STYLE.lineWidth,
+              scale: hatchScale,
+            }}
+          />
+          <MyDrawingPolygonShape
+            points={[
+              { x: upstandRightX, y: beamBottomY },
+              { x: g2, y: beamBottomY },
+              { x: g2, y: supportTopY },
+              { x: upstandRightX, y: supportTopY },
+            ]}
+            label="Three-sided upstand corner gap"
+            edges={[
+              { lineColor: "transparent" },
+              { lineColor: "transparent" },
+              { lineColor: "transparent" },
+              { lineColor: "transparent" },
+            ]}
+            hatch={{
+              variant: "none",
+              color: BEAM_TOP_THREE_SIDED_BEARING_GAP_STYLE.color,
+              backgroundColor:
+                BEAM_TOP_THREE_SIDED_BEARING_GAP_STYLE.backgroundColor,
+              spacing: BEAM_TOP_THREE_SIDED_BEARING_GAP_STYLE.spacing,
+              lineWidth: BEAM_TOP_THREE_SIDED_BEARING_GAP_STYLE.lineWidth,
+              scale: hatchScale,
+            }}
+          />
+        </>
+      ) : null}
       <MyDrawingPolygonShape
-        points={[
-          { x: 0, y: 0.75 * a2 + tc },
-          { x: a2, y: 0.75 * a2 + tc },
-          { x: a2, y: 0.75 * a2 + tc + 1.1 * a2 },
-          { x: 0, y: 0.75 * a2 + tc + 1.1 * a2 },
-        ]}
+        points={
+          shouldRenderOuterHeadUpstand
+            ? [
+                { x: 0, y: 0 },
+                { x: upstandRightX, y: 0 },
+                { x: upstandRightX, y: supportTopY },
+                { x: a2, y: supportTopY },
+                { x: a2, y: supportBottomY },
+                { x: 0, y: supportBottomY },
+              ]
+            : [
+                { x: 0, y: supportTopY },
+                { x: a2, y: supportTopY },
+                { x: a2, y: supportBottomY },
+                { x: 0, y: supportBottomY },
+              ]
+        }
         label="Support"
         edges={[
           {
             lineWidth: "thin",
-            lineStyle: "solid",
-            lineColor: "black",
+            lineStyle: shouldRenderOuterHeadUpstand ? "dashDot" : "solid",
+            lineColor: shouldRenderOuterHeadUpstand ? "gray" : "black",
           },
           {
             lineWidth: "thin",
@@ -132,14 +285,28 @@ function renderMyBearingsBeamTopSideViewGeometry({
           },
           {
             lineWidth: "thin",
-            lineStyle: "dashDot",
-            lineColor: "gray",
+            lineStyle: shouldRenderOuterHeadUpstand ? "solid" : "dashDot",
+            lineColor: shouldRenderOuterHeadUpstand ? "black" : "gray",
           },
           {
             lineWidth: "thin",
             lineStyle: "solid",
             lineColor: "black",
           },
+          ...(shouldRenderOuterHeadUpstand
+            ? [
+                {
+                  lineWidth: "thin" as const,
+                  lineStyle: "dashDot" as const,
+                  lineColor: "gray",
+                },
+                {
+                  lineWidth: "thin" as const,
+                  lineStyle: "solid" as const,
+                  lineColor: "black",
+                },
+              ]
+            : []),
         ]}
         hatch={{
           spacing: 30,
@@ -150,6 +317,24 @@ function renderMyBearingsBeamTopSideViewGeometry({
           scale: hatchScale,
         }}
       />
+      {shouldRenderThreeSidedHeadUpstand ? (
+        <>
+          <MyDrawingLine
+            start={{ x: upstandRightX, y: 0 }}
+            end={{ x: g2, y: 0 }}
+            lineWidth="thin"
+            lineStyle="dashDot"
+            lineColor="gray"
+          />
+          <MyDrawingLine
+            start={{ x: a2, y: beamBottomY }}
+            end={{ x: a2, y: supportTopY }}
+            lineWidth="thin"
+            lineStyle="solid"
+            lineColor="black"
+          />
+        </>
+      ) : null}
       {!isEndNotchedBeam ? (
         <MyDrawingPolygonShape
           points={[
@@ -244,6 +429,13 @@ function renderMyBearingsBeamTopSideViewGeometry({
           }}
         />
       ) : null}
+      <MyBearingsSelectedPadSide
+        selectedPadDrawing={selectedPadDrawing}
+        centerX={hasStuds ? a2 - e1 : (Math.max(0, g2) + a2) / 2}
+        topY={beamBottomY}
+        bearingGapMm={tc}
+        hatchScale={hatchScale}
+      />
     </>
   );
 }

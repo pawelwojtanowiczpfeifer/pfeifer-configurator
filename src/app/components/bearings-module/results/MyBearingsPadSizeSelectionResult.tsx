@@ -1,8 +1,13 @@
 "use client";
 
+import { useEffect } from "react";
+
 import MyLabel from "@/app/components/ui/MyLabel";
 import MySummaryRow from "@/app/components/ui/MySummaryRow";
-import { useMyBearingsModuleConfigurator } from "../MyBearingsModuleConfigurator";
+import {
+  useMyBearingsModuleConfigurator,
+  type MyBearingsSelectedPadDrawing,
+} from "../MyBearingsModuleConfigurator";
 import { selectBestMyBearingsPadSizeAcrossMethods } from "../model/selection";
 import type {
   MyBearingsPadSizeBearingTypeSource,
@@ -13,12 +18,57 @@ import type { MyBearingsCalculationMethodCode } from "../model/calculations";
 import type { MyBearingsCandidateEvaluationInput } from "../model/evaluation";
 import type { MyBearingsCalculationContext } from "../model/calculations";
 import { getMyBearingsPadArea, getStudHoleDiameter } from "../model/calculations";
+import { getMyBearingsContactArea } from "../model/getMyBearingsContactArea";
 import type { MyBearingsStudOpeningDiameter } from "../model/types";
+import {
+  getMyBearingsFireDurationMinutes,
+} from "../model/fire-resistance/getMyBearingsFireDurationMinutes";
+import { getMyBearingsFireResistanceStrategy } from "../model/fire-resistance/getMyBearingsFireResistanceStrategy";
+import { getMyBearingsFireExposure } from "../model/fire-resistance/getMyBearingsFireExposure";
+import { getMyBearingsFireReducedPadDimensions } from "../model/fire-resistance/getMyBearingsFireReducedPadDimensions";
+import { getMyBearingsMineralWoolRequirement } from "../model/fire-resistance/getMyBearingsMineralWoolRequirement";
+import {
+  getMyBearingsFireMinimumSCheck,
+  getMyBearingsMineralWoolFitCheck,
+} from "../model/fire-resistance/getMyBearingsFireGeometryChecks";
+import {
+  getMyBearingsFireResolution,
+  type MyBearingsFireCheckStatus,
+} from "../model/fire-resistance/getMyBearingsFireResolution";
+import { evaluateMyBearingsCandidate } from "../model/evaluation";
+import type { MyBearingsFireResistanceSource } from "../model/fire-resistance/types";
 
 type MyBearingsPadSizeSelectionResultProps = {
   bearingTypes: MyBearingsPadSizeBearingTypeSource[];
   openingDiameters: MyBearingsStudOpeningDiameter[];
+  bearingFireResistance: MyBearingsFireResistanceSource[];
 };
+
+function MyBearingsSelectedPadDrawingSync({
+  value,
+}: {
+  value: MyBearingsSelectedPadDrawing | null;
+}) {
+  const { setSelectedPadDrawing } = useMyBearingsModuleConfigurator();
+
+  useEffect(() => {
+    setSelectedPadDrawing((current) => {
+      if (
+        current?.widthMm === value?.widthMm &&
+        current?.lengthMm === value?.lengthMm &&
+        current?.thicknessMm === value?.thicknessMm &&
+        current?.studHoleDiameterMm === value?.studHoleDiameterMm &&
+        current?.mineralWoolWidthMm === value?.mineralWoolWidthMm
+      ) {
+        return current;
+      }
+
+      return value;
+    });
+  }, [setSelectedPadDrawing, value]);
+
+  return null;
+}
 
 function formatPercent(value: number) {
   return `${new Intl.NumberFormat("en-US", {
@@ -42,6 +92,10 @@ function formatNumber(value: number) {
   return new Intl.NumberFormat("en-US", {
     maximumFractionDigits: 3,
   }).format(value);
+}
+
+function formatExposedEdgeCount(count: number) {
+  return `${count} exposed ${count === 1 ? "edge" : "edges"}`;
 }
 
 function isSupportedMethodCode(
@@ -125,8 +179,16 @@ function buildCandidateEvaluationInput(
 export default function MyBearingsPadSizeSelectionResult({
   bearingTypes,
   openingDiameters,
+  bearingFireResistance,
 }: MyBearingsPadSizeSelectionResultProps) {
-  const { geometry, connectionType, forceAndDeformation, hasStuds } =
+  const {
+    geometry,
+    connectionType,
+    forceAndDeformation,
+    fireResistance,
+    beamTopHeadArrangement,
+    hasStuds,
+  } =
     useMyBearingsModuleConfigurator();
 
   if (!bearingTypes || bearingTypes.length === 0) {
@@ -172,12 +234,15 @@ export default function MyBearingsPadSizeSelectionResult({
     ) => MyBearingsCandidateEvaluationInput;
   };
 
-  const methods = bearingTypes.flatMap((bearingType): MethodSelection[] => {
-    return bearingType.bearing_type_min_dimensions
-      .filter((minDimension) => minDimension.is_active)
-      .flatMap((minDimension): MethodSelection[] =>
-        bearingType.bearing_type_parameters.flatMap(
-          (parameterItem): MethodSelection[] => {
+  const getMethods = (
+    sourceBearingTypes: MyBearingsPadSizeBearingTypeSource[],
+  ) =>
+    sourceBearingTypes.flatMap((bearingType): MethodSelection[] => {
+      return bearingType.bearing_type_min_dimensions
+        .filter((minDimension) => minDimension.is_active)
+        .flatMap((minDimension): MethodSelection[] =>
+          bearingType.bearing_type_parameters.flatMap(
+            (parameterItem): MethodSelection[] => {
         const methodCode = parameterItem.calculation_method_code;
 
         if (!isSupportedMethodCode(methodCode)) {
@@ -235,21 +300,22 @@ export default function MyBearingsPadSizeSelectionResult({
           },
         ];
           },
-        ),
-      );
-  });
+          ),
+        );
+    });
 
-  const supportedParameters = bearingTypes.flatMap(
+  let supportedParameters = bearingTypes.flatMap(
     (bt) => bt.bearing_type_parameters || [],
   );
 
-  const selection = selectBestMyBearingsPadSizeAcrossMethods({
+  const baseSelection = selectBestMyBearingsPadSizeAcrossMethods({
     geometry,
     connectionType,
-    methods,
+    methods: getMethods(bearingTypes),
   });
 
-  const selectedPadArea = selection?.selected
+  let selection = baseSelection;
+  let selectedPadArea = selection.selected
     ? getMyBearingsPadArea({
         widthMm: selection.selected.variant.widthMm,
         lengthMm: selection.selected.variant.lengthMm,
@@ -258,12 +324,318 @@ export default function MyBearingsPadSizeSelectionResult({
         numberOfStuds: geometry.n,
       })
     : null;
-  const candidatesForSelectedGap = selection.candidates.filter(
+  let candidatesForSelectedGap = selection.candidates.filter(
     (candidate) => candidate.isEligibleForSelection,
   );
+  let selectedBearingType = selection.selected
+    ? bearingTypes.find(
+        (bearingType) =>
+          bearingType.code === selection.selected?.variant.bearingTypeCode,
+      )
+    : null;
+  const baseSelectedBearingType = selectedBearingType;
+  let selectedFireResistanceRecord =
+    baseSelectedBearingType && selection.selected?.variant.padThicknessMm != null
+      ? bearingFireResistance.find(
+          (record) =>
+            record.bearing_type_id === baseSelectedBearingType.id &&
+            record.thickness_mm === selection.selected?.variant.padThicknessMm,
+        )
+      : null;
+  const fireDurationMinutes = getMyBearingsFireDurationMinutes(fireResistance);
+  const contactArea = getMyBearingsContactArea({
+    ...geometry,
+    connectionType,
+  });
+  const fireExposure = getMyBearingsFireExposure({
+    connectionType,
+    isEndNotchedBeam: geometry.isEndNotchedBeam,
+    beamTopHeadArrangement,
+  });
+  const hasFireExposure =
+    fireExposure.exposedASides > 0 || fireExposure.exposedBSides > 0;
+  const fireExposureLabel = `A: ${formatExposedEdgeCount(fireExposure.exposedASides)} → b; B: ${formatExposedEdgeCount(fireExposure.exposedBSides)} → a`;
+  let fireStrategy = getMyBearingsFireResistanceStrategy({
+    fireDurationMinutes,
+    degradationRateWithoutCoverMmPerMinute:
+      selectedFireResistanceRecord?.degradation_rate_without_cover_mm_per_min,
+  });
+  if (fireDurationMinutes != null && !hasFireExposure) {
+    fireStrategy = "not-required";
+  }
+  let minimumSCheck =
+    fireDurationMinutes != null &&
+    hasFireExposure &&
+    selectedFireResistanceRecord != null
+      ? getMyBearingsFireMinimumSCheck({
+          contactWidthMm: contactArea.contactWidth,
+          contactLengthMm: contactArea.contactLength,
+          minSDimensionMm: selectedFireResistanceRecord.min_S_dimension_mm,
+        })
+      : null;
+  let fireStrategyLabel =
+    fireStrategy === "not-required"
+      ? "Not required"
+      : fireStrategy === "calculate-charring"
+        ? "Charring verification"
+        : "Mineral wool required";
+  let fireReducedPadDimensions =
+    fireStrategy === "calculate-charring" &&
+    fireDurationMinutes != null &&
+    selectedFireResistanceRecord != null &&
+    selection?.selected
+      ? getMyBearingsFireReducedPadDimensions({
+          aMm: selection.selected.variant.widthMm,
+          bMm: selection.selected.variant.lengthMm,
+          charringRateMmPerMinute:
+            selectedFireResistanceRecord.degradation_rate_without_cover_mm_per_min,
+          fireDurationMinutes,
+          exposure: fireExposure,
+        })
+      : null;
+  let fireCandidateEvaluation =
+    fireReducedPadDimensions != null &&
+    !fireReducedPadDimensions.isFullyCharred &&
+    selection?.selected
+      ? (() => {
+          const fireEvaluationInput = buildCandidateEvaluationInput(
+            selection.selected.evaluation.methodCode,
+            geometry,
+            forceAndDeformation,
+            hasStuds,
+            studHoleDiameterMm,
+            {
+              ...selection.selected.variant,
+              widthMm: fireReducedPadDimensions.fireReducedAMm,
+              lengthMm: fireReducedPadDimensions.fireReducedBMm,
+            },
+            selection.selected.variant.padThicknessMm ?? geometry.tc,
+          );
+
+          return evaluateMyBearingsCandidate({
+            ...fireEvaluationInput,
+            loadInput: {
+              ...fireEvaluationInput.loadInput,
+              designVerticalForceKN:
+                fireEvaluationInput.loadInput.designVerticalForceKN * 0.7,
+            },
+          });
+        })()
+      : null;
+  let fireCheckLabel = fireReducedPadDimensions?.isFullyCharred
+    ? "Fail — charring consumes the pad"
+    : fireCandidateEvaluation?.isValid
+      ? "Pass"
+      : fireCandidateEvaluation
+        ? "Fail"
+        : "n/a";
+
+  const baseFireCheckStatus: MyBearingsFireCheckStatus | null =
+    fireStrategy === "calculate-charring"
+      ? minimumSCheck?.isValid === false ||
+        fireReducedPadDimensions?.isFullyCharred ||
+          fireCandidateEvaluation?.isValid === false
+        ? "fail"
+        : fireCandidateEvaluation?.isValid
+          ? "pass"
+          : "fail"
+      : null;
+  const baseFireResolution = selection.selected
+    ? getMyBearingsFireResolution({
+        baseBearingTypeCode: selection.selected.variant.bearingTypeCode ?? "",
+        baseFireStrategy: fireStrategy,
+        baseFireCheckStatus,
+      })
+    : null;
+  let fireResolutionNote: string | null = null;
+  let hasFinalMineralWoolProtection = false;
+
+  if (baseFireResolution?.action === "use-mineral-wool-on-base") {
+    hasFinalMineralWoolProtection = true;
+    fireStrategyLabel = "Mineral wool required";
+    fireResolutionNote = "The base selection requires mineral wool.";
+  }
+
+  if (baseFireResolution?.action === "try-next-unprotected-type") {
+    const nextBearingType = bearingTypes.find(
+      (bearingType) =>
+        bearingType.code === baseFireResolution.nextBearingTypeCode,
+    );
+    const nextSelection = nextBearingType
+      ? selectBestMyBearingsPadSizeAcrossMethods({
+          geometry,
+          connectionType,
+          methods: getMethods([nextBearingType]),
+        })
+      : null;
+    const nextSelected = nextSelection?.selected;
+    const nextFireResistanceRecord =
+      nextBearingType && nextSelected?.variant.padThicknessMm != null
+        ? bearingFireResistance.find(
+            (record) =>
+              record.bearing_type_id === nextBearingType.id &&
+              record.thickness_mm === nextSelected.variant.padThicknessMm,
+          )
+        : null;
+    const nextMinimumSCheck =
+      nextFireResistanceRecord != null
+        ? getMyBearingsFireMinimumSCheck({
+            contactWidthMm: contactArea.contactWidth,
+            contactLengthMm: contactArea.contactLength,
+            minSDimensionMm: nextFireResistanceRecord.min_S_dimension_mm,
+          })
+        : null;
+    const nextFireStrategy = getMyBearingsFireResistanceStrategy({
+      fireDurationMinutes,
+      degradationRateWithoutCoverMmPerMinute:
+        nextFireResistanceRecord?.degradation_rate_without_cover_mm_per_min,
+    });
+    const nextFireReducedPadDimensions =
+      nextFireStrategy === "calculate-charring" &&
+      fireDurationMinutes != null &&
+      nextFireResistanceRecord != null &&
+      nextSelected
+        ? getMyBearingsFireReducedPadDimensions({
+            aMm: nextSelected.variant.widthMm,
+            bMm: nextSelected.variant.lengthMm,
+            charringRateMmPerMinute:
+              nextFireResistanceRecord.degradation_rate_without_cover_mm_per_min,
+            fireDurationMinutes,
+            exposure: fireExposure,
+          })
+        : null;
+    const nextFireCandidateEvaluation =
+      nextFireReducedPadDimensions != null &&
+      !nextFireReducedPadDimensions.isFullyCharred &&
+      nextSelected
+        ? (() => {
+            const nextFireEvaluationInput = buildCandidateEvaluationInput(
+              nextSelected.evaluation.methodCode,
+              geometry,
+              forceAndDeformation,
+              hasStuds,
+              studHoleDiameterMm,
+              {
+                ...nextSelected.variant,
+                widthMm: nextFireReducedPadDimensions.fireReducedAMm,
+                lengthMm: nextFireReducedPadDimensions.fireReducedBMm,
+              },
+              nextSelected.variant.padThicknessMm ?? geometry.tc,
+            );
+
+            return evaluateMyBearingsCandidate({
+              ...nextFireEvaluationInput,
+              loadInput: {
+                ...nextFireEvaluationInput.loadInput,
+                designVerticalForceKN:
+                  nextFireEvaluationInput.loadInput.designVerticalForceKN * 0.7,
+              },
+            });
+          })()
+        : null;
+    const nextTypeFireCheckStatus: MyBearingsFireCheckStatus =
+      nextMinimumSCheck?.isValid !== false &&
+      nextFireStrategy === "calculate-charring" &&
+      !nextFireReducedPadDimensions?.isFullyCharred &&
+      nextFireCandidateEvaluation?.isValid
+        ? "pass"
+        : "fail";
+    const fireResolution = getMyBearingsFireResolution({
+      baseBearingTypeCode: selection.selected?.variant.bearingTypeCode ?? "",
+      baseFireStrategy: fireStrategy,
+      baseFireCheckStatus,
+      nextTypeFireCheckStatus,
+    });
+
+    if (
+      fireResolution.action === "accept-next-unprotected-type" &&
+      nextBearingType != null &&
+      nextSelection != null &&
+      nextSelected != null
+    ) {
+      const baseBearingTypeName =
+        selection.selected?.variant.bearingTypeCode ?? "base type";
+      selection = nextSelection;
+      selectedBearingType = nextBearingType;
+      selectedFireResistanceRecord = nextFireResistanceRecord;
+      minimumSCheck = nextMinimumSCheck;
+      selectedPadArea = getMyBearingsPadArea({
+        widthMm: nextSelected.variant.widthMm,
+        lengthMm: nextSelected.variant.lengthMm,
+        hasStuds,
+        holeDiameterMm: studHoleDiameterMm,
+        numberOfStuds: geometry.n,
+      });
+      candidatesForSelectedGap = nextSelection.candidates.filter(
+        (candidate) => candidate.isEligibleForSelection,
+      );
+      supportedParameters = nextBearingType.bearing_type_parameters;
+      fireStrategy = nextFireStrategy;
+      fireStrategyLabel = "Charring verification";
+      fireReducedPadDimensions = nextFireReducedPadDimensions;
+      fireCandidateEvaluation = nextFireCandidateEvaluation;
+      fireCheckLabel = "Pass";
+      fireResolutionNote = `Upgraded automatically from ${baseBearingTypeName}.`;
+    } else {
+      hasFinalMineralWoolProtection = true;
+      fireStrategyLabel = "Mineral wool required";
+      fireResolutionNote =
+        "The next stronger unprotected type did not pass; the base selection requires mineral wool.";
+    }
+  }
+  let fireSolutionUnavailableReason: string | null = null;
+  let fireWarningMessage: string | null = null;
+  if (
+    fireDurationMinutes != null &&
+    hasFireExposure &&
+    selectedFireResistanceRecord == null
+  ) {
+    fireSolutionUnavailableReason =
+      "No fire-resistance record is configured for the selected bearing type and thickness.";
+  }
+  if (
+    fireDurationMinutes != null &&
+    hasFireExposure &&
+    minimumSCheck?.isValid === false
+  ) {
+    fireSolutionUnavailableReason = `The available minimum contact dimension (${formatNumber(minimumSCheck.availableMm)} mm) is below the approval minimum S (${formatNumber(minimumSCheck.requiredMm)} mm).`;
+  }
+
+  let mineralWoolRequirement = hasFinalMineralWoolProtection
+    ? getMyBearingsMineralWoolRequirement(fireResistance)
+    : null;
+  const mineralWoolFitCheck = mineralWoolRequirement
+    ? getMyBearingsMineralWoolFitCheck({
+        cminMm: geometry.cmin,
+        requiredCoverMm: mineralWoolRequirement.minWidthMm,
+        exposure: fireExposure,
+      })
+    : null;
+  if (mineralWoolFitCheck?.isValid === false) {
+    fireSolutionUnavailableReason = `The available edge cover c_min (${formatNumber(mineralWoolFitCheck.availableCoverMm)} mm) is below the required mineral-wool width (${formatNumber(mineralWoolFitCheck.requiredCoverMm)} mm).`;
+    fireWarningMessage = `Mineral wool cannot be installed: ${formatNumber(mineralWoolFitCheck.requiredCoverMm)} mm is required, but c_min is only ${formatNumber(mineralWoolFitCheck.availableCoverMm)} mm. Increase c_min to at least ${formatNumber(mineralWoolFitCheck.requiredCoverMm)} mm or revise the connection detail.`;
+  }
+  if (fireSolutionUnavailableReason != null) {
+    hasFinalMineralWoolProtection = false;
+    mineralWoolRequirement = null;
+    fireStrategyLabel = "No approved fire solution";
+    fireCheckLabel = "Fail";
+    fireResolutionNote = fireSolutionUnavailableReason;
+  }
+  const selectedPadDrawing: MyBearingsSelectedPadDrawing | null =
+    selection.selected
+      ? {
+          widthMm: selection.selected.variant.widthMm,
+          lengthMm: selection.selected.variant.lengthMm,
+          thicknessMm: selection.selected.variant.padThicknessMm ?? geometry.tc,
+          studHoleDiameterMm,
+          mineralWoolWidthMm: mineralWoolRequirement?.minWidthMm ?? null,
+        }
+      : null;
 
   return (
     <div className="space-y-3">
+      <MyBearingsSelectedPadDrawingSync value={selectedPadDrawing} />
       <MyLabel size="small">Bearing size selection</MyLabel>
       <div className="rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-3">
         {selection?.selected ? (
@@ -293,6 +665,144 @@ export default function MyBearingsPadSizeSelectionResult({
               value={candidatesForSelectedGap.length}
               className="border-b-0"
             />
+            <div className="mt-3 border-t border-zinc-200 pt-3">
+              <MyLabel size="small">Fire resistance preview</MyLabel>
+              <div className="mt-2">
+                <MySummaryRow label="Requirement" value={fireResistance} />
+                <MySummaryRow label="Fire duration" value={fireDurationMinutes == null ? "n/a" : `${fireDurationMinutes} min`} />
+                <MySummaryRow
+                  label="Exposed edges"
+                  value={fireExposureLabel}
+                />
+                {minimumSCheck ? (
+                  <>
+                    <MySummaryRow
+                      label="Available minimum contact dimension S"
+                      value={`${formatNumber(minimumSCheck.availableMm)} mm`}
+                    />
+                    <MySummaryRow
+                      label="Required minimum S"
+                      value={`${formatNumber(minimumSCheck.requiredMm)} mm (${minimumSCheck.isValid ? "Pass" : "Fail"})`}
+                    />
+                  </>
+                ) : null}
+                <MySummaryRow
+                  label="Uncovered degradation rate"
+                  value={
+                    selectedFireResistanceRecord
+                      ? `${formatNumber(selectedFireResistanceRecord.degradation_rate_without_cover_mm_per_min)} mm/min`
+                      : "No record"
+                  }
+                />
+                <MySummaryRow
+                  label="Fire path"
+                  value={fireStrategyLabel}
+                />
+                {fireResolutionNote ? (
+                  <div className="py-2 text-sm text-zinc-600">
+                    {fireResolutionNote}
+                  </div>
+                ) : null}
+                {fireWarningMessage ? (
+                  <div
+                    role="alert"
+                    className="my-2 rounded-md border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-800"
+                  >
+                    <span className="font-medium">Warning: </span>
+                    {fireWarningMessage}
+                  </div>
+                ) : null}
+                {mineralWoolRequirement ? (
+                  <>
+                    <MySummaryRow
+                      label="Final fire solution"
+                      value="Ciflamon mineral wool"
+                    />
+                    <MySummaryRow
+                      label="Wool thickness"
+                      value={`${geometry.tc} mm`}
+                    />
+                    <MySummaryRow
+                      label="Minimum wool width"
+                      value={`${mineralWoolRequirement.minWidthMm} mm`}
+                    />
+                  </>
+                ) : null}
+                {mineralWoolFitCheck ? (
+                  <MySummaryRow
+                    label="Available wool edge cover"
+                    value={`${formatNumber(mineralWoolFitCheck.availableCoverMm)} / ${formatNumber(mineralWoolFitCheck.requiredCoverMm)} mm (${mineralWoolFitCheck.isValid ? "Pass" : "Fail"})`}
+                  />
+                ) : null}
+                {fireReducedPadDimensions ? (
+                  <>
+                    <MySummaryRow
+                      label={
+                        hasFinalMineralWoolProtection
+                          ? "Unprotected charring depth"
+                          : "Charring depth"
+                      }
+                      value={`${formatNumber(fireReducedPadDimensions.charringDepthMm)} mm`}
+                    />
+                    <MySummaryRow
+                      label={
+                        hasFinalMineralWoolProtection
+                          ? "Unprotected fire-reduced size (a x b)"
+                          : "Fire-reduced size (a x b)"
+                      }
+                      value={`${formatNumber(fireReducedPadDimensions.fireReducedAMm)} x ${formatNumber(fireReducedPadDimensions.fireReducedBMm)} mm`}
+                    />
+                    <MySummaryRow
+                      label={
+                        hasFinalMineralWoolProtection
+                          ? "Unprotected fire-reduced area"
+                          : "Fire-reduced area"
+                      }
+                      value={`${formatNumber(fireReducedPadDimensions.fireReducedAreaMm2)} mm2`}
+                    />
+                    <MySummaryRow
+                      label={
+                        hasFinalMineralWoolProtection
+                          ? "Unprotected fire design force"
+                          : "Fire design force"
+                      }
+                      value={formatKn(
+                        forceAndDeformation.designVerticalForce * 0.7,
+                      )}
+                    />
+                    <MySummaryRow
+                      label={
+                        hasFinalMineralWoolProtection
+                          ? "Unprotected fire check"
+                          : "Fire check"
+                      }
+                      value={fireCheckLabel}
+                    />
+                    <MySummaryRow
+                      label={
+                        hasFinalMineralWoolProtection
+                          ? "Unprotected fire usage"
+                          : "Fire usage"
+                      }
+                      value={
+                        fireCandidateEvaluation
+                          ? formatPercent(
+                              fireCandidateEvaluation.compressiveStressUsagePercent,
+                            )
+                          : "n/a"
+                      }
+                      className="border-b-0"
+                    />
+                  </>
+                ) : (
+                  <div className="border-b-0 py-2 text-sm text-zinc-600">
+                    {fireStrategy === "mineral-wool-required"
+                      ? "No uncovered charring calculation is available."
+                      : "No fire-resistance check was requested."}
+                  </div>
+                )}
+              </div>
+            </div>
           </>
         ) : (
           <div className="text-sm text-zinc-600">
@@ -395,6 +905,43 @@ export default function MyBearingsPadSizeSelectionResult({
                 value={`${formatNumber(selectedPadArea?.netAreaMm2 ?? 0)} mm2`}
                 className="border-b-0"
               />
+              {fireCandidateEvaluation ? (
+                <>
+                  <div className="mt-3 border-t border-zinc-200 pt-3">
+                    <MyLabel size="small">
+                      {hasFinalMineralWoolProtection
+                        ? "Unprotected fire debug"
+                        : "Fire debug"}
+                    </MyLabel>
+                  </div>
+                  <MySummaryRow
+                    label="FEd,fi"
+                    value={formatKn(
+                      fireCandidateEvaluation.loadInput.designVerticalForceKN,
+                    )}
+                  />
+                  <MySummaryRow
+                    label="sigmaEd,fi"
+                    value={formatStress(
+                      fireCandidateEvaluation.designCompressiveStressKNPerMm2,
+                    )}
+                  />
+                  <MySummaryRow
+                    label="sigmaRd,fi"
+                    value={formatStress(
+                      fireCandidateEvaluation.calculation
+                        .compressiveStressLimitMPa,
+                    )}
+                  />
+                  <MySummaryRow
+                    label="eta,fi"
+                    value={formatPercent(
+                      fireCandidateEvaluation.compressiveStressUsagePercent,
+                    )}
+                    className="border-b-0"
+                  />
+                </>
+              ) : null}
             </>
           ) : null}
         </div>

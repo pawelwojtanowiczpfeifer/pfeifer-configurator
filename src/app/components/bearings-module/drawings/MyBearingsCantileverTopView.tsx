@@ -5,6 +5,10 @@ import MyDrawingDimensionLine from "@/app/components/drawings/primitives/MyDrawi
 import { MyDrawingPolygonShape } from "@/app/components/drawings/primitives/MyDrawingPolygon";
 import type { MyBearingsTopViewProps } from "./types";
 import { MyDrawingCircle } from "../../drawings";
+import { MyBearingsSelectedPadPlan } from "./MyBearingsSelectedPadDrawing";
+
+// Presentation-only switch: the effective area is still calculated normally.
+const SHOW_EFFECTIVE_AREA_OUTLINE = false;
 
 function renderMyBearingsCantileverTopViewGeometry({
   g1,
@@ -19,6 +23,7 @@ function renderMyBearingsCantileverTopViewGeometry({
   e2,
   e3,
   hasStuds = false,
+  selectedPadDrawing,
   dimensionScale = 1,
   hatchScale = 1,
   ...geometry
@@ -128,6 +133,28 @@ function renderMyBearingsCantileverTopViewGeometry({
         }}
       />
 
+      <MyBearingsSelectedPadPlan
+        selectedPadDrawing={selectedPadDrawing}
+        center={
+          hasStuds
+            ? { x: supportEndX - e1, y: n === 2 ? e2 + e3 / 2 : e2 }
+            : {
+                x: (effectiveStartX + effectiveEndX) / 2,
+                y: (effectiveStartY + effectiveEndY) / 2,
+              }
+        }
+        studCenters={
+          hasStuds
+            ? [
+                { x: supportEndX - e1, y: e2 },
+                ...(n === 2
+                  ? [{ x: supportEndX - e1, y: e2 + e3 }]
+                  : []),
+              ]
+            : []
+        }
+        hatchScale={hatchScale}
+      />
       <MyDrawingPolygonShape
         points={[
           { x: beamStartX, y: beamStartY },
@@ -163,11 +190,11 @@ function renderMyBearingsCantileverTopViewGeometry({
           variant: "cross",
           color: "gray",
           lineWidth: 1,
-          backgroundColor: "rgba(220, 220, 220, 0.8)",
+          backgroundColor: "rgba(220, 220, 220, 0.4)",
           scale: hatchScale,
         }}
       />
-      {shouldRenderEffectiveArea ? (
+      {SHOW_EFFECTIVE_AREA_OUTLINE && shouldRenderEffectiveArea ? (
         <MyDrawingPolygonShape
           points={[
             { x: effectiveStartX, y: effectiveStartY },

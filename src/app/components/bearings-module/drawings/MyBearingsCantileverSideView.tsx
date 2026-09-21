@@ -5,6 +5,7 @@ import MyDrawingDimensionLine from "@/app/components/drawings/primitives/MyDrawi
 import { MyDrawingPolygonShape } from "@/app/components/drawings/primitives/MyDrawingPolygon";
 import type { MyBearingsSideViewProps } from "./types";
 import { MyDrawingLine } from "../../drawings";
+import { MyBearingsSelectedPadSide } from "./MyBearingsSelectedPadDrawing";
 
 function renderMyBearingsCantileverSideViewGeometry({
   isEndNotchedBeam,
@@ -17,6 +18,7 @@ function renderMyBearingsCantileverSideViewGeometry({
   e1,
   ds,
   hasStuds = false,
+  selectedPadDrawing,
   dimensionScale = 1,
   hatchScale = 1,
   ...geometry
@@ -266,6 +268,19 @@ function renderMyBearingsCantileverSideViewGeometry({
           }}
         />
       ) : null}
+      <MyBearingsSelectedPadSide
+        selectedPadDrawing={selectedPadDrawing}
+        centerX={
+          hasStuds
+            ? 1.2 * a1 + a1 - e1
+            : (Math.max(1.2 * a1, beamStartX) +
+                Math.min(1.2 * a1 + a1, beamEndX)) /
+              2
+        }
+        topY={beamBottomY}
+        bearingGapMm={tc}
+        hatchScale={hatchScale}
+      />
     </>
   );
 }

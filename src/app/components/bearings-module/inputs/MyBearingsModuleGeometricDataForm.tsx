@@ -12,6 +12,7 @@ import MyVStack from "@/app/components/ui/MyVStack";
 import MyLabel from "@/app/components/ui/MyLabel";
 import { useMyBearingsModuleConfigurator } from "@/app/components/bearings-module/MyBearingsModuleConfigurator";
 import MyCheckbox from "../../ui/MyCheckbox";
+import MyBeamTopHeadArrangementSelector from "./beam-top-head-arrangement/MyBeamTopHeadArrangementSelector";
 type MyBearingsModuleGeometricDataFormProps = {
   bearingGapOptions: Array<SelectOption<number> & { secondaryLabel?: string }>;
 };
@@ -37,7 +38,35 @@ function getStudDefaults(n: 1 | 2, b1: number) {
   };
 }
 
-export default function MyBearingsModuleGeometricDataForm({
+function getGeometryInputs(geometry: {
+  g1: number;
+  g2: number;
+  b1: number;
+  a1: number;
+  a2: number;
+  b2: number;
+  b3: number;
+  cmin: number;
+  e1: number;
+  e2: number;
+  e3: number;
+}) {
+  return {
+    g1: `${geometry.g1}`,
+    g2: `${geometry.g2}`,
+    b1: `${geometry.b1}`,
+    a1: `${geometry.a1}`,
+    a2: `${geometry.a2}`,
+    b2: `${geometry.b2}`,
+    b3: `${geometry.b3}`,
+    cmin: `${geometry.cmin}`,
+    e1: `${geometry.e1}`,
+    e2: `${geometry.e2}`,
+    e3: `${geometry.e3}`,
+  };
+}
+
+function MyBearingsModuleGeometricDataFormContent({
   bearingGapOptions,
 }: MyBearingsModuleGeometricDataFormProps) {
   const connectionTypeOptions: SegmentedControlOption<
@@ -89,19 +118,9 @@ export default function MyBearingsModuleGeometricDataForm({
     setHasStuds,
   } = useMyBearingsModuleConfigurator();
 
-  const [geometryInputs, setGeometryInputs] = useState({
-    g1: `${geometry.g1}`,
-    g2: `${geometry.g2}`,
-    b1: `${geometry.b1}`,
-    a1: `${geometry.a1}`,
-    a2: `${geometry.a2}`,
-    b2: `${geometry.b2}`,
-    b3: `${geometry.b3}`,
-    cmin: `${geometry.cmin}`,
-    e1: `${geometry.e1}`,
-    e2: `${geometry.e2}`,
-    e3: `${geometry.e3}`,
-  });
+  const [geometryInputs, setGeometryInputs] = useState(() =>
+    getGeometryInputs(geometry),
+  );
 
   const updateGeometryInput =
     (key: keyof typeof geometryInputs) =>
@@ -219,6 +238,10 @@ export default function MyBearingsModuleGeometricDataForm({
           onChange={updateConnectionType}
         />
       </MyVStack>
+
+      {connectionType === "beam-top" ? (
+        <MyBeamTopHeadArrangementSelector />
+      ) : null}
 
       <MyVStack gap="xs">
         <MyLabel size="small">
@@ -533,5 +556,23 @@ export default function MyBearingsModuleGeometricDataForm({
         ) : null}
       </MyVStack>
     </MyVStack>
+  );
+}
+
+export default function MyBearingsModuleGeometricDataForm(
+  props: MyBearingsModuleGeometricDataFormProps,
+) {
+  const { connectionType, beamTopHeadArrangement } =
+    useMyBearingsModuleConfigurator();
+  const geometryProfileKey =
+    connectionType === "beam-top"
+      ? `beam-top-${beamTopHeadArrangement}`
+      : "cantilever";
+
+  return (
+    <MyBearingsModuleGeometricDataFormContent
+      key={geometryProfileKey}
+      {...props}
+    />
   );
 }
