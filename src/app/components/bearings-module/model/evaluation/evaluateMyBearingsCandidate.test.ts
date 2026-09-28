@@ -96,6 +96,106 @@ describe("evaluateMyBearingsCandidate", () => {
     }
   });
 
+  it("checks S65 against total rotation including both catalogue additions", () => {
+    const context = {
+      ...BASE_CONTEXT,
+      geometry: {
+        ...BASE_CONTEXT.geometry,
+        tc: 15,
+        a1: 300,
+        a2: 300,
+        b1: 300,
+        b2: 300,
+        b3: 300,
+      },
+      contactArea: {
+        contactLength: 300,
+        contactWidth: 300,
+        contactAreaMm2: 90_000,
+        contactAreaM2: 0.09,
+      },
+      effectiveArea: {
+        effectiveLength: 300,
+        effectiveWidth: 300,
+        effectiveAreaMm2: 90_000,
+        effectiveAreaM2: 0.09,
+      },
+    };
+
+    const passing = evaluateMyBearingsCandidate({
+      methodCode: "s65",
+      context,
+      loadInput: {
+        designVerticalForceKN: 10,
+        bearingRotationPermille: 10,
+      },
+    });
+    const failing = evaluateMyBearingsCandidate({
+      methodCode: "s65",
+      context,
+      loadInput: {
+        designVerticalForceKN: 10,
+        bearingRotationPermille: 11,
+      },
+    });
+
+    const rotationCheck = passing.checks.find(
+      (check) => check.name === "bearingRotation",
+    );
+
+    expect(passing.calculation.allowableRotationPermille).toBe(22.5);
+    expect(passing.calculation.rotationTechnicalApprovalPermille).toBe(10);
+    expect(passing.calculation.rotationUnevennessPermille).toBeCloseTo(
+      625 / 300,
+    );
+    expect(rotationCheck?.valuePermille).toBeCloseTo(22.0833, 3);
+    expect(rotationCheck?.status).toBe("pass");
+    expect(
+      failing.checks.find((check) => check.name === "bearingRotation")
+        ?.status,
+    ).toBe("fail");
+  });
+
+  it("uses the CR 2000 catalogue coefficient of 400 for maximum rotation", () => {
+    const result = evaluateMyBearingsCandidate({
+      methodCode: "cr2000",
+      context: {
+        ...BASE_CONTEXT,
+        geometry: {
+          ...BASE_CONTEXT.geometry,
+          tc: 15,
+          a1: 300,
+          a2: 300,
+          b1: 300,
+          b2: 300,
+          b3: 300,
+        },
+        contactArea: {
+          contactLength: 300,
+          contactWidth: 300,
+          contactAreaMm2: 90_000,
+          contactAreaM2: 0.09,
+        },
+        effectiveArea: {
+          effectiveLength: 300,
+          effectiveWidth: 300,
+          effectiveAreaMm2: 90_000,
+          effectiveAreaM2: 0.09,
+        },
+      },
+      loadInput: {
+        designVerticalForceKN: 10,
+        bearingRotationPermille: 8,
+      },
+    });
+
+    expect(result.calculation.allowableRotationPermille).toBe(20);
+    expect(result.calculation.requiredRotationPermille).toBeCloseTo(20.0833, 3);
+    expect(
+      result.checks.find((check) => check.name === "bearingRotation")?.status,
+    ).toBe("fail");
+  });
+
   it("fails when the bearing dimensions are outside the allowed range", () => {
     const result = evaluateMyBearingsCandidate({
       methodCode: "q",

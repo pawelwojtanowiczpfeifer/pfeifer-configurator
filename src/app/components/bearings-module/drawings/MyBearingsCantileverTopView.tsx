@@ -135,14 +135,10 @@ function renderMyBearingsCantileverTopViewGeometry({
 
       <MyBearingsSelectedPadPlan
         selectedPadDrawing={selectedPadDrawing}
-        center={
-          hasStuds
-            ? { x: supportEndX - e1, y: n === 2 ? e2 + e3 / 2 : e2 }
-            : {
-                x: (effectiveStartX + effectiveEndX) / 2,
-                y: (effectiveStartY + effectiveEndY) / 2,
-              }
-        }
+        center={{
+          x: (effectiveStartX + effectiveEndX) / 2,
+          y: (effectiveStartY + effectiveEndY) / 2,
+        }}
         studCenters={
           hasStuds
             ? [

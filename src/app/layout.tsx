@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist_Mono, Open_Sans } from "next/font/google";
+import { Geist_Mono, Michroma, Open_Sans } from "next/font/google";
 import "./globals.css";
 
 const openSans = Open_Sans({
@@ -10,6 +10,12 @@ const openSans = Open_Sans({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+const michroma = Michroma({
+  variable: "--font-michroma",
+  subsets: ["latin"],
+  weight: "400",
 });
 
 export const metadata: Metadata = {
@@ -29,7 +35,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${openSans.variable} ${geistMono.variable} h-full font-sans antialiased`}
+      className={`${openSans.variable} ${geistMono.variable} ${michroma.variable} h-full font-sans antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>

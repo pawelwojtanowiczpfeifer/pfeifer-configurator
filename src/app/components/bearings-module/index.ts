@@ -1,4 +1,6 @@
 export { default as MyBearingsModuleConfigurator } from "./MyBearingsModuleConfigurator";
+export { default as MyBearingsCalculationActions } from "./MyBearingsCalculationActions";
+export { default as MyBearingsTechnicalVerification } from "./MyBearingsTechnicalVerification";
 export { useMyBearingsModuleConfigurator } from "./MyBearingsModuleConfigurator";
 export { default as MyBearingsModuleDrawingContent } from "./drawings/MyBearingsModuleDrawingContent";
 export { default as MyBearingsModuleDrawing } from "./drawings/MyBearingsModuleDrawing";
@@ -18,6 +20,7 @@ export { getMyBearingsFireReducedPadDimensions } from "./model/fire-resistance/g
 export { getMyBearingsFireResistanceStrategy } from "./model/fire-resistance/getMyBearingsFireResistanceStrategy";
 export { getMyBearingsFireResolution } from "./model/fire-resistance/getMyBearingsFireResolution";
 export { getMyBearingsMineralWoolRequirement } from "./model/fire-resistance/getMyBearingsMineralWoolRequirement";
+export { getMyBearingsCalculationNote } from "./model/presentation/getMyBearingsCalculationNote";
 export {
   calculateS65,
   calculateCompression,

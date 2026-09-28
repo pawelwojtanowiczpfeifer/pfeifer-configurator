@@ -7,4 +7,7 @@ export const calculateS65: MyBearingsCalculationCalculator = (context) =>
     rawCompressiveStress: (shapeCoefficient) => 4.03 * shapeCoefficient ** 1.16,
     compressiveStressLimitMPa: 14,
     hasHoleSensitivity: "studs",
+    rotationTechnicalApprovalPermille: 10,
+    rotationUnevennessPermille: (shorterSideMm) =>
+      625 / Math.max(shorterSideMm, 1),
   });

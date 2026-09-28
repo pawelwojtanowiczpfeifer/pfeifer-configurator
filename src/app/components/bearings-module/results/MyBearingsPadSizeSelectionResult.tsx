@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, type ReactNode } from "react";
 
 import MyLabel from "@/app/components/ui/MyLabel";
 import MySummaryRow from "@/app/components/ui/MySummaryRow";
@@ -37,11 +37,17 @@ import {
 } from "../model/fire-resistance/getMyBearingsFireResolution";
 import { evaluateMyBearingsCandidate } from "../model/evaluation";
 import type { MyBearingsFireResistanceSource } from "../model/fire-resistance/types";
+import { getMyBearingsCommercialDescription } from "../model/presentation/getMyBearingsCommercialDescription";
+import { getMyBearingsCalculationNote } from "../model/presentation/getMyBearingsCalculationNote";
+import { getMyBearingsPadPlacementWithinEffectiveArea } from "../model/presentation/getMyBearingsPadPlacementWithinEffectiveArea";
+import MyBearingsCalculationNotePreview from "./MyBearingsCalculationNotePreview";
 
 type MyBearingsPadSizeSelectionResultProps = {
   bearingTypes: MyBearingsPadSizeBearingTypeSource[];
   openingDiameters: MyBearingsStudOpeningDiameter[];
   bearingFireResistance: MyBearingsFireResistanceSource[];
+  debugContent?: ReactNode;
+  view?: "summary" | "debug";
 };
 
 function MyBearingsSelectedPadDrawingSync({
@@ -70,10 +76,56 @@ function MyBearingsSelectedPadDrawingSync({
   return null;
 }
 
+function MyBearingsCalculationReportAvailabilitySync({
+  value,
+}: {
+  value: boolean;
+}) {
+  const { setIsCalculationReportAvailable } = useMyBearingsModuleConfigurator();
+
+  useEffect(() => {
+    setIsCalculationReportAvailable((current) => (current === value ? current : value));
+  }, [setIsCalculationReportAvailable, value]);
+
+  return null;
+}
+
 function formatPercent(value: number) {
   return `${new Intl.NumberFormat("en-US", {
     maximumFractionDigits: 1,
   }).format(value)}%`;
+}
+
+function MyBearingsCheckStatus({
+  status,
+}: {
+  status?: "pass" | "fail" | "skipped";
+}) {
+  const presentation =
+    status === "pass"
+      ? { label: "Pass", className: "text-emerald-700" }
+      : status === "fail"
+        ? { label: "Fail", className: "text-red-700" }
+        : { label: "Not checked", className: "text-zinc-500" };
+
+  return <span className={presentation.className}>{presentation.label}</span>;
+}
+
+function MyBearingsDebugSection({
+  title,
+  children,
+}: {
+  title: ReactNode;
+  children: ReactNode;
+}) {
+  return (
+    <details className="rounded-md border border-zinc-200 bg-zinc-50 px-3 py-2">
+      <summary className="cursor-pointer text-xs font-medium leading-5 text-zinc-800">
+        {title}
+      </summary>
+      <div className="mt-2">{children}</div>
+    </details>
+  );
 }
 
 function formatKn(value: number) {
@@ -170,8 +222,14 @@ function buildCandidateEvaluationInput(
     context,
     loadInput: {
       designVerticalForceKN: forceAndDeformation.designVerticalForce,
-      bearingRotationPermille: forceAndDeformation.bearingRotation,
-      horizontalDeformationMm: forceAndDeformation.horizontalDeformation,
+      bearingRotationPermille:
+        forceAndDeformation.isBearingRotationCheckEnabled
+          ? forceAndDeformation.bearingRotation
+          : undefined,
+      horizontalDeformationMm:
+        forceAndDeformation.isHorizontalDeformationCheckEnabled
+          ? forceAndDeformation.horizontalDeformation
+          : undefined,
     },
   };
 }
@@ -180,6 +238,8 @@ export default function MyBearingsPadSizeSelectionResult({
   bearingTypes,
   openingDiameters,
   bearingFireResistance,
+  debugContent,
+  view = "summary",
 }: MyBearingsPadSizeSelectionResultProps) {
   const {
     geometry,
@@ -188,8 +248,26 @@ export default function MyBearingsPadSizeSelectionResult({
     fireResistance,
     beamTopHeadArrangement,
     hasStuds,
+    calculationStatus,
+    isCalculationNotePreviewOpen,
+    closeCalculationNotePreview,
   } =
     useMyBearingsModuleConfigurator();
+
+  if (calculationStatus !== "current") {
+    return (
+      <div className="space-y-3">
+        {view === "summary" ? (
+          <MyLabel size="small">Bearing selection</MyLabel>
+        ) : null}
+        <div className="rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-600">
+          {calculationStatus === "not-calculated"
+            ? "Select Calculate bearing to view the bearing selection."
+            : "Inputs changed. Select Calculate bearing to update the result."}
+        </div>
+      </div>
+    );
+  }
 
   if (!bearingTypes || bearingTypes.length === 0) {
     return (
@@ -623,7 +701,7 @@ export default function MyBearingsPadSizeSelectionResult({
     fireResolutionNote = fireSolutionUnavailableReason;
   }
   const selectedPadDrawing: MyBearingsSelectedPadDrawing | null =
-    selection.selected
+    selection.selected && fireSolutionUnavailableReason == null
       ? {
           widthMm: selection.selected.variant.widthMm,
           lengthMm: selection.selected.variant.lengthMm,
@@ -632,16 +710,120 @@ export default function MyBearingsPadSizeSelectionResult({
           mineralWoolWidthMm: mineralWoolRequirement?.minWidthMm ?? null,
         }
       : null;
+  let holePositioningWarning: string | null = null;
+  const commercialDescription = selection.selected
+    ? (() => {
+        let holeLayout = null;
+
+        if (hasStuds) {
+          try {
+            holeLayout = getMyBearingsPadPlacementWithinEffectiveArea({
+              geometry,
+              connectionType,
+              padAMm: selection.selected.variant.widthMm,
+              padBMm: selection.selected.variant.lengthMm,
+              hasStuds,
+              holeDiameterMm: studHoleDiameterMm,
+            }).holeLayout;
+          } catch {
+            holePositioningWarning =
+              "Check the opening positions relative to the bearing pad edges.";
+          }
+        }
+
+        return getMyBearingsCommercialDescription({
+          // The formal catalogue prefix will be mapped per bearing family in
+          // a later step. The current type code remains a stable fallback.
+          commercialTypeCode:
+            selection.selected.variant.bearingTypeCode ??
+            selection.selected.evaluation.methodCode,
+          commercialTypeName:
+            selection.selected.variant.bearingTypeName ??
+            selection.selected.evaluation.methodCode,
+          aMm: selection.selected.variant.widthMm,
+          bMm: selection.selected.variant.lengthMm,
+          thicknessMm:
+            selection.selected.variant.padThicknessMm ?? geometry.tc,
+          holeDiameterMm: holeLayout ? studHoleDiameterMm : null,
+          holeLayout,
+          mineralWoolWidthMm: mineralWoolRequirement?.minWidthMm ?? null,
+        });
+      })()
+    : null;
+  const fireDesignResistanceKN =
+    fireCandidateEvaluation != null &&
+    fireCandidateEvaluation.compressiveStressUsagePercent > 0
+      ? (fireCandidateEvaluation.loadInput.designVerticalForceKN * 100) /
+        fireCandidateEvaluation.compressiveStressUsagePercent
+      : null;
+  const calculationNote =
+    selection.selected && commercialDescription && fireSolutionUnavailableReason == null
+      ? getMyBearingsCalculationNote({
+          bearing: {
+            code: selection.selected.variant.code,
+            name:
+              selection.selected.variant.bearingTypeName ??
+              selection.selected.variant.bearingTypeCode ??
+              selection.selected.evaluation.methodCode,
+            commercialDescription,
+          },
+          evaluation: selection.selected.evaluation,
+          isRotationChecked:
+            forceAndDeformation.isBearingRotationCheckEnabled === true,
+          isDisplacementChecked:
+            forceAndDeformation.isHorizontalDeformationCheckEnabled === true,
+          fire: fireCandidateEvaluation
+            ? {
+                requirement: fireResistance,
+                durationMinutes: fireDurationMinutes,
+                evaluation: fireCandidateEvaluation,
+              }
+            : null,
+        })
+      : null;
+  const itemsToVerify = [
+    holePositioningWarning,
+    commercialDescription?.mineralWoolDescription
+      ? `${commercialDescription.mineralWoolDescription} is included in the selected solution. Confirm that the fire protection is detailed in the connection.`
+      : null,
+    forceAndDeformation.isBearingRotationCheckEnabled
+      ? null
+      : "Bearing rotation α is not specified and was not included in the selection.",
+    forceAndDeformation.isHorizontalDeformationCheckEnabled
+      ? null
+      : "Horizontal deformation u is not specified and was not included in the selection.",
+    fireResolutionNote?.startsWith("Upgraded automatically")
+      ? fireResolutionNote
+      : null,
+  ].filter((item): item is string => item != null);
 
   return (
     <div className="space-y-3">
-      <MyBearingsSelectedPadDrawingSync value={selectedPadDrawing} />
-      <MyLabel size="small">Bearing size selection</MyLabel>
-      <div className="rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-3">
-        {selection?.selected ? (
+      {view === "summary" ? (
+        <>
+          <MyBearingsSelectedPadDrawingSync value={selectedPadDrawing} />
+          <MyBearingsCalculationReportAvailabilitySync
+            value={selection.selected != null && fireSolutionUnavailableReason == null}
+          />
+          {isCalculationNotePreviewOpen && calculationNote ? (
+            <MyBearingsCalculationNotePreview
+              note={calculationNote}
+              geometry={geometry}
+              connectionType={connectionType}
+              beamTopHeadArrangement={beamTopHeadArrangement}
+              hasStuds={hasStuds}
+              forceAndDeformation={forceAndDeformation}
+              fireResistance={fireResistance}
+              selectedPadDrawing={selectedPadDrawing}
+              onClose={closeCalculationNotePreview}
+            />
+          ) : null}
+          <MyLabel size="small">Bearing selection</MyLabel>
+          <div className="rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-3">
+        {selection?.selected && fireSolutionUnavailableReason == null ? (
           <>
             <MySummaryRow
-              label="Selected type"
+              label="Selected bearing"
               value={
                 selection.selected.variant.bearingTypeName ??
                 selection.selected.variant.bearingTypeCode ??
@@ -649,23 +831,62 @@ export default function MyBearingsPadSizeSelectionResult({
               }
             />
             <MySummaryRow
-              label="Selected size (a x b)"
-              value={`${selection.selected.variant.widthMm} x ${selection.selected.variant.lengthMm} mm`}
+              label="Dimensions (b × a × t)"
+              value={commercialDescription?.sizeDescription ?? "n/a"}
+            />
+            {commercialDescription?.holesDescription ? (
+              <MySummaryRow
+                label="Openings"
+                value={commercialDescription.holesDescription}
+              />
+            ) : null}
+            <MySummaryRow
+              label={
+                <>
+                  Design resistance (F<sub>Rd</sub>)
+                </>
+              }
+              value={formatKn(
+                (selection.selected.evaluation.calculation
+                  .compressiveStressLimitMPa *
+                  (selectedPadArea?.netAreaMm2 ?? 0)) /
+                  1000,
+              )}
             />
             <MySummaryRow
-              label="Bearing thickness"
-              value={`${selection.selected.variant.padThicknessMm ?? "n/a"} mm`}
+              label="Maximum u"
+              value={`${formatNumber(selection.selected.evaluation.calculation.allowableHorizontalDeformationMm)} mm`}
+            />
+            <MySummaryRow
+              label="Maximum α"
+              value={`${formatNumber(selection.selected.evaluation.calculation.allowableRotationPermille)} ‰`}
             />
             <MySummaryRow
               label="Usage"
               value={formatPercent(selection.selected.usagePercent)}
             />
-            <MySummaryRow
-              label="Candidates"
-              value={candidatesForSelectedGap.length}
-              className="border-b-0"
-            />
-            <div className="mt-3 border-t border-zinc-200 pt-3">
+            {fireDesignResistanceKN != null &&
+            !hasFinalMineralWoolProtection ? (
+              <>
+                <MySummaryRow
+                  label="Design resistance (fire)"
+                  value={formatKn(fireDesignResistanceKN)}
+                />
+                <MySummaryRow
+                  label="Usage (fire)"
+                  value={formatPercent(
+                    fireCandidateEvaluation?.compressiveStressUsagePercent ?? 0,
+                  )}
+                />
+              </>
+            ) : null}
+            {commercialDescription?.mineralWoolDescription ? (
+              <MySummaryRow
+                label="Fire protection"
+                value={commercialDescription.mineralWoolDescription}
+              />
+            ) : null}
+            <div className="hidden mt-3 border-t border-zinc-200 pt-3">
               <MyLabel size="small">Fire resistance preview</MyLabel>
               <div className="mt-2">
                 <MySummaryRow label="Requirement" value={fireResistance} />
@@ -805,32 +1026,73 @@ export default function MyBearingsPadSizeSelectionResult({
             </div>
           </>
         ) : (
-          <div className="text-sm text-zinc-600">
-            No bearing size fits inside the effective support area.
+          <div
+            role="alert"
+            className="rounded-md border border-red-300 bg-red-50 px-3 py-3 text-sm text-red-800"
+          >
+            <div className="font-medium">No approved bearing solution</div>
+            <p className="mt-1">
+              {fireWarningMessage ??
+                fireSolutionUnavailableReason ??
+                "No bearing size satisfies the active selection checks within the available effective area."}
+            </p>
           </div>
         )}
-      </div>
-      <div className="rounded-lg border border-dashed border-zinc-300 bg-white px-4 py-3">
-        <MyLabel size="small">Debug</MyLabel>
-        <div className="mt-2">
-          <MySummaryRow
-            label="Method"
-            value={selection?.selected?.evaluation.methodCode ?? "none"}
-          />
-          <MySummaryRow label="Studs" value={hasStuds ? "on" : "off"} />
-          <MySummaryRow label="Bearing gap" value={`${geometry.tc} mm`} />
-          <MySummaryRow label="Methods" value={supportedParameters.length} />
-          <MySummaryRow
-            label="Candidates"
-            value={candidatesForSelectedGap.length}
-          />
-          <MySummaryRow
-            label="Selected"
-            value={selection?.selected?.variant.code ?? "none"}
-            className="border-b-0"
-          />
+          </div>
+          {selection?.selected &&
+          fireSolutionUnavailableReason == null &&
+          itemsToVerify.length > 0 ? (
+            <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+              <div className="font-medium">Items to verify</div>
+              <ul className="mt-2 list-disc space-y-1 pl-5">
+                {itemsToVerify.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+        </>
+      ) : null}
+      {view === "debug" ? (
+        <div className="rounded-lg border border-dashed border-zinc-300 bg-white px-4 py-3">
+        <p className="text-xs text-zinc-500">
+          Calculated values and checks used to verify the selected solution.
+        </p>
+        <div className="mt-3 grid grid-cols-1 items-start gap-3 sm:grid-cols-2 xl:grid-cols-5">
+          <MyBearingsDebugSection title="Geometry and effective area">
+            {debugContent}
+            {selection?.selected ? (
+              <div>
+                <MySummaryRow
+                  label="Bearing width a"
+                  value={`${selection.selected.variant.widthMm} mm`}
+                />
+                <MySummaryRow
+                  label="Bearing length b"
+                  value={`${selection.selected.variant.lengthMm} mm`}
+                />
+                <MySummaryRow
+                  label="Bearing thickness t"
+                  value={`${selection.selected.variant.padThicknessMm ?? "n/a"} mm`}
+                />
+                <MySummaryRow
+                  label="Bearing gross area"
+                  value={`${formatNumber(selectedPadArea?.grossAreaMm2 ?? 0)} mm2`}
+                />
+                <MySummaryRow
+                  label="Hole area"
+                  value={`${formatNumber(selectedPadArea?.holeAreaMm2 ?? 0)} mm2`}
+                />
+                <MySummaryRow
+                  label="Bearing net area"
+                  value={`${formatNumber(selectedPadArea?.netAreaMm2 ?? 0)} mm2`}
+                  className="border-b-0"
+                />
+              </div>
+            ) : null}
+          </MyBearingsDebugSection>
           {selection?.selected ? (
-            <>
+            <MyBearingsDebugSection title="ULS verification">
               <MySummaryRow
                 label="FEd"
                 value={formatKn(
@@ -875,77 +1137,158 @@ export default function MyBearingsPadSizeSelectionResult({
                     (selectedPadArea?.netAreaMm2 ?? 0)) /
                     1000,
                 )}
+              />
+              <MySummaryRow
+                label="ULS check"
+                value={<MyBearingsCheckStatus status={calculationNote?.uls.status} />}
                 className="border-b-0"
               />
-              <MySummaryRow
-                label="Bearing width a"
-                value={`${selection.selected.variant.widthMm} mm`}
-              />
-              <MySummaryRow
-                label="Bearing length b"
-                value={`${selection.selected.variant.lengthMm} mm`}
-              />
-              <MySummaryRow
-                label="Bearing thickness t"
-                value={`${selection.selected.variant.padThicknessMm ?? "n/a"} mm`}
-              />
-              <MySummaryRow
-                label="Bearing gross area"
-                value={`${formatNumber(
-                  selectedPadArea?.grossAreaMm2 ?? 0,
-                )} mm2`}
-                className="border-b-0"
-              />
-              <MySummaryRow
-                label="Hole area"
-                value={`${formatNumber(selectedPadArea?.holeAreaMm2 ?? 0)} mm2`}
-              />
-              <MySummaryRow
-                label="Bearing net area"
-                value={`${formatNumber(selectedPadArea?.netAreaMm2 ?? 0)} mm2`}
-                className="border-b-0"
-              />
-              {fireCandidateEvaluation ? (
+            </MyBearingsDebugSection>
+          ) : null}
+          {selection?.selected ? (
+            <MyBearingsDebugSection title="Rotation and horizontal deformation">
+              {forceAndDeformation.isBearingRotationCheckEnabled ? (
                 <>
-                  <div className="mt-3 border-t border-zinc-200 pt-3">
-                    <MyLabel size="small">
-                      {hasFinalMineralWoolProtection
-                        ? "Unprotected fire debug"
-                        : "Fire debug"}
-                    </MyLabel>
-                  </div>
                   <MySummaryRow
-                    label="FEd,fi"
-                    value={formatKn(
-                      fireCandidateEvaluation.loadInput.designVerticalForceKN,
-                    )}
+                    label="Rotation from structure α"
+                    value={`${formatNumber(forceAndDeformation.bearingRotation)} ‰`}
                   />
                   <MySummaryRow
-                    label="sigmaEd,fi"
-                    value={formatStress(
-                      fireCandidateEvaluation.designCompressiveStressKNPerMm2,
-                    )}
+                    label="Technical approval addition"
+                    value={`${formatNumber(selection.selected.evaluation.calculation.rotationTechnicalApprovalPermille)} ‰`}
                   />
                   <MySummaryRow
-                    label="sigmaRd,fi"
-                    value={formatStress(
-                      fireCandidateEvaluation.calculation
-                        .compressiveStressLimitMPa,
-                    )}
+                    label="Unevenness addition"
+                    value={`${formatNumber(selection.selected.evaluation.calculation.rotationUnevennessPermille)} ‰`}
                   />
                   <MySummaryRow
-                    label="eta,fi"
-                    value={formatPercent(
-                      fireCandidateEvaluation.compressiveStressUsagePercent,
-                    )}
-                    className="border-b-0"
+                    label="Total rotation α"
+                    value={`${formatNumber(selection.selected.evaluation.calculation.requiredRotationPermille)} ‰`}
                   />
                 </>
               ) : null}
-            </>
+              <MySummaryRow
+                label="Maximum α"
+                value={`${formatNumber(selection.selected.evaluation.calculation.allowableRotationPermille)} ‰`}
+              />
+              <MySummaryRow
+                label="Rotation check"
+                value={<MyBearingsCheckStatus status={calculationNote?.rotation.status} />}
+              />
+              {forceAndDeformation.isHorizontalDeformationCheckEnabled ? (
+                <>
+                  <MySummaryRow
+                    label="Horizontal displacement u"
+                    value={`${formatNumber(forceAndDeformation.horizontalDeformation)} mm`}
+                  />
+                </>
+              ) : null}
+              <MySummaryRow
+                label="Maximum u"
+                value={`${formatNumber(selection.selected.evaluation.calculation.allowableHorizontalDeformationMm)} mm`}
+              />
+              <MySummaryRow
+                label="Displacement check"
+                value={<MyBearingsCheckStatus status={calculationNote?.displacement.status} />}
+                className="border-b-0"
+              />
+            </MyBearingsDebugSection>
           ) : null}
+          {fireCandidateEvaluation ? (
+            <MyBearingsDebugSection
+              title={
+                hasFinalMineralWoolProtection
+                  ? "Fire verification (unprotected)"
+                  : "Fire verification"
+              }
+            >
+              <MySummaryRow label="Requirement" value={fireResistance} />
+              <MySummaryRow
+                label="Fire duration"
+                value={
+                  fireDurationMinutes == null
+                    ? "n/a"
+                    : `${fireDurationMinutes} min`
+                }
+              />
+              <MySummaryRow label="Exposed edges" value={fireExposureLabel} />
+              <MySummaryRow label="Fire path" value={fireStrategyLabel} />
+              <MySummaryRow
+                label="Uncovered degradation rate"
+                value={
+                  selectedFireResistanceRecord
+                    ? `${formatNumber(selectedFireResistanceRecord.degradation_rate_without_cover_mm_per_min)} mm/min`
+                    : "No record"
+                }
+              />
+              {fireReducedPadDimensions ? (
+                <>
+                  <MySummaryRow
+                    label="Charring depth"
+                    value={`${formatNumber(fireReducedPadDimensions.charringDepthMm)} mm`}
+                  />
+                  <MySummaryRow
+                    label="Fire-reduced size (a × b)"
+                    value={`${formatNumber(fireReducedPadDimensions.fireReducedAMm)} × ${formatNumber(fireReducedPadDimensions.fireReducedBMm)} mm`}
+                  />
+                  <MySummaryRow
+                    label="Fire-reduced area"
+                    value={`${formatNumber(fireReducedPadDimensions.fireReducedAreaMm2)} mm2`}
+                  />
+                </>
+              ) : null}
+              <MySummaryRow
+                label="FEd,fi"
+                value={formatKn(
+                  fireCandidateEvaluation.loadInput.designVerticalForceKN,
+                )}
+              />
+              <MySummaryRow
+                label="sigmaEd,fi"
+                value={formatStress(
+                  fireCandidateEvaluation.designCompressiveStressKNPerMm2,
+                )}
+              />
+              <MySummaryRow
+                label="sigmaRd,fi"
+                value={formatStress(
+                  fireCandidateEvaluation.calculation.compressiveStressLimitMPa,
+                )}
+              />
+              <MySummaryRow
+                label="eta,fi"
+                value={formatPercent(
+                  fireCandidateEvaluation.compressiveStressUsagePercent,
+                )}
+              />
+              <MySummaryRow
+                label="Fire stress check"
+                value={<MyBearingsCheckStatus status={calculationNote?.fire?.status} />}
+                className="border-b-0"
+              />
+            </MyBearingsDebugSection>
+          ) : null}
+          <MyBearingsDebugSection title="Selection path">
+            <MySummaryRow
+              label="Method"
+              value={selection?.selected?.evaluation.methodCode ?? "none"}
+            />
+            <MySummaryRow label="Studs" value={hasStuds ? "on" : "off"} />
+            <MySummaryRow label="Bearing gap" value={`${geometry.tc} mm`} />
+            <MySummaryRow label="Methods" value={supportedParameters.length} />
+            <MySummaryRow
+              label="Candidates"
+              value={candidatesForSelectedGap.length}
+            />
+            <MySummaryRow
+              label="Selected"
+              value={selection?.selected?.variant.code ?? "none"}
+              className="border-b-0"
+            />
+          </MyBearingsDebugSection>
         </div>
-      </div>
+        </div>
+      ) : null}
     </div>
   );
 }

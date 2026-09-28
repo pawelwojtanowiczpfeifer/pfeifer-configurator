@@ -49,15 +49,28 @@ export default function MyBearingsModuleForceAndDeformationForm() {
     }));
   };
 
+  const updateCheckEnabled =
+    (
+      key:
+        | "isBearingRotationCheckEnabled"
+        | "isHorizontalDeformationCheckEnabled",
+    ) =>
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setForceAndDeformation((current) => ({
+        ...current,
+        [key]: event.target.checked,
+      }));
+    };
+
   return (
     <MyHStack
       gap="sm"
-      align="end"
+      align="start"
       justify="between"
       width="full"
       className="overflow-x-auto"
     >
-      <MyVStack gap="xs" className="shrink-0">
+      <MyVStack gap="xs" className="shrink-0 min-h-[58px]">
         <MyFieldLabel
           symbol={
             <>
@@ -77,30 +90,54 @@ export default function MyBearingsModuleForceAndDeformationForm() {
         />
       </MyVStack>
 
-      <MyVStack gap="xs" className="shrink-0">
-        <MyFieldLabel symbol="α" description="bearing rotation" />
-        <MyInput
-          type="number"
-          size="sm"
-          density="compact"
-          suffix="‰"
-          value={inputs.bearingRotation}
-          onChange={updateInput("bearingRotation")}
-          onBlur={restoreInput("bearingRotation")}
-        />
+      <MyVStack gap="xs" className="shrink-0 min-h-[58px]">
+        <div className="flex items-center gap-2">
+          <MyFieldLabel symbol="α" description="bearing rotation" />
+          <input
+            type="checkbox"
+            aria-label="Check bearing rotation"
+            checked={forceAndDeformation.isBearingRotationCheckEnabled === true}
+            onChange={updateCheckEnabled("isBearingRotationCheckEnabled")}
+            className="h-4 w-4 rounded border-zinc-300 accent-[#005d9f]"
+          />
+        </div>
+        {forceAndDeformation.isBearingRotationCheckEnabled ? (
+          <MyInput
+            type="number"
+            size="sm"
+            density="compact"
+            suffix="‰"
+            value={inputs.bearingRotation}
+            onChange={updateInput("bearingRotation")}
+            onBlur={restoreInput("bearingRotation")}
+          />
+        ) : null}
       </MyVStack>
 
-      <MyVStack gap="xs" className="shrink-0">
-        <MyFieldLabel symbol="u" description="horizontal deformation" />
-        <MyInput
-          type="number"
-          size="sm"
-          density="compact"
-          suffix="mm"
-          value={inputs.horizontalDeformation}
-          onChange={updateInput("horizontalDeformation")}
-          onBlur={restoreInput("horizontalDeformation")}
-        />
+      <MyVStack gap="xs" className="shrink-0 min-h-[58px]">
+        <div className="flex items-center gap-2">
+          <MyFieldLabel symbol="u" description="horizontal deformation" />
+          <input
+            type="checkbox"
+            aria-label="Check horizontal deformation"
+            checked={
+              forceAndDeformation.isHorizontalDeformationCheckEnabled === true
+            }
+            onChange={updateCheckEnabled("isHorizontalDeformationCheckEnabled")}
+            className="h-4 w-4 rounded border-zinc-300 accent-[#005d9f]"
+          />
+        </div>
+        {forceAndDeformation.isHorizontalDeformationCheckEnabled ? (
+          <MyInput
+            type="number"
+            size="sm"
+            density="compact"
+            suffix="mm"
+            value={inputs.horizontalDeformation}
+            onChange={updateInput("horizontalDeformation")}
+            onBlur={restoreInput("horizontalDeformation")}
+          />
+        ) : null}
       </MyVStack>
     </MyHStack>
   );

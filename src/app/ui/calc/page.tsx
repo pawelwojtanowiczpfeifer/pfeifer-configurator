@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   MyBearingsContactAreaResult,
+  MyBearingsCalculationActions,
   MyBearingsEffectiveSurfaceAreaResult,
   MyBearingsModuleConfigurator,
   MyBearingsModuleDrawingContent,
@@ -10,6 +11,7 @@ import {
   MyBearingsModuleForceAndDeformationForm,
   MyBearingsModuleGeometricDataForm,
   MyBearingsPadSizeSelectionResultView,
+  MyBearingsTechnicalVerification,
 } from "@/app/components/bearings-module";
 import MyBottombar from "@/app/components/ui/MyBottombar";
 import MyHStack from "@/app/components/ui/MyHStack";
@@ -145,7 +147,12 @@ export default async function CalcPage() {
       <MyHStack width="full" maxWidth="app" centered>
         <MyVStack as="main" width="full" p="sm" gap="sm" className="min-h-dvh">
           <MyTopbar p="md">
-            <MyHStack gap="md" align="center" justify="between">
+            <MyHStack
+              gap="md"
+              align="center"
+              justify="between"
+              className="relative"
+            >
               <Link href="/">
                 <Image
                   src="/logo/logo-pfeifer-studio-blue-large.svg"
@@ -155,6 +162,18 @@ export default async function CalcPage() {
                   className="object-contain"
                 />
               </Link>
+
+              <div className="pointer-events-none absolute left-1/2 hidden -translate-x-1/2 items-center gap-2 whitespace-nowrap sm:flex">
+                <span
+                  className="text-xl font-normal tracking-[0.1em] text-[#163554]"
+                  style={{ fontFamily: "var(--font-michroma)" }}
+                >
+                  Elastomeric Bearing Calculator
+                </span>
+                <span className="rounded-full border border-amber-300 bg-amber-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-amber-800">
+                  Test version
+                </span>
+              </div>
 
               <MyHStack gap="md" align="center">
                 <MyUserAvatar
@@ -169,12 +188,10 @@ export default async function CalcPage() {
             gap="sm"
             align="stretch"
             justify="start"
-            flex={1}
-            minHeight="0"
             width="full"
             p="none"
           >
-            <MySidebar title="Geometric" size="lg" height="full">
+            <MySidebar title="Geometric" size="lg">
               <MyBearingsModuleGeometricDataForm
                 bearingGapOptions={bearingGapOptions}
               />
@@ -188,28 +205,53 @@ export default async function CalcPage() {
                   <MyBearingsModuleFireResistanceForm />
                 </MySidebar>
               </MyHStack>
-              <MySidebar title="Drawing" size="full" height="full" flex={1}>
+              <MySidebar title="Drawing" size="full">
                 <MyBearingsModuleDrawingContent />
               </MySidebar>
             </MyVStack>
-            <MySidebar title="Results" size="lg" height="full">
-              <MyBearingsContactAreaResult />
-              <MyBearingsEffectiveSurfaceAreaResult />
-              {bearingTypes && bearingTypes.length > 0 ? (
-                <MyBearingsPadSizeSelectionResultView
-                  bearingTypes={bearingTypes}
-                  openingDiameters={openingDiameters}
-                  bearingFireResistance={bearingFireResistance}
-                />
-              ) : (
-                <div className="rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-600">
-                  No supported parameters found in Supabase.
-                </div>
-              )}
-            </MySidebar>
+            <MyVStack minHeight="0" gap="sm" className="w-96 shrink-0">
+              <MySidebar size="full" className="min-h-[134px]">
+                <MyBearingsCalculationActions />
+              </MySidebar>
+              <MySidebar title="Results" size="full">
+                {bearingTypes && bearingTypes.length > 0 ? (
+                  <MyBearingsPadSizeSelectionResultView
+                    bearingTypes={bearingTypes}
+                    openingDiameters={openingDiameters}
+                    bearingFireResistance={bearingFireResistance}
+                    view="summary"
+                  />
+                ) : (
+                  <div className="rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-600">
+                    No supported parameters found in Supabase.
+                  </div>
+                )}
+              </MySidebar>
+            </MyVStack>
           </MyHStack>
 
-          <MyBottombar>Created by: iPW</MyBottombar>
+          {bearingTypes && bearingTypes.length > 0 ? (
+            <MySidebar size="full">
+              <MyBearingsTechnicalVerification>
+                  <MyBearingsPadSizeSelectionResultView
+                    bearingTypes={bearingTypes}
+                    openingDiameters={openingDiameters}
+                    bearingFireResistance={bearingFireResistance}
+                    view="debug"
+                    debugContent={
+                      <>
+                        <MyBearingsContactAreaResult />
+                        <MyBearingsEffectiveSurfaceAreaResult />
+                      </>
+                    }
+                  />
+              </MyBearingsTechnicalVerification>
+            </MySidebar>
+          ) : null}
+
+          <MyBottombar>
+            developed by: Pawel Wojtanowicz R&amp;D PFEIFER Polska
+          </MyBottombar>
         </MyVStack>
       </MyHStack>
     </MyBearingsModuleConfigurator>

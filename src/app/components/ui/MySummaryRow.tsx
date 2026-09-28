@@ -1,7 +1,7 @@
 import React from "react";
 
 export type SummaryRowProps = {
-  label: string;
+  label: React.ReactNode;
   value: React.ReactNode;
   className?: string;
 };

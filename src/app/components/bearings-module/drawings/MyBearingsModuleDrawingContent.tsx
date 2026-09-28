@@ -10,6 +10,7 @@ export default function MyBearingsModuleDrawingContent() {
     beamTopHeadArrangement,
     hasStuds,
     selectedPadDrawing,
+    calculationStatus,
   } =
     useMyBearingsModuleConfigurator();
 
@@ -19,7 +20,9 @@ export default function MyBearingsModuleDrawingContent() {
       connectionType={connectionType}
       beamTopHeadArrangement={beamTopHeadArrangement}
       hasStuds={hasStuds}
-      selectedPadDrawing={selectedPadDrawing}
+      selectedPadDrawing={
+        calculationStatus === "current" ? selectedPadDrawing : null
+      }
       ariaLabel="Technical drawing preview"
     />
   );

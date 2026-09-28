@@ -14,6 +14,8 @@ type RectangularBearingFormula = {
     shorterSideMm: number,
     thicknessMm: number,
   ) => number;
+  rotationTechnicalApprovalPermille?: number;
+  rotationUnevennessPermille?: (shorterSideMm: number) => number;
 };
 
 function getTransverseForce(
@@ -76,6 +78,14 @@ export function calculateRectangularBearing(
   const allowableRotationPermille =
     formula.allowableRotationPermille?.(shorterSideMm, geometry.tc) ??
     Math.min((450 * geometry.tc) / Math.max(shorterSideMm, 1), 40);
+  const rotationTechnicalApprovalPermille =
+    formula.rotationTechnicalApprovalPermille ?? 0;
+  const rotationUnevennessPermille =
+    formula.rotationUnevennessPermille?.(shorterSideMm) ?? 0;
+  const requiredRotationPermille =
+    forceAndDeformation.bearingRotation +
+    rotationTechnicalApprovalPermille +
+    rotationUnevennessPermille;
   const tensileForceShortSideKN =
     (1.5 * forceAndDeformation.designVerticalForce * geometry.tc) /
     Math.max(longerSideMm, 1);
@@ -95,6 +105,9 @@ export function calculateRectangularBearing(
     compressiveStressLimitMPa,
     allowableHorizontalDeformationMm,
     allowableRotationPermille,
+    rotationTechnicalApprovalPermille,
+    rotationUnevennessPermille,
+    requiredRotationPermille,
     tensileForceShortSideKN,
     tensileForceLongSideKN,
     horizontalForceKN,

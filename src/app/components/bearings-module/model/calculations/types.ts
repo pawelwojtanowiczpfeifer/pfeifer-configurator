@@ -24,89 +24,96 @@ export type MyBearingsCalculationContext = {
   transverseStiffness?: number | null;
 };
 
-export type MyBearingsS65CalculationResult = {
+export type MyBearingsRotationVerificationResult = {
+  allowableRotationPermille: number;
+  rotationTechnicalApprovalPermille: number;
+  rotationUnevennessPermille: number;
+  requiredRotationPermille: number;
+};
+
+export type MyBearingsS65CalculationResult =
+  MyBearingsRotationVerificationResult & {
   methodCode: "s65";
   shapeCoefficient: number;
   rawCompressiveStressMPa: number;
   compressiveStressLimitMPa: number;
   allowableHorizontalDeformationMm: number;
-  allowableRotationPermille: number;
   tensileForceShortSideKN: number;
   tensileForceLongSideKN: number;
   horizontalForceKN: number | null;
   notes: string[];
 };
 
-export type MyBearingsS70CalculationResult = {
+export type MyBearingsS70CalculationResult =
+  MyBearingsRotationVerificationResult & {
   methodCode: "s70";
   shapeCoefficient: number;
   rawCompressiveStressMPa: number;
   compressiveStressLimitMPa: number;
   allowableHorizontalDeformationMm: number;
-  allowableRotationPermille: number;
   tensileForceShortSideKN: number;
   tensileForceLongSideKN: number;
   horizontalForceKN: number | null;
   notes: string[];
 };
 
-export type MyBearingsCR2000CalculationResult = {
+export type MyBearingsCR2000CalculationResult =
+  MyBearingsRotationVerificationResult & {
   methodCode: "cr2000";
   shapeCoefficient: number;
   rawCompressiveStressMPa: number;
   compressiveStressLimitMPa: number;
   allowableHorizontalDeformationMm: number;
-  allowableRotationPermille: number;
   tensileForceShortSideKN: number;
   tensileForceLongSideKN: number;
   horizontalForceKN: number | null;
   notes: string[];
 };
 
-export type MyBearingsTypeZCalculationResult = {
+export type MyBearingsTypeZCalculationResult =
+  MyBearingsRotationVerificationResult & {
   methodCode: "typeZ";
   rawCompressiveStressMPa: number;
   compressiveStressLimitMPa: number;
   allowableHorizontalDeformationMm: number;
-  allowableRotationPermille: number;
   tensileForceShortSideKN: number;
   tensileForceLongSideKN: number;
   horizontalForceKN: number | null;
   notes: string[];
 };
 
-export type MyBearingsQCalculationResult = {
+export type MyBearingsQCalculationResult =
+  MyBearingsRotationVerificationResult & {
   methodCode: "q";
   rawCompressiveStressMPa: number;
   compressiveStressLimitMPa: number;
   allowableHorizontalDeformationMm: number;
-  allowableRotationPermille: number;
   tensileForceShortSideKN: number;
   tensileForceLongSideKN: number;
   horizontalForceKN: number | null;
   notes: string[];
 };
 
-export type MyBearingsCompressionCalculationResult = {
+export type MyBearingsCompressionCalculationResult =
+  MyBearingsRotationVerificationResult & {
   methodCode: "compression";
   shapeCoefficient: number;
   rawCompressiveStressMPa: number;
   compressiveStressLimitMPa: number;
   allowableHorizontalDeformationMm: number;
-  allowableRotationPermille: number;
   tensileForceShortSideKN: number;
   tensileForceLongSideKN: number;
   horizontalForceKN: number | null;
   notes: string[];
 };
 
-export type MyBearingsPerforated205CalculationResult = {
+export type MyBearingsPerforated205CalculationResult =
+  MyBearingsRotationVerificationResult & {
   methodCode: "perforated205";
   shapeCoefficient: number;
   rawCompressiveStressMPa: number;
   compressiveStressLimitMPa: number;
   allowableHorizontalDeformationMm: number;
-  allowableRotationPermille: number;
   tensileForceShortSideKN: number;
   tensileForceLongSideKN: number;
   horizontalForceKN: number | null;

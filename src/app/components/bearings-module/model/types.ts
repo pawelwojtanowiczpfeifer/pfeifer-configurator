@@ -24,7 +24,9 @@ export type MyBearingsStudOpeningDiameter = {
 export type MyBearingsModuleForceAndDeformation = {
   designVerticalForce: number;
   bearingRotation: number;
+  isBearingRotationCheckEnabled?: boolean;
   horizontalDeformation: number;
+  isHorizontalDeformationCheckEnabled?: boolean;
 };
 
 export type MyBearingsConnectionType = "cantilever" | "beam-top";

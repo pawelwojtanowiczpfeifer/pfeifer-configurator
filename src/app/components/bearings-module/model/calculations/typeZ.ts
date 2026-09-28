@@ -29,10 +29,12 @@ export const calculateTypeZ: MyBearingsCalculationCalculator = ({
     geometry.tc <= 15
       ? Math.min((200 * geometry.tc) / Math.max(geometry.a1, 1), 40)
       : Math.min((350 * geometry.tc) / Math.max(geometry.a1, 1), 43);
-  const totalRotationPermille =
+  const rotationTechnicalApprovalPermille = 10;
+  const rotationUnevennessPermille = 625 / Math.max(geometry.a1, 1);
+  const requiredRotationPermille =
     forceAndDeformation.bearingRotation +
-    10 +
-    625 / Math.max(geometry.a1, 1);
+    rotationTechnicalApprovalPermille +
+    rotationUnevennessPermille;
   const horizontalForceKN = getTypeZHorizontalForce(
     transverseStiffness,
     forceAndDeformation.horizontalDeformation,
@@ -45,6 +47,9 @@ export const calculateTypeZ: MyBearingsCalculationCalculator = ({
     compressiveStressLimitMPa: 35,
     allowableHorizontalDeformationMm,
     allowableRotationPermille,
+    rotationTechnicalApprovalPermille,
+    rotationUnevennessPermille,
+    requiredRotationPermille,
     tensileForceShortSideKN:
       (1.5 * forceAndDeformation.designVerticalForce * geometry.tc) /
       Math.max(geometry.b1, 1),
@@ -53,7 +58,7 @@ export const calculateTypeZ: MyBearingsCalculationCalculator = ({
       Math.max(geometry.a1, 1),
     horizontalForceKN,
     notes: [
-      `Required rotation for the current load case is ${totalRotationPermille.toFixed(1)} permille.`,
+      `Required rotation for the current load case is ${requiredRotationPermille.toFixed(1)} permille.`,
       "Horizontal force is only calculated when transverse stiffness is available.",
     ],
   };

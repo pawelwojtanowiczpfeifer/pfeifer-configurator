@@ -81,10 +81,15 @@ export function evaluateMyBearingsCandidate({
     {
       name: "bearingRotation",
       status: getCheckStatus(
-        loadInput.bearingRotationPermille,
+        typeof loadInput.bearingRotationPermille === "number"
+          ? calculation.requiredRotationPermille
+          : undefined,
         calculation.allowableRotationPermille,
       ),
-      valuePermille: loadInput.bearingRotationPermille,
+      valuePermille:
+        typeof loadInput.bearingRotationPermille === "number"
+          ? calculation.requiredRotationPermille
+          : undefined,
       limitPermille: calculation.allowableRotationPermille,
     },
     {

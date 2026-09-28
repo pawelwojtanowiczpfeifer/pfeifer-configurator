@@ -221,90 +221,52 @@ function MyBearingsModuleGeometricDataFormContent({
 
   return (
     <MyVStack gap="sm">
-      <MyVStack gap="xs">
-        <MyLabel size="small">
-          <span className="text-[0.8125rem] font-normal text-zinc-600">
-            connection type
-          </span>
-        </MyLabel>
-        <MySegmentedControl
-          options={connectionTypeOptions}
-          size="sm"
-          density="dense"
-          variant="tabs"
-          tone="subtle"
-          orientation="vertical"
-          value={connectionType}
-          onChange={updateConnectionType}
-        />
-      </MyVStack>
+      <div className="grid grid-cols-2 gap-3">
+        <MyVStack gap="xs">
+          <MyLabel size="small">
+            <span className="text-[0.8125rem] font-normal text-zinc-600">
+              connection type
+            </span>
+          </MyLabel>
+          <MySegmentedControl
+            options={connectionTypeOptions}
+            size="sm"
+            density="dense"
+            variant="tabs"
+            tone="subtle"
+            orientation="vertical"
+            value={connectionType}
+            onChange={updateConnectionType}
+          />
+        </MyVStack>
+
+        <MyVStack gap="xs" className="justify-self-end">
+          <MyLabel size="small">
+            <span className="text-[0.8125rem] font-normal text-zinc-600">
+              beam type
+            </span>
+          </MyLabel>
+          <MySegmentedControl
+            options={beamTypeOptions}
+            size="sm"
+            density="dense"
+            variant="tabs"
+            tone="subtle"
+            orientation="vertical"
+            value={
+              geometry.isEndNotchedBeam ? "end-notched" : "without-end-notch"
+            }
+            onChange={updateBeamType}
+          />
+        </MyVStack>
+      </div>
 
       {connectionType === "beam-top" ? (
         <MyBeamTopHeadArrangementSelector />
       ) : null}
 
-      <MyVStack gap="xs">
-        <MyLabel size="small">
-          <span className="text-[0.8125rem] font-normal text-zinc-600">
-            beam type
-          </span>
-        </MyLabel>
-        <MySegmentedControl
-          options={beamTypeOptions}
-          size="sm"
-          density="dense"
-          variant="tabs"
-          tone="subtle"
-          orientation="vertical"
-          value={
-            geometry.isEndNotchedBeam ? "end-notched" : "without-end-notch"
-          }
-          onChange={updateBeamType}
-        />
-        {connectionType === "cantilever" ? (
-          <>
-            <MyFieldLabel
-              symbol={
-                <>
-                  g<sub>1</sub>
-                </>
-              }
-              description="column-beam offset"
-            />
-            <MyInput
-              type="number"
-              size="sm"
-              density="compact"
-              suffix="mm"
-              value={geometryInputs.g1}
-              onChange={updateGeometryInput("g1")}
-              onBlur={restoreGeometryInput("g1")}
-            />
-          </>
-        ) : (
-          <>
-            <MyFieldLabel
-              symbol={
-                <>
-                  g<sub>2</sub>
-                </>
-              }
-              description="column-beam offset"
-            />
-            <MyInput
-              type="number"
-              size="sm"
-              density="compact"
-              suffix="mm"
-              value={geometryInputs.g2}
-              onChange={updateGeometryInput("g2")}
-              onBlur={restoreGeometryInput("g2")}
-            />
-          </>
-        )}
-      </MyVStack>
-
-      <MyVStack gap="xs">
+      <div className="grid grid-cols-2 gap-3">
+        <MyVStack gap="xs">
         <MyFieldLabel
           symbol={
             <>
@@ -336,7 +298,27 @@ function MyBearingsModuleGeometricDataFormContent({
             onChange={(event) => updateBearingGap(Number(event.target.value))}
           />
         )}
-      </MyVStack>
+        </MyVStack>
+
+        <MyVStack gap="xs" className="justify-self-end">
+          <MyFieldLabel
+            symbol={
+              <>
+                c<sub>min</sub>
+              </>
+            }
+            description="bearing edge dist."
+          />
+          <MyInput
+            type="number"
+            size="sm"
+            density="compact"
+            suffix="mm"
+            value={geometryInputs.cmin}
+            onChange={updateGeometryInput("cmin")}
+            onBlur={restoreGeometryInput("cmin")}
+          />
+        </MyVStack>
 
       {connectionType === "cantilever" ? (
         <>
@@ -360,7 +342,7 @@ function MyBearingsModuleGeometricDataFormContent({
             />
           </MyVStack>
 
-          <MyVStack gap="xs">
+          <MyVStack gap="xs" className="justify-self-end">
             <MyFieldLabel
               symbol={
                 <>
@@ -402,7 +384,7 @@ function MyBearingsModuleGeometricDataFormContent({
             />
           </MyVStack>
 
-          <MyVStack gap="xs">
+          <MyVStack gap="xs" className="justify-self-end">
             <MyFieldLabel
               symbol={
                 <>
@@ -444,25 +426,34 @@ function MyBearingsModuleGeometricDataFormContent({
         />
       </MyVStack>
 
-      <MyVStack gap="xs">
+      <MyVStack gap="xs" className="justify-self-end">
         <MyFieldLabel
           symbol={
             <>
-              c<sub>min</sub>
+              g<sub>{connectionType === "cantilever" ? "1" : "2"}</sub>
             </>
           }
-          description="bearing edge dist."
+          description="column-beam offset"
         />
         <MyInput
           type="number"
           size="sm"
           density="compact"
           suffix="mm"
-          value={geometryInputs.cmin}
-          onChange={updateGeometryInput("cmin")}
-          onBlur={restoreGeometryInput("cmin")}
+          value={
+            connectionType === "cantilever"
+              ? geometryInputs.g1
+              : geometryInputs.g2
+          }
+          onChange={updateGeometryInput(
+            connectionType === "cantilever" ? "g1" : "g2",
+          )}
+          onBlur={restoreGeometryInput(
+            connectionType === "cantilever" ? "g1" : "g2",
+          )}
         />
       </MyVStack>
+      </div>
       <MyVStack gap="xs">
         <MyCheckbox
           label="stud(s)"
@@ -470,69 +461,77 @@ function MyBearingsModuleGeometricDataFormContent({
           onChange={updateHasStuds}
         />
         {hasStuds ? (
-          <>
-            <MyFieldLabel symbol="n" description="number of studs" />
-            <MySegmentedControl
-              options={studsNumber}
-              size="sm"
-              density="dense"
-              variant="tabs"
-              tone="subtle"
-              value={geometry.n}
-              onChange={updateStudCount}
-            />
-            <MyFieldLabel
-              symbol={
-                <>
-                  d<sub>s</sub>
-                </>
-              }
-              description={
-                geometry.n === 1 ? "stud diameter" : "studs diameter"
-              }
-            />
-            <MySelect
-              options={studDiameterOptions}
-              size="sm"
-              value={geometry.ds}
-              onChange={updateStudDiameter}
-            />
-            <MyFieldLabel
-              symbol={
-                <>
-                  e<sub>1</sub>
-                </>
-              }
-              description="edge distance"
-            />
-            <MyInput
-              type="number"
-              size="sm"
-              density="compact"
-              suffix="mm"
-              value={geometryInputs.e1}
-              onChange={updateGeometryInput("e1")}
-              onBlur={restoreGeometryInput("e1")}
-            />
-            <MyFieldLabel
-              symbol={
-                <>
-                  e<sub>2</sub>
-                </>
-              }
-              description="edge distance"
-            />
-            <MyInput
-              type="number"
-              size="sm"
-              density="compact"
-              suffix="mm"
-              value={geometryInputs.e2}
-              onChange={updateGeometryInput("e2")}
-              onBlur={restoreGeometryInput("e2")}
-            />
+          <div className="grid grid-cols-2 gap-3">
+            <MyVStack gap="xs">
+              <MyFieldLabel symbol="n" description="number of studs" />
+              <MySegmentedControl
+                options={studsNumber}
+                size="sm"
+                density="dense"
+                variant="tabs"
+                tone="subtle"
+                value={geometry.n}
+                onChange={updateStudCount}
+              />
+            </MyVStack>
+            <MyVStack gap="xs" className="justify-self-end">
+              <MyFieldLabel
+                symbol={
+                  <>
+                    d<sub>s</sub>
+                  </>
+                }
+                description={
+                  geometry.n === 1 ? "stud diameter" : "studs diameter"
+                }
+              />
+              <MySelect
+                options={studDiameterOptions}
+                size="sm"
+                value={geometry.ds}
+                onChange={updateStudDiameter}
+              />
+            </MyVStack>
+            <MyVStack gap="xs">
+              <MyFieldLabel
+                symbol={
+                  <>
+                    e<sub>1</sub>
+                  </>
+                }
+                description="edge distance"
+              />
+              <MyInput
+                type="number"
+                size="sm"
+                density="compact"
+                suffix="mm"
+                value={geometryInputs.e1}
+                onChange={updateGeometryInput("e1")}
+                onBlur={restoreGeometryInput("e1")}
+              />
+            </MyVStack>
+            <MyVStack gap="xs" className="justify-self-end">
+              <MyFieldLabel
+                symbol={
+                  <>
+                    e<sub>2</sub>
+                  </>
+                }
+                description="edge distance"
+              />
+              <MyInput
+                type="number"
+                size="sm"
+                density="compact"
+                suffix="mm"
+                value={geometryInputs.e2}
+                onChange={updateGeometryInput("e2")}
+                onBlur={restoreGeometryInput("e2")}
+              />
+            </MyVStack>
             {geometry.n === 2 ? (
-              <>
+              <MyVStack gap="xs">
                 <MyFieldLabel
                   symbol={
                     <>
@@ -549,10 +548,10 @@ function MyBearingsModuleGeometricDataFormContent({
                   value={geometryInputs.e3}
                   onChange={updateGeometryInput("e3")}
                   onBlur={restoreGeometryInput("e3")}
-                />{" "}
-              </>
+                />
+              </MyVStack>
             ) : null}
-          </>
+          </div>
         ) : null}
       </MyVStack>
     </MyVStack>
