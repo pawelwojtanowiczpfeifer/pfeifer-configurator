@@ -14,12 +14,18 @@ export function proxy(request: NextRequest) {
   }
 
   const { pathname } = request.nextUrl;
+  const isCalculatorPath =
+    pathname === CALCULATOR_PATH || pathname.startsWith(`${CALCULATOR_PATH}/`);
 
   if (pathname === "/") {
     return NextResponse.redirect(new URL(CALCULATOR_PATH, request.url));
   }
 
-  if (pathname === "/bearing-types" || (pathname.startsWith("/ui/") && !pathname.startsWith(CALCULATOR_PATH))) {
+  if (
+    pathname === "/bearing-types" ||
+    pathname === "/ui" ||
+    (pathname.startsWith("/ui/") && !isCalculatorPath)
+  ) {
     return new NextResponse(null, { status: 404 });
   }
 
